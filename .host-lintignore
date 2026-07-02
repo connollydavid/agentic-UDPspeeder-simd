@@ -1,0 +1,6 @@
+# Paths excluded from the host-lint naming and prose audits.
+#
+# MEMORY.md is the agent's own append-only working memory: it is excepted from both
+# the naming audit and the prose audit (the spine's one record-layer exception),
+# never rewritten, so it is excluded here rather than cleaned.
+MEMORY.md
