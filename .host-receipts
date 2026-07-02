@@ -1,0 +1,11 @@
+[receipt "adopt"]
+    disposition = done
+    evidence = .host stamp at template 565410a; rooms scaffolded
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "upgrade"]
+    disposition = done
+    evidence = baseline 46a1fd2; up to date
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02

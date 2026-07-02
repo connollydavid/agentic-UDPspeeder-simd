@@ -1,0 +1,53 @@
+[receipt "classify"]
+    disposition = done
+    evidence = case (a): no CLAUDE.md, no .host stamp; rename map empty
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "embed" "host-lint"]
+    disposition = done
+    evidence = software/host-lint/main at pin 78804cd; hooks installed
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "embed" "udpspeeder-simd"]
+    disposition = done
+    evidence = software/udpspeeder-simd/branch_libev at pin 3374e3b
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "remap"]
+    disposition = done
+    evidence = no ordinal tells; host-lint --all clean; no dictionary needed
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "publish"]
+    disposition = skip
+    reason = mdBook site generation not yet configured for this host
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "release" "host-lint"]
+    disposition = skip
+    reason = host-lint is a consumed tool, not released through this host
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "release" "udpspeeder-simd"]
+    disposition = skip
+    reason = no binary release of udpspeeder-simd cut through this host yet
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "remap"]
+    disposition = skip
+    reason = case (a) adoption: no ordinal-named concepts to rename; host-lint --all is clean
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
+
+[receipt "verify"]
+    disposition = done
+    evidence = validate plan/call ok; prose clean; reconcile clean; software at pins; hooks installed
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-02
