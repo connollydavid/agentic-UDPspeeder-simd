@@ -20,3 +20,12 @@
     url    = https://github.com/connollydavid/UDPspeeder-simd.git
     pin    = 3374e3bb8df0ef321d8b77f6980c14a3d897f215
     branch = branch_libev
+
+# A fork of the OpenWrt packages feed (Makefiles/shell/C). Migrated (pre-existing),
+# recorded as a source pin on its canonical branch (master) with no deploy artifact:
+# it is a package-build-recipe feed layered on an OpenWrt buildroot, not a built
+# artifact, so no reproducible build is claimed here. GPL-2.0 in its own tree.
+[software "packages"]
+    url    = https://github.com/connollydavid/packages.git
+    pin    = 1d40ad929ad45cfbdf547996d0ba2379d9765172
+    branch = master

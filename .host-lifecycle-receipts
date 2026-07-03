@@ -51,3 +51,15 @@
     evidence = validate plan/call ok; prose clean; reconcile clean; software at pins; hooks installed
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-02
+
+[receipt "embed" "packages"]
+    disposition = done
+    evidence = software/packages/master at pin 1d40ad9; migrated source-pin feed, worktree clean
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
+
+[receipt "release" "packages"]
+    disposition = skip
+    reason = no release of the packages feed cut through this host (migrated source-pin OpenWrt feed)
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
