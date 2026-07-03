@@ -121,3 +121,23 @@
   slartibardfast stays read-only on the repo (not a collaborator); grant it write only
   if a bot-identity push is wanted later. This supersedes the earlier "push auth is
   flaky" framing: the cause was permissions plus a static store token, not flakiness.
+
+## 2026-07-03 — published the book to GitHub Pages
+
+- Ran the publish phase. `host-lifecycle book .` (v0.35.1) writes book.toml with
+  `src = mdBook/src` and `build-dir = mdBook/out`, a SUMMARY in lifecycle order, and 17
+  pages; `book --check .` passes (every room renders: cast 5, plan 1, software 1, call 4,
+  reference 4, memory 1). book.toml and mdBook/ are gitignored generated output.
+- Fixed two defects in the reference doc-site workflow. It was named `site.yml`, but the
+  publish-phase recheck is `test -f .github/workflows/mdbook.yml`, so a `done` publish
+  receipt would HAZARD until the file is named `mdbook.yml`. It also published `./book`,
+  while v0.35.1 builds to `mdBook/out`. Renamed to mdbook.yml, set
+  `publish_dir: ./mdBook/out`, and corrected the stale `src=docs` comment. Both look like
+  template bugs at revision 565410a, worth proposing upstream.
+- CI (`mdbook.yml`, on push to main) builds with mdbook v0.4.40 and deploys mdBook/out to
+  the `gh-pages` branch via peaceiris/actions-gh-pages. GitHub Pages was disabled (the
+  `/pages` API returned 404), so enabled it from gh-pages root with
+  `gh api -X POST repos/connollydavid/agentic-UDPspeeder-simd/pages -f source[branch]=gh-pages -f source[path]=/`.
+  The site is live at https://connollydavid.github.io/agentic-UDPspeeder-simd/ (HTTP 200).
+- Publish receipt flipped from skip to done; `software --check` is green (the recheck now
+  finds mdbook.yml). Verified locally with the pinned mdbook v0.4.40 before pushing.
