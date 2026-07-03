@@ -18,7 +18,7 @@
 # claimed yet (add a recipe + repro-exempt, or a real artifact, before shipping).
 [software "udpspeeder-simd"]
     url    = https://github.com/connollydavid/UDPspeeder-simd.git
-    pin    = 3374e3bb8df0ef321d8b77f6980c14a3d897f215
+    pin    = 2e12e5b4dd6419d486089f352912a6ce8a143f6a
     branch = branch_libev
 
 # A fork of the OpenWrt packages feed (Makefiles/shell/C). Migrated (pre-existing),
