@@ -141,3 +141,23 @@
   The site is live at https://connollydavid.github.io/agentic-UDPspeeder-simd/ (HTTP 200).
 - Publish receipt flipped from skip to done; `software --check` is green (the recheck now
   finds mdbook.yml). Verified locally with the pinned mdbook v0.4.40 before pushing.
+
+## 2026-07-03 — udpspeeder-simd package builds clean against the x86_64 SDK
+
+- SDK approach pivoted. `make world` was excessive; used the public prebuilt x86_64
+  snapshot SDK (openwrt-sdk-x86-64_gcc-14.4.0_musl, the one OpenWrt CI uses) rather than a
+  from-source build. The embedded `openwrt` component stays but is not needed for this path
+  and adds ~2.5 min to `software --check` (flagged for the operator to keep or remove).
+- OpenWrt needs a case-sensitive FS: /mnt/c is case-insensitive and the build refuses it,
+  so software/openwrt is symlinked to ext4 (/home/dconnolly/host-stores); the SDK and its
+  build_dir also live on ext4.
+- The package (net/udpspeeder-simd, authored in the packages worktree) built cleanly:
+  `make package/udpspeeder-simd/compile` produced udpspeeder-simd-2026.07.03~3374e3bb-r1.apk
+  (snapshot uses .apk, not .ipk). No fork change was needed — the udpspeeder-style cc_cross
+  + gitversion Build/Prepare sufficed, and the makefile's `export STAGING_DIR=/tmp/` did not
+  break it. Dynamic linking confirmed by deps libc/libstdcpp6/librt/libatomic1.
+  PKG_MIRROR_HASH = 225c0fef087e56c190ec1a626fc244a0e32f1f791d5e22efe604e962026c4698.
+- Task receipts done: #fork-build, #feed-package, #service-integration. Pending: #test-script
+  (CI runs it), #ci-sdk-lane, #interop, #pr, #backports. The package files are authored in the
+  packages worktree but NOT yet committed or pushed to the fork; the branch strategy and the
+  outward push/PR await operator go.
