@@ -224,3 +224,26 @@
 - Scope decision: we will NOT touch net/udpspeeder (operator). Removed the "happy to send a
   separate PR" offer from the PR comment (edited #issuecomment-4877656043); the sibling's same
   two init bugs are left alone.
+
+## 2026-07-03 — OpenWrt PR #29901: 32-bit ARM build fix in the fork
+
+- The PR's multi-arch CI (openwrt shared `Feeds Package Test Build`) ran and failed
+  only on `arm_cortex-a15_neon-vfpv4` and `arm_cortex-a9_vfpv3-d16`; aarch64, mips_24kc,
+  x86_64, i386, powerpc, riscv64 all passed. Root cause was in the fork source, not the
+  package: `xor_spe.S` marked the stack non-exec with `.section .note.GNU-stack,"",@progbits`.
+  On 32-bit ARM `@` starts a line comment, so gas ate `@progbits` and reported "junk at
+  end of line, first unrecognized character is `,`". aarch64/mips/ppc/riscv/x86 do not use
+  `@` as a comment char, which is why only 32-bit ARM broke.
+- Fix (universal, per call/0005 — build adjustments live in the fork): spell it
+  `%progbits`. gas accepts `%` for the ELF section type on every target (verified locally:
+  x86 g++ assembles both `@progbits` and `%progbits`), and `%` is the required form where
+  `@` is a comment. Fork commit `c2b3759` on `branch_libev`.
+- Propagation: re-pinned `.host-software` udpspeeder-simd → c2b3759; bumped the PR's
+  `net/udpspeeder-simd/Makefile` PKG_SOURCE_VERSION → c2b37590 and refreshed
+  PKG_MIRROR_HASH → d6f564823fa0217788bc937e06c71266bfa3a457d0803912b2d10bcb9957d3ba
+  (amended the single PR commit, force-pushed; PR head 5d8ed050). Kept the fork commit's
+  Claude co-author trailer; the packages commit has none (call/0003).
+- Mirror-hash regen recipe (local x86_64 SDK): set PKG_MIRROR_HASH to 64 zeros, run
+  `make package/<pkg>/download V=s`; the download clones, packs the reproducible git
+  tarball, and prints `got <real-hash>`. `skip` does NOT work for a git-proto source
+  (the github archive downloader refuses without a real sha256). Then compile to confirm.
