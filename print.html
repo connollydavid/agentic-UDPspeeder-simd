@@ -397,50 +397,97 @@ with the operator (see <a href="cast/applying-personas.html">applying-personas.m
 <li>Persona: Ingrid (OpenWrt feed maintainer)</li>
 <li>Serves: https://github.com/openwrt/packages/issues/28562</li>
 <li>Scope: the <code>packages</code> and <code>udpspeeder-simd</code> components</li>
+<li>Package maintainer: David Connolly <a href="mailto:plan/0000-openwrt-udpspeeder-simd-package/david@connol.ly">david@connol.ly</a></li>
+<li>Target: OpenWrt master for the first pull request; a release-branch backport is
+constrained by policy (see the rules below)</li>
 </ul>
 <h2 id="why"><a class="header" href="#why">Why</a></h2>
 <p>The issue at https://github.com/openwrt/packages/issues/28562 asks for the
 performance-optimised UDPspeeder on low-end devices; the reporter's target is
 <code>ath79/generic</code>, a MIPS 24Kc core. UDPspeeder-simd is that optimised fork. Rather
 than repoint the existing <code>net/udpspeeder</code> package at a fork, this milestone adds a
-separate <code>net/udpspeeder-simd</code> package that coexists with <code>udpspeeder</code> and ships a
-self-contained binary.</p>
+separate <code>net/udpspeeder-simd</code> package that coexists with <code>udpspeeder</code>.</p>
 <p>On <code>ath79</code> the gain comes from the portable word-width XOR and the portable
 Reed-Solomon speedups, not from SIMD. The source carries no MIPS SIMD path, and
 none is worthwhile on the 24Kc core (MSA is absent on that core, and its optional
 DSP ASE targets fixed-point math rather than vector XOR).</p>
-<h2 id="design-proposed-pending-operator-ratification-and-call-records"><a class="header" href="#design-proposed-pending-operator-ratification-and-call-records">Design (proposed, pending operator ratification and call/ records)</a></h2>
+<h2 id="openwrt-maintainer-rules-this-milestone-follows"><a class="header" href="#openwrt-maintainer-rules-this-milestone-follows">OpenWrt maintainer rules this milestone follows</a></h2>
+<p>From the feed's <code>CONTRIBUTING.md</code> (pinned in the packages worktree) and
+https://openwrt.org/docs/guide-developer/packages :</p>
 <ul>
-<li>Coexistence: a distinct package <code>udpspeeder-simd</code> with distinct paths
-(<code>/usr/bin/udpspeeder-simd</code>, <code>/etc/config/udpspeeder-simd</code>,
-<code>/etc/init.d/udpspeeder-simd</code>), no file clash with <code>udpspeeder</code>, no <code>CONFLICTS</code>.</li>
-<li>Static: link the binary so it carries no <code>libstdcpp</code>/<code>librt</code>/<code>libatomic</code> runtime
-dependency. Fallback if a fully static C++ build draws reviewer objection: static
-<code>libstdc++</code> only.</li>
+<li>Pin the source to a fixed commit or tag with a <code>PKG_MIRROR_HASH</code>, never a branch
+head or a "latest" archive. This is also what the issue requests.</li>
+<li><code>PKG_MAINTAINER</code> is a real name and a real, public email (David Connolly
+<a href="mailto:plan/0000-openwrt-udpspeeder-simd-package/david@connol.ly">david@connol.ly</a>). A GitHub noreply address is rejected.</li>
+<li><code>PKG_LICENSE</code> is the SPDX identifier <code>MIT</code>, with <code>PKG_LICENSE_FILES</code> naming the
+license file (<code>LICENSE.md</code>) in the fork.</li>
+<li><code>PKG_RELEASE</code> starts at 1.</li>
+<li>No dependencies outside the OpenWrt core packages or this feed.</li>
+<li>Each pull-request commit subject is prefixed with the package name
+(<code>udpspeeder-simd: add package</code>) and carries a <code>Signed-off-by</code> that matches the
+author (a real name and a public email), with no automated co-author trailer
+(the packages rule in <a href="plan/0000-openwrt-udpspeeder-simd-package/../../call/0003-no-claude-co-author-trailers-on-packages.html"><code>call/0003</code></a>).
+The sign-off is the DCO, which is separate from the co-author trailer.</li>
+<li>A <code>test.sh</code> beside the Makefile lets the OpenWrt CI runtime-test the package on
+its supported architectures.</li>
+<li>Release branches (<code>openwrt-XX.YY</code>) take only security and bug fixes. Adding a new
+package to a release branch is against policy, so a backport is not a routine
+cherry-pick (see <code>#backports</code>).</li>
+</ul>
+<h2 id="design-decisions"><a class="header" href="#design-decisions">Design decisions</a></h2>
+<ul>
+<li>Interop (ready to ratify as a call/ decision): a distinct package
+<code>udpspeeder-simd</code> with distinct paths (<code>/usr/bin/udpspeeder-simd</code>,
+<code>/etc/config/udpspeeder-simd</code>, <code>/etc/init.d/udpspeeder-simd</code>), no file clash with
+<code>udpspeeder</code>, no <code>CONFLICTS</code>.</li>
+<li>Linking (OPEN, needs an operator decision before <code>#feed-package</code>): the operator
+asked for a static build, but OpenWrt convention favours dynamic linking against
+shared libraries, and a fully static C++ binary is larger on flash, which works
+against the low-end devices this issue targets. The three options are a fully
+static binary, a static <code>libstdc++</code> only, or dynamic linking with <code>DEPENDS</code> like
+the existing <code>udpspeeder</code>.</li>
 <li>Build adjustments live in the fork's makefile, after which the <code>.host-software</code>
-pin is updated, rather than patched only in the feed.</li>
-<li>Maintainer: David Connolly <a href="mailto:plan/0000-openwrt-udpspeeder-simd-package/david@connol.ly">david@connol.ly</a>.</li>
-<li>The first PR targets OpenWrt master only; backports to the supported release
-branches follow.</li>
+pin is updated. The fork commits keep the normal sign-off and co-author trailer;
+only the packages repo drops the trailer.</li>
 </ul>
 <h2 id="build-sequence"><a class="header" href="#build-sequence">Build sequence</a></h2>
-<h3 id="fork-build"><a class="header" href="#fork-build">Make the fork build static across architectures</a></h3>
+<h3 id="fork-build"><a class="header" href="#fork-build">Make the fork build cleanly across architectures</a></h3>
 <ul>
-<li>verify: the OpenWrt SDK cross-compiles a static binary for a mips_24kc target</li>
+<li>verify: the OpenWrt SDK cross-compiles a udpspeeder-simd binary for a mips_24kc target</li>
 </ul>
-<h3 id="feed-package"><a class="header" href="#feed-package">Author the udpspeeder-simd feed package</a></h3>
+<h3 id="feed-package"><a class="header" href="#feed-package">Author the udpspeeder-simd feed package Makefile</a></h3>
 <ul>
 <li>depends: #fork-build</li>
 <li>verify: the OpenWrt SDK builds the udpspeeder-simd package for ath79/generic</li>
 </ul>
-<h3 id="interop"><a class="header" href="#interop">Confirm polite interop with the udpspeeder package</a></h3>
+<h3 id="service-integration"><a class="header" href="#service-integration">Author the service integration</a></h3>
 <ul>
 <li>depends: #feed-package</li>
-<li>verify: the udpspeeder-simd file paths are disjoint from udpspeeder, no clash</li>
+<li>verify: the package installs a config to /etc/config and an init script to /etc/init.d</li>
+</ul>
+<h3 id="test-script"><a class="header" href="#test-script">Add the runtime test script</a></h3>
+<ul>
+<li>depends: #feed-package</li>
+<li>verify: test.sh checks that udpspeeder-simd prints its version</li>
+</ul>
+<h3 id="ci-sdk-lane"><a class="header" href="#ci-sdk-lane">Add the OpenWrt SDK build lane to CI</a></h3>
+<ul>
+<li>depends: #feed-package</li>
+<li>verify: the SDK CI lane builds the udpspeeder-simd package green for ath79/generic</li>
+</ul>
+<h3 id="interop"><a class="header" href="#interop">Confirm polite interop with the udpspeeder package</a></h3>
+<ul>
+<li>depends: #service-integration</li>
+<li>verify: every udpspeeder-simd install path is disjoint from udpspeeder, so both install</li>
 </ul>
 <h3 id="pr"><a class="header" href="#pr">Open the pull request to OpenWrt master</a></h3>
 <ul>
-<li>depends: #interop</li>
+<li>depends: #interop, #test-script, #ci-sdk-lane</li>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="backports"><a class="header" href="#backports">Evaluate a release-branch backport under policy</a></h3>
+<ul>
+<li>depends: #pr</li>
 <li>verify: attested operator</li>
 </ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="software-where"><a class="header" href="#software-where">Software: where</a></h1>
