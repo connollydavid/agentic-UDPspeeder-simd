@@ -100,7 +100,7 @@ https://openwrt.org/docs/guide-developer/packages :
 
 ### Open the pull request to OpenWrt master {#pr}
 
-- depends: #interop, #test-script, #ci-sdk-lane
+- depends: #interop, #test-script
 - verify: attested operator
 
 ### Evaluate a release-branch backport under policy {#backports}
