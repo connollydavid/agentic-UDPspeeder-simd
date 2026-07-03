@@ -87,3 +87,22 @@
   Claude` trailer, so the feed stays upstream-clean for `openwrt/packages`. The
   operator confirmed the scope is packages only, so host-repo commits keep the
   trailer. Recorded in call/0003 and the CLAUDE.md packages project-specifics.
+
+## 2026-07-03 — push-auth root cause: slartibardfast is pull-only; helper is `store`
+
+- The recurring push 403 has a concrete root cause rather than flakiness.
+  `gh api repos/connollydavid/agentic-UDPspeeder-simd` shows the `slartibardfast`
+  account has `push: false` (pull only); the owner account `connollydavid` (also
+  logged in to gh) has push. And git's credential helper here is `store`
+  (`~/.git-credentials`), not gh, so `gh auth switch -u <user>` does not change the
+  token `git push` sends. The store already holds slartibardfast's token, so pushes
+  go out as slartibardfast and are denied.
+- To push as slartibardfast (the operator's intended identity), grant slartibardfast
+  write on the repo; then a plain `git push` works with no helper change. To make
+  `gh auth switch` actually route pushes, run `gh auth setup-git` so git uses the
+  active gh account's token. Do not push as connollydavid without operator direction:
+  it changes the public push identity, and the operator is provenance-sensitive.
+- Pending operator decision (asked, away from keyboard): grant slartibardfast write,
+  push as connollydavid, or operator pushes manually. As of this entry `main` is ahead
+  by 7 unpushed commits (packages embed, call/0003, CLAUDE.md, two memory entries, the
+  earlier verify-sweep entry, and the three-persona commit).
