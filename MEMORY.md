@@ -181,3 +181,10 @@
 - openwrt embed KEPT (operator decision), despite the ~2.5 min software --check cost.
 - Receipts: #fork-build/#feed-package/#service-integration/#interop done; #pr held (review round);
   #test-script + #ci-sdk-lane pending (CI); #backports policy-constrained.
+- Update: rebased the branch onto current upstream openwrt/packages master (333bf60); tip is now
+  a7f0f087, a single commit with no merge commits in the PR range; force-pushed to the fork.
+  Formalities self-check (against .github/formalities.json) passes: crlf=0, subject 28<=60,
+  body<=79, DCO Signed-off-by matches a non-noreply author, conffiles declared, openwrt-meta
+  present, no patches. Open review-round items: Run Testing details (built x86_64 via the
+  snapshot SDK gcc-14.4.0 + CI test.sh; a physical-device run is optional but stronger), and a
+  release-notes line if the formalities bot requests one.
