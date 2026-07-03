@@ -292,6 +292,26 @@ slartibardfast stays read-only on the repo (not a collaborator); grant it write 
 if a bot-identity push is wanted later. This supersedes the earlier "push auth is
 flaky" framing: the cause was permissions plus a static store token, not flakiness.</li>
 </ul>
+<h2 id="2026-07-03--published-the-book-to-github-pages"><a class="header" href="#2026-07-03--published-the-book-to-github-pages">2026-07-03 — published the book to GitHub Pages</a></h2>
+<ul>
+<li>Ran the publish phase. <code>host-lifecycle book .</code> (v0.35.1) writes book.toml with
+<code>src = mdBook/src</code> and <code>build-dir = mdBook/out</code>, a SUMMARY in lifecycle order, and 17
+pages; <code>book --check .</code> passes (every room renders: cast 5, plan 1, software 1, call 4,
+reference 4, memory 1). book.toml and mdBook/ are gitignored generated output.</li>
+<li>Fixed two defects in the reference doc-site workflow. It was named <code>site.yml</code>, but the
+publish-phase recheck is <code>test -f .github/workflows/mdbook.yml</code>, so a <code>done</code> publish
+receipt would HAZARD until the file is named <code>mdbook.yml</code>. It also published <code>./book</code>,
+while v0.35.1 builds to <code>mdBook/out</code>. Renamed to mdbook.yml, set
+<code>publish_dir: ./mdBook/out</code>, and corrected the stale <code>src=docs</code> comment. Both look like
+template bugs at revision 565410a, worth proposing upstream.</li>
+<li>CI (<code>mdbook.yml</code>, on push to main) builds with mdbook v0.4.40 and deploys mdBook/out to
+the <code>gh-pages</code> branch via peaceiris/actions-gh-pages. GitHub Pages was disabled (the
+<code>/pages</code> API returned 404), so enabled it from gh-pages root with
+<code>gh api -X POST repos/connollydavid/agentic-UDPspeeder-simd/pages -f source[branch]=gh-pages -f source[path]=/</code>.
+The site is live at https://connollydavid.github.io/agentic-UDPspeeder-simd/ (HTTP 200).</li>
+<li>Publish receipt flipped from skip to done; <code>software --check</code> is green (the recheck now
+finds mdbook.yml). Verified locally with the pinned mdbook v0.4.40 before pushing.</li>
+</ul>
 
                     </main>
 
