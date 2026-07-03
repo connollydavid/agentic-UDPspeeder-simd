@@ -752,3 +752,25 @@ recorded so an agent does not have to re-derive them from the code.
 - **Lanes.** No `.allium` or `.tla` spec exists yet, so the requirements and timing
   lanes are inert. Author a spec through its skills and wire its CI lane before
   committing it; a present spec without its full lane is a defect.
+
+## Project specifics: the packages lane
+
+A second software component, `packages`, is embedded as a Where-room lane
+alongside UDPspeeder-simd, recorded in `.host-software`.
+
+- **What it is.** A fork of the OpenWrt packages feed (`openwrt/packages`): build
+  recipes (Makefiles), patches, and options for OpenWrt applications and libraries.
+  Makefile and shell, with some C. Layered on an OpenWrt buildroot via the feed
+  system.
+- **Canonical branch.** `master`. The audited worktree is
+  `software/packages/master/`, pinned in `.host-software`.
+- **License.** The feed is GPL-2.0 (its own `LICENSE` lives in the worktree). This
+  governance shell is Unlicense. Keep the two separate.
+- **Reproducibility.** Migrated, not initiated here: a source `pin` on `master`
+  with no `deploy` or `artifact`, so no reproducible build is claimed. It is a
+  build-recipe feed, not a built artifact.
+- **No Claude co-author trailers.** Every commit made in the packages worktree
+  omits the `Co-Authored-By: Claude ...` trailer, so the feed stays upstream-clean
+  for `openwrt/packages`. This overrides the default trailer behaviour for the
+  packages component only; host-repo commits keep it. See
+  [`call/0003`](call/0003-no-claude-co-author-trailers-on-packages.md).
