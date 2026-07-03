@@ -66,6 +66,13 @@ https://openwrt.org/docs/guide-developer/packages :
   embedded `openwrt` component stays but is not required for this path. Local
   validation covers x86_64; multi-architecture, including `ath79/generic`, runs in
   the CI lane. Snapshot OpenWrt packages are `.apk`, not `.ipk`.
+- CI validation (`#ci-sdk-lane`): lives in the host repo
+  (`.github/workflows/udpspeeder-simd-sdk.yml`), never in the openwrt PR, so the PR
+  stays a discrete package addition. It builds the fork's package branch against the
+  current snapshot SDK for `x86/64` and `ath79/generic`.
+- Release users (`#backports`): OpenWrt policy blocks a new package on release
+  branches, so there is no backport. `docs/udpspeeder-simd-on-openwrt-releases.md`
+  shows a developer or power user how to self-apply it with a release SDK or buildroot.
 
 ## Build sequence
 
