@@ -362,6 +362,21 @@ present, no patches. Open review-round items: Run Testing details (built x86_64 
 snapshot SDK gcc-14.4.0 + CI test.sh; a physical-device run is optional but stronger), and a
 release-notes line if the formalities bot requests one.</li>
 </ul>
+<h2 id="2026-07-03--pr-opened-to-openwrtpackages-pull29901"><a class="header" href="#2026-07-03--pr-opened-to-openwrtpackages-pull29901">2026-07-03 — PR opened to openwrt/packages (pull/29901)</a></h2>
+<ul>
+<li>Opened https://github.com/openwrt/packages/pull/29901 ("udpspeeder-simd: add package") as
+connollydavid, from connollydavid:udpspeeder-simd to openwrt:master, referencing the issue.
+Confirmed host-side clean first: main == origin, fork branch a7f0f087 synced, four receipts
+done. Release notes are in the PR body (a section), testing framed as x86_64 build + CI
+test.sh (operator accepted that trade-off).</li>
+<li>Corrected the plan: #pr no longer depends on #ci-sdk-lane. The operator directed opening the
+PR against OpenWrt's own CI, so the fork-side SDK CI lane is independent, not a prerequisite.
+Recorded #test-script done (script added + wired; the PR CI exercises it) and #pr done.
+Pending: #ci-sdk-lane (fork-side, optional) and #backports (policy: new packages are not
+normally backported to release branches).</li>
+<li>Next: watch the PR's FormalityCheck + multi-arch build. If the bot wants release notes in a
+different form, amend and force-push the fork branch.</li>
+</ul>
 
                     </main>
 
