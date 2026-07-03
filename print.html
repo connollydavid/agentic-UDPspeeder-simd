@@ -1925,6 +1925,24 @@ normally backported to release branches).</li>
 <li>Next: watch the PR's FormalityCheck + multi-arch build. If the bot wants release notes in a
 different form, amend and force-push the fork branch.</li>
 </ul>
+<h2 id="2026-07-03--addressed-the-copilot-review-fork-version-banner-fix-idiomatic-testsh"><a class="header" href="#2026-07-03--addressed-the-copilot-review-fork-version-banner-fix-idiomatic-testsh">2026-07-03 — addressed the Copilot review; fork version-banner fix; idiomatic test.sh</a></h2>
+<ul>
+<li>Copilot flagged two on PR 29901, both valid: test.sh could false-positive (its grep matched
+the program name, which a dynamic-loader error echoes), and the init had <code>fix_latency</code>
+non-local plus a duplicated <code>sock_buf</code>. Both init issues were inherited verbatim from
+net/udpspeeder (the sibling has the same bugs). @codemarauder is Nishant Sharma, the
+net/udpspeeder maintainer; offered him co/primary maintainership of udpspeeder-simd in the
+PR comment.</li>
+<li>Idiomatic gap and its fix: OpenWrt test.sh idiomatically greps the package version, but the
+binary's print_help() truncated gitversion to 10 chars (<code>strncpy(...,10)</code>), so a full-version
+grep would miss. Fixed the fork (main.cpp copies the full string; commit 2e12e5b pushed to
+branch_libev), re-pinned .host-software to 2e12e5b, updated the package (PKG_SOURCE_VERSION
+2e12e5b, PKG_MIRROR_HASH 6d4564dc, PKG_VERSION now 2026.07.03~2e12e5b4), and switched test.sh
+to <code>grep -qF "$PKG_VERSION"</code>. Amended the single PR commit (7f5bc7c8), force-pushed; PR still
+discrete (4 files). Posted a terse reply comment (#issuecomment-4877656043).</li>
+<li>Rebuilt via the SDK (exit 0) for the new hash. The runtime version-grep is confirmed by
+OpenWrt's PR CI, since the cross-built musl binary cannot run on this host.</li>
+</ul>
 
                     </main>
 
