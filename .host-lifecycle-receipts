@@ -69,3 +69,15 @@
     evidence = book . -> 17 pages; book --check passes (every room renders); mdbook v0.4.40 builds mdBook/out; Site lane at .github/workflows/mdbook.yml deploys mdBook/out to gh-pages
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "embed" "openwrt"]
+    disposition = done
+    evidence = software/openwrt/main at pin 62e7565 (symlinked to ext4 store for case-sensitive build); consumed upstream, source pin
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
+
+[receipt "release" "openwrt"]
+    disposition = skip
+    reason = openwrt upstream is consumed to build the SDK, not released through this host
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03

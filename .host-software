@@ -29,3 +29,13 @@
     url    = https://github.com/connollydavid/packages.git
     pin    = 1d40ad929ad45cfbdf547996d0ba2379d9765172
     branch = master
+
+# OpenWrt upstream (the buildroot). Embedded as a source pin on its canonical branch
+# (main; the master branch mirrors the same commit) so the x86_64 SDK can be built from
+# source and the udpspeeder-simd feed package validated against the snapshot SDK the
+# OpenWrt CI uses. GPL-2.0 in its own tree. No artifact recorded here: the SDK build is a
+# separate, heavy step, not a reproducible-build claim of this host.
+[software "openwrt"]
+    url    = https://github.com/openwrt/openwrt.git
+    pin    = 62e7565f0e1e88e5fc8d038f09cb38ffd583bbed
+    branch = main
