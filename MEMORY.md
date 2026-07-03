@@ -43,3 +43,29 @@
   credential is the `slartibardfast` token, which 403s after the first few pushes
   landed. If `git push` 403s, surface it to the operator rather than retrying or
   swapping credentials. As of this entry, `f8d36ed` and `5ec59af` are local only.
+
+## 2026-07-03 — followed the host procedure: conformant, no upgrade available
+
+- Ran the case-(c) upgrade/verify cycle from the `host` procedure
+  (`github.com/connollydavid/host`). `host-template` upstream is still at `565410a`,
+  the exact revision the `.host` stamp adopted: a `git fetch` in the submodule found
+  no commits after it, and `565410a` is an ancestor of `origin/main`.
+  `host-lifecycle upgrade .` reports up to date (baseline `46a1fd2`, 0 out of order).
+  With no newer methodology to pull in, following the host reduced to the verify gate.
+- Verify gate is green. `host-lifecycle software --check .` exits 0 (both components at
+  pin, every phase receipt valid, reconcile clean, prose clean, no worktree-symlink
+  hazards); `validate plan/` and `validate call/` both `ok`; `host-lint --all` and
+  `--log` clean. Independently confirmed: udpspeeder-simd worktree is at pin `3374e3b`
+  on `branch_libev` with a clean tree, host-lint at `78804cd`, and the commit-msg hook
+  still rejects an ordinal tell (a `phase 1` message exits 1, a clean message exits 0).
+- udpspeeder-simd still carries no `.allium`/`.tla` spec, so the requirements and timing
+  lanes stay inert and there is no spec-without-lane defect. Every spec found on disk
+  belongs to a tool's own worktree, not to the software under development.
+- Standalone `host-lint --prose` on the authored docs prints advisory `note:` lines but
+  exits 0. Those notes are below the enforced bar; the in-process prose audit inside
+  `software --check` is the gate that binds and it reports no flagging or warning tropes.
+  Most notes sit in verbatim copied-in content (the `UPGRADING.md` ledger,
+  `cast/applying-personas.md`) that is not reworded locally. The notes are not a red gate.
+- Corrects the 2026-07-03 "push auth is flaky" entry above: the commits it listed as
+  local-only (`f8d36ed`, `5ec59af`) are now pushed. `HEAD == origin/main` and the tree
+  is clean. Push auth may still 403 intermittently; surface it to the operator if it does.
