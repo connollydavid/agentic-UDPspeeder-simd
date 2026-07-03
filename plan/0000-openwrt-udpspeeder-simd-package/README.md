@@ -7,6 +7,9 @@
 - Package maintainer: David Connolly <david@connol.ly>
 - Target: OpenWrt master for the first pull request; a release-branch backport is
   constrained by policy (see the rules below)
+- Decisions: [`call/0004`](../../call/0004-udpspeeder-simd-package-coexists-and-links-dynamically.md)
+  (coexist, dynamic linking), [`call/0005`](../../call/0005-cross-build-adjustments-live-in-the-fork.md)
+  (build adjustments in the fork)
 
 ## Why
 
@@ -47,19 +50,16 @@ https://openwrt.org/docs/guide-developer/packages :
 
 ## Design decisions
 
-- Interop (ready to ratify as a call/ decision): a distinct package
-  `udpspeeder-simd` with distinct paths (`/usr/bin/udpspeeder-simd`,
-  `/etc/config/udpspeeder-simd`, `/etc/init.d/udpspeeder-simd`), no file clash with
-  `udpspeeder`, no `CONFLICTS`.
-- Linking (OPEN, needs an operator decision before `#feed-package`): the operator
-  asked for a static build, but OpenWrt convention favours dynamic linking against
-  shared libraries, and a fully static C++ binary is larger on flash, which works
-  against the low-end devices this issue targets. The three options are a fully
-  static binary, a static `libstdc++` only, or dynamic linking with `DEPENDS` like
-  the existing `udpspeeder`.
-- Build adjustments live in the fork's makefile, after which the `.host-software`
-  pin is updated. The fork commits keep the normal sign-off and co-author trailer;
-  only the packages repo drops the trailer.
+- Interop (`call/0004`): a distinct package `udpspeeder-simd` with distinct paths
+  (`/usr/bin/udpspeeder-simd`, `/etc/config/udpspeeder-simd`,
+  `/etc/init.d/udpspeeder-simd`), no file clash with `udpspeeder`, no `CONFLICTS`.
+- Linking (`call/0004`): dynamic, with `DEPENDS` on the shared libraries the binary
+  needs, like the existing `udpspeeder`. No static build. A static C++ binary is
+  larger on flash, which works against the low-end devices this issue targets, and
+  static linking runs against OpenWrt's shared-library model.
+- Build adjustments (`call/0005`): they live in the fork's makefile, after which the
+  `.host-software` pin is updated. The fork commits keep the normal sign-off and
+  co-author trailer; only the packages repo drops the trailer.
 
 ## Build sequence
 
