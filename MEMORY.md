@@ -221,3 +221,6 @@
   discrete (4 files). Posted a terse reply comment (#issuecomment-4877656043).
 - Rebuilt via the SDK (exit 0) for the new hash. The runtime version-grep is confirmed by
   OpenWrt's PR CI, since the cross-built musl binary cannot run on this host.
+- Scope decision: we will NOT touch net/udpspeeder (operator). Removed the "happy to send a
+  separate PR" offer from the PR comment (edited #issuecomment-4877656043); the sibling's same
+  two init bugs are left alone.
