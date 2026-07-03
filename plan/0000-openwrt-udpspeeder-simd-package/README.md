@@ -4,6 +4,9 @@
 - Persona: Ingrid (OpenWrt feed maintainer)
 - Serves: https://github.com/openwrt/packages/issues/28562
 - Scope: the `packages` and `udpspeeder-simd` components
+- Package maintainer: David Connolly <david@connol.ly>
+- Target: OpenWrt master for the first pull request; a release-branch backport is
+  constrained by policy (see the rules below)
 
 ## Why
 
@@ -11,45 +14,90 @@ The issue at https://github.com/openwrt/packages/issues/28562 asks for the
 performance-optimised UDPspeeder on low-end devices; the reporter's target is
 `ath79/generic`, a MIPS 24Kc core. UDPspeeder-simd is that optimised fork. Rather
 than repoint the existing `net/udpspeeder` package at a fork, this milestone adds a
-separate `net/udpspeeder-simd` package that coexists with `udpspeeder` and ships a
-self-contained binary.
+separate `net/udpspeeder-simd` package that coexists with `udpspeeder`.
 
 On `ath79` the gain comes from the portable word-width XOR and the portable
 Reed-Solomon speedups, not from SIMD. The source carries no MIPS SIMD path, and
 none is worthwhile on the 24Kc core (MSA is absent on that core, and its optional
 DSP ASE targets fixed-point math rather than vector XOR).
 
-## Design (proposed, pending operator ratification and call/ records)
+## OpenWrt maintainer rules this milestone follows
 
-- Coexistence: a distinct package `udpspeeder-simd` with distinct paths
-  (`/usr/bin/udpspeeder-simd`, `/etc/config/udpspeeder-simd`,
-  `/etc/init.d/udpspeeder-simd`), no file clash with `udpspeeder`, no `CONFLICTS`.
-- Static: link the binary so it carries no `libstdcpp`/`librt`/`libatomic` runtime
-  dependency. Fallback if a fully static C++ build draws reviewer objection: static
-  `libstdc++` only.
+From the feed's `CONTRIBUTING.md` (pinned in the packages worktree) and
+https://openwrt.org/docs/guide-developer/packages :
+
+- Pin the source to a fixed commit or tag with a `PKG_MIRROR_HASH`, never a branch
+  head or a "latest" archive. This is also what the issue requests.
+- `PKG_MAINTAINER` is a real name and a real, public email (David Connolly
+  <david@connol.ly>). A GitHub noreply address is rejected.
+- `PKG_LICENSE` is the SPDX identifier `MIT`, with `PKG_LICENSE_FILES` naming the
+  license file (`LICENSE.md`) in the fork.
+- `PKG_RELEASE` starts at 1.
+- No dependencies outside the OpenWrt core packages or this feed.
+- Each pull-request commit subject is prefixed with the package name
+  (`udpspeeder-simd: add package`) and carries a `Signed-off-by` that matches the
+  author (a real name and a public email), with no automated co-author trailer
+  (the packages rule in [`call/0003`](../../call/0003-no-claude-co-author-trailers-on-packages.md)).
+  The sign-off is the DCO, which is separate from the co-author trailer.
+- A `test.sh` beside the Makefile lets the OpenWrt CI runtime-test the package on
+  its supported architectures.
+- Release branches (`openwrt-XX.YY`) take only security and bug fixes. Adding a new
+  package to a release branch is against policy, so a backport is not a routine
+  cherry-pick (see `#backports`).
+
+## Design decisions
+
+- Interop (ready to ratify as a call/ decision): a distinct package
+  `udpspeeder-simd` with distinct paths (`/usr/bin/udpspeeder-simd`,
+  `/etc/config/udpspeeder-simd`, `/etc/init.d/udpspeeder-simd`), no file clash with
+  `udpspeeder`, no `CONFLICTS`.
+- Linking (OPEN, needs an operator decision before `#feed-package`): the operator
+  asked for a static build, but OpenWrt convention favours dynamic linking against
+  shared libraries, and a fully static C++ binary is larger on flash, which works
+  against the low-end devices this issue targets. The three options are a fully
+  static binary, a static `libstdc++` only, or dynamic linking with `DEPENDS` like
+  the existing `udpspeeder`.
 - Build adjustments live in the fork's makefile, after which the `.host-software`
-  pin is updated, rather than patched only in the feed.
-- Maintainer: David Connolly <david@connol.ly>.
-- The first PR targets OpenWrt master only; backports to the supported release
-  branches follow.
+  pin is updated. The fork commits keep the normal sign-off and co-author trailer;
+  only the packages repo drops the trailer.
 
 ## Build sequence
 
-### Make the fork build static across architectures {#fork-build}
+### Make the fork build cleanly across architectures {#fork-build}
 
-- verify: the OpenWrt SDK cross-compiles a static binary for a mips_24kc target
+- verify: the OpenWrt SDK cross-compiles a udpspeeder-simd binary for a mips_24kc target
 
-### Author the udpspeeder-simd feed package {#feed-package}
+### Author the udpspeeder-simd feed package Makefile {#feed-package}
 
 - depends: #fork-build
 - verify: the OpenWrt SDK builds the udpspeeder-simd package for ath79/generic
 
-### Confirm polite interop with the udpspeeder package {#interop}
+### Author the service integration {#service-integration}
 
 - depends: #feed-package
-- verify: the udpspeeder-simd file paths are disjoint from udpspeeder, no clash
+- verify: the package installs a config to /etc/config and an init script to /etc/init.d
+
+### Add the runtime test script {#test-script}
+
+- depends: #feed-package
+- verify: test.sh checks that udpspeeder-simd prints its version
+
+### Add the OpenWrt SDK build lane to CI {#ci-sdk-lane}
+
+- depends: #feed-package
+- verify: the SDK CI lane builds the udpspeeder-simd package green for ath79/generic
+
+### Confirm polite interop with the udpspeeder package {#interop}
+
+- depends: #service-integration
+- verify: every udpspeeder-simd install path is disjoint from udpspeeder, so both install
 
 ### Open the pull request to OpenWrt master {#pr}
 
-- depends: #interop
+- depends: #interop, #test-script, #ci-sdk-lane
+- verify: attested operator
+
+### Evaluate a release-branch backport under policy {#backports}
+
+- depends: #pr
 - verify: attested operator
