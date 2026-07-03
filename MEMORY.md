@@ -106,3 +106,18 @@
   push as connollydavid, or operator pushes manually. As of this entry `main` is ahead
   by 7 unpushed commits (packages embed, call/0003, CLAUDE.md, two memory entries, the
   earlier verify-sweep entry, and the three-persona commit).
+
+## 2026-07-03 — resolved: push as connollydavid via a one-shot gh credential
+
+- Operator chose to push as the owner. The working recipe: `gh auth switch -u
+  connollydavid`, then
+  `git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin main`.
+  The empty `credential.helper=` resets the inherited `store` helper (which holds
+  slartibardfast's read-only token and 403s), and the gh helper then supplies
+  connollydavid's token for that one push, with no change to global git config.
+- All pending commits landed (`23bdc1f..6f1e66a`); `main` is in sync with origin.
+- Going forward: repeat that one-shot override, or run `gh auth setup-git` once (with
+  connollydavid active) and clear the stale store token so a plain `git push` works.
+  slartibardfast stays read-only on the repo (not a collaborator); grant it write only
+  if a bot-identity push is wanted later. This supersedes the earlier "push auth is
+  flaky" framing: the cause was permissions plus a static store token, not flakiness.
