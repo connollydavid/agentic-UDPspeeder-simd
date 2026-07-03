@@ -1,0 +1,1714 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>agentic-UDPspeeder-simd</title>
+        <meta name="robots" content="noindex">
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="favicon.svg">
+        <link rel="shortcut icon" href="favicon.png">
+        <link rel="stylesheet" href="css/variables.css">
+        <link rel="stylesheet" href="css/general.css">
+        <link rel="stylesheet" href="css/chrome.css">
+        <link rel="stylesheet" href="css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="highlight.css">
+        <link rel="stylesheet" href="tomorrow-night.css">
+        <link rel="stylesheet" href="ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="index.html">agentic-UDPspeeder-simd</a></li><li class="chapter-item expanded affix "><li class="part-title">Cast: who</li><li class="chapter-item expanded "><a href="cast/index.html"><strong aria-hidden="true">1.</strong> Cast: the project's Who</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="cast/applying-personas.html"><strong aria-hidden="true">1.1.</strong> Applying personas during planning</a></li><li class="chapter-item expanded "><a href="cast/diego.html"><strong aria-hidden="true">1.2.</strong> Diego (router administrator)</a></li><li class="chapter-item expanded "><a href="cast/ingrid.html"><strong aria-hidden="true">1.3.</strong> Ingrid (OpenWrt feed maintainer)</a></li><li class="chapter-item expanded "><a href="cast/samira.html"><strong aria-hidden="true">1.4.</strong> Samira (security engineer)</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Plan: what & when</li><li class="chapter-item expanded "><a href="plan-index.html"><strong aria-hidden="true">2.</strong> Plan</a></li><li class="chapter-item expanded affix "><li class="part-title">Software: where</li><li class="chapter-item expanded "><a href="where.html"><strong aria-hidden="true">3.</strong> Software</a></li><li class="chapter-item expanded affix "><li class="part-title">Call: why</li><li class="chapter-item expanded "><a href="call/0000-adopt-agentic-host-methodology.html"><strong aria-hidden="true">4.</strong> Govern UDPspeeder-simd under the agentic-host methodology</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="call/0001-pin-tools-to-current-releases.html"><strong aria-hidden="true">4.1.</strong> Pin the verification tools to current releases, not the template gitlinks</a></li><li class="chapter-item expanded "><a href="call/0002-host-lint-consumed-not-reproduced.html"><strong aria-hidden="true">4.2.</strong> host-lint is a consumed tool, not reproduced by this host</a></li><li class="chapter-item expanded "><a href="call/0003-no-claude-co-author-trailers-on-packages.html"><strong aria-hidden="true">4.3.</strong> No Claude co-author trailers on packages commits</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference: how</li><li class="chapter-item expanded "><a href="CLAUDE.html"><strong aria-hidden="true">5.</strong> CLAUDE.md: operating manual for an agentic project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="MIGRATION.html"><strong aria-hidden="true">5.1.</strong> MIGRATION.md: the process moved to the host repo</a></li><li class="chapter-item expanded "><a href="STRUCTURE.html"><strong aria-hidden="true">5.2.</strong> Structure</a></li><li class="chapter-item expanded "><a href="UPGRADING.html"><strong aria-hidden="true">5.3.</strong> UPGRADING.md: the version-to-version upgrade ledger</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Memory</li><li class="chapter-item expanded "><a href="MEMORY.html"><strong aria-hidden="true">6.</strong> Memory</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">agentic-UDPspeeder-simd</h1>
+
+                    <div class="right-buttons">
+                        <a href="print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="agentic-udpspeeder-simd"><a class="header" href="#agentic-udpspeeder-simd">agentic-UDPspeeder-simd</a></h1>
+<p>The governance shell for <strong>UDPspeeder-simd</strong>, a Forward Error Correction UDP tunnel
+(C++, forked from UDPspeeder). This repository holds the <em>thought</em>: the plans,
+decisions, personas, and the operating manual. The software itself, the <em>action</em>,
+lives beneath it as a bare store with a worktree, kept separate and independently
+versioned.</p>
+<p>Read <a href="CLAUDE.html"><code>CLAUDE.md</code></a> first; it is the operating manual and works literally.
+<a href="STRUCTURE.html"><code>STRUCTURE.md</code></a> is the one-page map. The process that built this
+host lives in the <a href="https://github.com/connollydavid/host"><code>host</code> repository</a>.</p>
+<h2 id="layout"><a class="header" href="#layout">Layout</a></h2>
+<div class="table-wrapper"><table><thead><tr><th>Room</th><th>Holds</th></tr></thead><tbody>
+<tr><td><code>cast/</code></td><td>personas (the Who); examples pending replacement</td></tr>
+<tr><td><code>plan/</code></td><td>the milestone index</td></tr>
+<tr><td><code>call/</code></td><td>decisions, in MADR format</td></tr>
+<tr><td><code>software/</code></td><td>the hosted software, materialized locally (gitignored)</td></tr>
+<tr><td><code>tools/</code></td><td>the verification tools, referenced submodules</td></tr>
+</tbody></table>
+</div>
+<p>The software is pinned in <a href=".host-software"><code>.host-software</code></a> and materialized with
+<code>host-lifecycle software --materialize .</code> into <code>software/udpspeeder-simd/branch_libev/</code>.</p>
+<h2 id="tooling"><a class="header" href="#tooling">Tooling</a></h2>
+<p><code>host-lifecycle</code> and <code>host-lint</code> drive the mechanical work. Build them from the
+<code>tools/</code> submodules, then generate the skill symlinks and install the commit gate:</p>
+<pre><code>git submodule update --init --recursive
+./link-skills.sh
+host-lifecycle software --materialize .
+host-lifecycle software --install-hooks .
+</code></pre>
+<h2 id="license"><a class="header" href="#license">License</a></h2>
+<p>This governance shell is released into the public domain (Unlicense). The hosted
+software, UDPspeeder-simd, carries its own MIT license in its worktree.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="cast-the-projects-who"><a class="header" href="#cast-the-projects-who">Cast: the project's Who</a></h1>
+<p>Personas: hypothetical archetypal actors, grounded in research, that keep the
+work anchored in who it serves. The process comes from Powell, Keenan and McDaid
+(2007), which builds on the personas in Cooper and Reimann's Interaction Design.</p>
+<p><strong>Mara and Wren are examples</strong>: the operators of any agentic project (e.g. <code>agentic-acme</code>), the human
+who develops software and the agentic LLM who develops software. They illustrate
+the method, not your project.</p>
+<p><strong>Each project builds at least one persona of its own, by discussion</strong>: the
+operator and the agent elicit the actual users of the software under
+development (allium's <code>elicit</code>). Add them here. See
+<a href="cast/applying-personas.html">applying-personas.md</a> for the process.</p>
+<p>(If your software under development is itself an agentic project, Mara and Wren may
+double as your real cast; the example sits at the meta level it was drawn from.)</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="applying-personas-during-planning"><a class="header" href="#applying-personas-during-planning">Applying personas during planning</a></h1>
+<p>The XP-Persona process (Powell, Keenan &amp; McDaid 2007) runs as a workshop with all
+interested parties (developers, customer representatives, management) before
+development begins. Steps one to six come from Interaction Design (persona
+development); steps seven to nine from XP story development. The aim is the
+<em>minimum beneficial investigation</em> before development starts, after which
+requirements and plans evolve.</p>
+<ol>
+<li><strong>Brainstorm organisation goals.</strong> Record what the organisation wants the
+project to achieve; these reflect its intention.</li>
+<li><strong>Brainstorm possible personas.</strong> Start broad, then combine through
+discussion to between two and twelve personas. Give each a <strong>name</strong>; the team
+refers to personas by name when making decisions, which keeps the view on the
+user rather than the system. Unless user research is available, the customer
+has the final say.</li>
+<li><strong>Brainstorm persona goals.</strong> Set between two and six goals per persona; each
+goal states what the persona wants to achieve through the system. "A persona
+exists to achieve his goals, and the goals exist to give meaning to a persona"
+(Cooper 2004).</li>
+<li><strong>Brainstorm persona personalization.</strong> Give each persona a personality and a
+technical ability relative to the system; a short paragraph or bullets of
+personal detail and nuance.</li>
+<li><strong>Brainstorm persona scenarios.</strong> Describe interactions, not tasks: how a
+persona uses the system to reach a goal. No implementation detail in a
+scenario.</li>
+<li><strong>Select the primary persona.</strong> This is the one who <em>must</em> be satisfied but cannot be
+satisfied by an interface designed for any other persona (Cooper 2004). It
+takes highest priority and feeds story prioritisation. More than one primary
+persona implies a separate interface for each.</li>
+<li><strong>Create stories.</strong> From the persona goals and scenarios, write the user
+stories.</li>
+<li><strong>Prioritise stories</strong>, using the primary persona as the guide.</li>
+<li><strong>Estimate stories</strong>, estimated and agreed by customer and developers.</li>
+</ol>
+<p>In our pipeline: steps one to six are the <code>cast/</code> work (built by discussion);
+steps seven to nine become <code>plan/</code> (milestones are the stories, prioritised by
+the primary persona, estimated); persona goals and scenarios feed <code>spec/</code>, where a
+scenario becomes acceptance criteria becomes a behavioural spec.</p>
+<p>Complementary practice reinforces the same steps (departing only on strong later
+evidence): Cohn's "As a <code>&lt;persona&gt;</code>, I want <code>&lt;goal&gt;</code> so that <code>&lt;reason&gt;</code>" template
+reinforces the named-persona stories of steps two and seven; Gothelf's
+proto-personas reinforce the assumption-first workshop of steps two to five;
+Patton's story mapping reinforces the create-and-prioritise of steps seven and
+eight; behaviour-driven scenarios reinforce step five becoming executable
+acceptance criteria.</p>
+<p><strong>Sources.</strong> Primary: Powell, S., Keenan, F. &amp; McDaid, K. (2007), "Enhancing
+Agile Requirements Elicitation with Personas," IADIS Int'l Journal on Computer
+Science and Information Systems, vol. 2(1), pp. 82-95, ISSN 1646-3692.
+Complementary: Cohn, <em>User Stories Applied</em> (2004); Patton, <em>User Story Mapping</em>
+(2014); Gothelf, <em>Lean UX</em> (proto-personas); Jeffries, "The Three C's of User
+Stories" (2001); Cooper &amp; Reimann, <em>About Face</em> (2003); Agile Alliance on BDD.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="diego-router-administrator"><a class="header" href="#diego-router-administrator">Diego (router administrator)</a></h1>
+<p>Diego runs the gateway for a remote site on a high-latency, lossy WAN link. He
+puts UDPspeeder-simd on that gateway, with a matching server endpoint he controls
+on the far side, to make the link usable for real-time traffic.</p>
+<h2 id="goals"><a class="header" href="#goals">Goals</a></h2>
+<ul>
+<li>Keep a lossy link usable for voice, video, and remote access by tunnelling the
+affected traffic through the client-and-server pair.</li>
+<li>Tune the redundancy ratio (the <code>-f x:y</code> setting) so he recovers lost packets
+without spending more upstream bandwidth than the link can spare.</li>
+<li>Manage the tunnel through OpenWrt's service and configuration tools, without
+editing or building C++.</li>
+<li>Run the tunnel inside the CPU and memory limits of modest router hardware, where
+a feature such as io_uring may be missing from the kernel.</li>
+<li>See whether the tunnel is healthy and how much loss it is recovering, so he can
+adjust as the link changes.</li>
+</ul>
+<h2 id="personalization-and-technical-ability"><a class="header" href="#personalization-and-technical-ability">Personalization and technical ability</a></h2>
+<p>A competent network administrator for a small operator or a remote installation.
+He is comfortable on the OpenWrt command line and with UCI configuration, reads
+logs, and scripts routine tasks. He is not a C++ developer, and he treats the
+tunnel as an appliance that has to stay up while he is not watching it.</p>
+<h2 id="scenarios"><a class="header" href="#scenarios">Scenarios</a></h2>
+<ul>
+<li>Diego installs the package on a satellite-backed site, points the client at his
+server endpoint, sets the redundancy ratio, and confirms that call quality holds
+up under measurable packet loss.</li>
+<li>A firmware upgrade replaces the device configuration. Diego re-applies his tunnel
+settings from a saved snapshot and verifies the link recovers without hand-tuning.</li>
+</ul>
+<h2 id="priority"><a class="header" href="#priority">Priority</a></h2>
+<p>Primary end-user persona for UDPspeeder-simd, and the anchor for prioritising the
+tunnel's own stories. The tunnel exists to serve his link, so his constraints
+(appliance-grade stability on modest hardware, with no source edits) drive the
+software's defaults and ergonomics. He depends on Ingrid's package for the service
+integration he configures.</p>
+<p><em>Grounded in the role and the UDPspeeder-simd source. Refine further by discussion
+with the operator (see <a href="cast/applying-personas.html">applying-personas.md</a>).</em></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="ingrid-openwrt-feed-maintainer"><a class="header" href="#ingrid-openwrt-feed-maintainer">Ingrid (OpenWrt feed maintainer)</a></h1>
+<p>Ingrid maintains the <code>packages</code> feed and packages UDPspeeder-simd and its
+dependencies for OpenWrt, so router users install the tunnel with <code>opkg</code>.</p>
+<h2 id="goals-1"><a class="header" href="#goals-1">Goals</a></h2>
+<ul>
+<li>Package UDPspeeder-simd cleanly for the feed, with correct dependencies such as
+libev, so it installs on a stock OpenWrt device.</li>
+<li>Build the tunnel across the OpenWrt target architectures the feed supports.
+UDPspeeder-simd ships hand-written SIMD assembly (<code>xor_spe.S</code>) and CPU-specific
+optimisation, so she confirms the package builds on MIPS, ARM, and x86, or falls
+back to a portable path where the SIMD one is unavailable.</li>
+<li>Provide the OpenWrt service glue that upstream lacks. Upstream ships a raw
+command-line binary, so she adds an init script and a UCI configuration wrapper
+that let an administrator run the tunnel as a managed service.</li>
+<li>Keep the feed building across the supported OpenWrt release branches (for
+example <code>openwrt-24.10</code> through the current development branch), and bump the
+Makefile version and source hash when a new upstream release lands.</li>
+<li>Offer fixes back to <code>openwrt/packages</code> with no rework, so authorship and commit
+style stay clean for the community feed.</li>
+</ul>
+<h2 id="personalization-and-technical-ability-1"><a class="header" href="#personalization-and-technical-ability-1">Personalization and technical ability</a></h2>
+<p>An experienced package maintainer, fluent in the OpenWrt build system, Makefile
+feeds, and the feed layout. She reviews a steady stream of contributions and holds
+them to reproducible, hermetic builds and correct license metadata. She works
+several release branches at once, and she reads a diff for upstream-cleanliness
+before she forwards it.</p>
+<h2 id="scenarios-1"><a class="header" href="#scenarios-1">Scenarios</a></h2>
+<ul>
+<li>A new UDPspeeder-simd release lands. Ingrid bumps the feed Makefile version and
+source hash, builds the package for a MIPS target and an ARM target, and confirms
+it installs and runs on a test device.</li>
+<li>A contributor opens a change to the feed. Ingrid checks it applies cleanly and
+carries no automated co-author trailer (see
+<a href="cast/../call/0003-no-claude-co-author-trailers-on-packages.html"><code>call/0003</code></a>) before
+she offers it to <code>openwrt/packages</code>.</li>
+</ul>
+<h2 id="priority-1"><a class="header" href="#priority-1">Priority</a></h2>
+<p>Primary persona for the packages lane. The feed exists to let her ship the software
+to OpenWrt users, so her packaging interface (the Makefiles and the service glue)
+and her upstream-clean workflow drive the lane's work.</p>
+<p><em>Grounded in the role and the UDPspeeder-simd source. Refine further by discussion
+with the operator (see <a href="cast/applying-personas.html">applying-personas.md</a>).</em></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="samira-security-engineer"><a class="header" href="#samira-security-engineer">Samira (security engineer)</a></h1>
+<p>Samira reviews UDPspeeder-simd as a network service that parses untrusted input.
+The tunnel reads UDP packets from the open network and decodes them in C++, so she
+treats every packet as potentially hostile.</p>
+<h2 id="goals-2"><a class="header" href="#goals-2">Goals</a></h2>
+<ul>
+<li>Assure that malformed or crafted packets cannot corrupt memory or crash the
+tunnel, since the receive path in C++ handles attacker-controlled bytes.</li>
+<li>Confirm the Reed-Solomon decode path enforces its buffer bounds under adversarial
+input, and that a crafted stream cannot exhaust the decode buffer (<code>--decode-buf</code>)
+or turn the server into a reflection or amplification vector.</li>
+<li>Set expectations for the <code>-k</code> key correctly. It applies a simple XOR, which gives
+no cryptographic confidentiality, so she checks that the defaults and the
+documentation state the safe pattern plainly: run UDPspeeder under a real VPN such
+as OpenVPN when the traffic needs protecting.</li>
+<li>Tie each security claim to a rung of the verification ladder, so a claim rests on
+a check rather than an assertion.</li>
+</ul>
+<h2 id="personalization-and-technical-ability-2"><a class="header" href="#personalization-and-technical-ability-2">Personalization and technical ability</a></h2>
+<p>A senior security engineer who reads C++ fluently, threat-models network services,
+and runs fuzzers and static analysis. She distrusts undocumented invariants and
+asks for the check that establishes one. She prefers a bound proven for all inputs
+over a bound sampled by tests.</p>
+<h2 id="scenarios-2"><a class="header" href="#scenarios-2">Scenarios</a></h2>
+<ul>
+<li>Samira fuzzes the packet-receive path with malformed frames under address and
+undefined-behaviour sanitizers, reviews how the decode bounds are enforced, and
+records the invariants she expects as spec obligations for the requirements lane.</li>
+<li>Reviewing a change to the FEC buffer handling, she asks for the decode bound to be
+proven for all inputs where the C++ code admits a bounded model check, and
+exhaustively fuzzed under sanitizers where it does not, before the change ships.</li>
+</ul>
+<h2 id="priority-2"><a class="header" href="#priority-2">Priority</a></h2>
+<p>Secondary persona, cross-cutting the tunnel and the feed. She is a served reviewer
+whose obligations feed the spec lanes, so her concerns become behavioural specs,
+timing checks, and code-conformance proofs rather than a separate interface. On the
+feed she also watches the supply chain, so a Makefile fetches only pinned,
+hash-verified sources.</p>
+<p><em>Grounded in the role and the UDPspeeder-simd source. Refine further by discussion
+with the operator (see <a href="cast/applying-personas.html">applying-personas.md</a>).</em></p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="plan-what--when"><a class="header" href="#plan-what--when">Plan: what &amp; when</a></h1>
+<p>Milestones in this project.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="software-where"><a class="header" href="#software-where">Software: where</a></h1>
+<p>The action this project produces. Each component is a bare object store with worktrees, not committed into this repo; the recipe below is the reproducibility anchor. Materialize the worktrees locally with:</p>
+<pre><code>host-lifecycle software --materialize .
+</code></pre>
+<h2 id="host-lint"><a class="header" href="#host-lint">host-lint</a></h2>
+<ul>
+<li>url: https://github.com/connollydavid/host-lint.git</li>
+<li>pin: <code>78804cd9deb5daa279705c6f5cd9be12ccfd6765</code></li>
+<li>worktrees: none (single canonical line)</li>
+</ul>
+<h2 id="udpspeeder-simd"><a class="header" href="#udpspeeder-simd">udpspeeder-simd</a></h2>
+<ul>
+<li>url: https://github.com/connollydavid/UDPspeeder-simd.git</li>
+<li>pin: <code>3374e3bb8df0ef321d8b77f6980c14a3d897f215</code></li>
+<li>worktrees: none (single canonical line)</li>
+</ul>
+<h2 id="packages"><a class="header" href="#packages">packages</a></h2>
+<ul>
+<li>url: https://github.com/connollydavid/packages.git</li>
+<li>pin: <code>1d40ad929ad45cfbdf547996d0ba2379d9765172</code></li>
+<li>worktrees: none (single canonical line)</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="govern-udpspeeder-simd-under-the-agentic-host-methodology"><a class="header" href="#govern-udpspeeder-simd-under-the-agentic-host-methodology">Govern UDPspeeder-simd under the agentic-host methodology</a></h1>
+<ul>
+<li>Status: accepted</li>
+<li>Scope: udpspeeder-simd</li>
+<li>Date: 2026-07-02</li>
+</ul>
+<h2 id="context-and-problem-statement"><a class="header" href="#context-and-problem-statement">Context and Problem Statement</a></h2>
+<p>UDPspeeder-simd is a pre-existing C++ project (a Forward Error Correction UDP
+tunnel, forked from UDPspeeder) developed on a bare commit history. The reasoning
+behind its choices lives only in commit messages and is lost across sessions, with
+no durable record of decisions or specs.</p>
+<h2 id="decision"><a class="header" href="#decision">Decision</a></h2>
+<p>Govern development of UDPspeeder-simd under the agentic-host methodology, adopted
+from the <code>host-template</code> repository at revision <code>565410a</code> (recorded in <code>.host</code>).</p>
+<ul>
+<li>The host repository (<code>agentic-UDPspeeder-simd</code>) holds the thought: plans
+(<code>plan/</code>), decisions (<code>call/</code>), personas (<code>cast/</code>), and the operating manual
+(<code>CLAUDE.md</code>).</li>
+<li>The software itself stays separate as the Where room, a bare store with a
+worktree under <code>software/udpspeeder-simd/branch_libev/</code>, recorded in
+<code>.host-software</code> and pinned to its <code>branch_libev</code> head. The host never adopts a
+software repository in place.</li>
+<li>The methodology rules live in the spine (<code>CLAUDE.md</code> plus <code>STRUCTURE.md</code>),
+inherited copy-at-version from the template; they are not re-litigated here. A
+later change to them arrives by <code>host-lifecycle upgrade</code> against the template's
+<code>UPGRADING.md</code> ledger.</li>
+</ul>
+<h2 id="consequences"><a class="header" href="#consequences">Consequences</a></h2>
+<ul>
+<li>Good: decisions, plans, and specs gain a durable, citable home; the software pin
+is a real audit anchor; tooling upgrades are mechanical and token-free.</li>
+<li>Neutral: this is one of two numbered registers (milestones and decisions), kept
+apart by home. The software keeps its own MIT license; this governance shell is
+released into the public domain (Unlicense).</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="pin-the-verification-tools-to-current-releases-not-the-template-gitlinks"><a class="header" href="#pin-the-verification-tools-to-current-releases-not-the-template-gitlinks">Pin the verification tools to current releases, not the template gitlinks</a></h1>
+<ul>
+<li>Status: accepted</li>
+<li>Scope: udpspeeder-simd</li>
+<li>Date: 2026-07-02</li>
+</ul>
+<h2 id="context-and-problem-statement-1"><a class="header" href="#context-and-problem-statement-1">Context and Problem Statement</a></h2>
+<p>The adopt guidance says to wire each <code>tools/</code> submodule "to the commit the
+template references at this revision." The template at <code>565410a</code> records these
+gitlink SHAs in its <code>.gitmodules</code>: host-lint <code>2ef5399</code> (v0.2.0), host-lifecycle
+<code>2a24deb</code> (v0.15.1), allium <code>82da292</code>, specula <code>38e9d6e</code>. Those gitlinks are stale:
+host-lint v0.2.0 predates the <code>--docs</code> engine, and host-lifecycle v0.15.1 predates
+<code>book</code>, <code>prose</code>, <code>software --install-hooks</code>, and <code>reconcile</code>, which the
+methodology's own workflows call. The template's <code>prose.yml</code> pins host-lifecycle at
+<code>46d481cd</code> (a far newer revision than its gitlink), confirming the gitlinks lag the
+working set.</p>
+<h2 id="decision-1"><a class="header" href="#decision-1">Decision</a></h2>
+<p>Pin the <code>tools/</code> submodules to current, working releases instead of the stale
+gitlinks, so the methodology's CI lanes and the commit gate actually run:</p>
+<ul>
+<li><code>tools/host-lint</code> at <code>78804cd</code> (v0.12.1)</li>
+<li><code>tools/host-lifecycle</code> at <code>486add7</code> (v0.35.1)</li>
+<li><code>tools/allium</code> at <code>493a2de</code> (v3.6.0)</li>
+<li><code>tools/specula</code> at <code>fa12367</code></li>
+</ul>
+<h2 id="consequences-1"><a class="header" href="#consequences-1">Consequences</a></h2>
+<ul>
+<li>Good: the commit gate (<code>host-lint --stdin</code>), the prose lane (<code>host-lifecycle prose</code>), the site publisher (<code>host-lifecycle book</code>), and the embed hook installer
+all run against tool versions that actually implement them.</li>
+<li>Neutral: the submodules drift ahead of the template's recorded gitlinks. A later
+template bump that refreshes its gitlinks reconciles this; until then the pins
+live here in <code>.gitmodules</code>, the source of truth for this host.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="host-lint-is-a-consumed-tool-not-reproduced-by-this-host"><a class="header" href="#host-lint-is-a-consumed-tool-not-reproduced-by-this-host">host-lint is a consumed tool, not reproduced by this host</a></h1>
+<ul>
+<li>Status: accepted</li>
+<li>Scope: host-lint</li>
+<li>Date: 2026-07-02</li>
+</ul>
+<h2 id="context-and-problem-statement-2"><a class="header" href="#context-and-problem-statement-2">Context and Problem Statement</a></h2>
+<p><code>host-lint</code> is registered in <code>.host-software</code> so <code>host-lifecycle software --install-hooks</code> can install its <code>pre-commit</code> hook and built binary as this host's
+commit gate. The software check requires a component that records an <code>artifact</code>
+hash to also record a <code>toolchain</code> pin, so the artifact is reproducibly verifiable.
+This host does not build host-lint reproducibly. It pins an upstream release, then
+builds the binary locally so the commit gate can install it. No reproducible build
+of that binary is claimed here.</p>
+<h2 id="decision-2"><a class="header" href="#decision-2">Decision</a></h2>
+<p>Carry <code>repro-exempt = call/0002</code> on the <code>host-lint</code> component and record no <code>build</code>
+or <code>toolchain</code> recipe. The pinned source SHA (in <code>.host-software</code>) plus the recorded
+artifact hash (a local-build anchor that attests the installed binary came from that
+source) are the interim provenance. host-lint's own reproducibility is the upstream
+maintainer's concern, attested by its released tags.</p>
+<h2 id="consequences-2"><a class="header" href="#consequences-2">Consequences</a></h2>
+<ul>
+<li>Good: the commit gate installs and runs; the cheap <code>software --check</code> passes
+without this host claiming a reproducible build it does not perform.</li>
+<li>Neutral: <code>host-lifecycle software --verify-build</code> reports host-lint as exempt and
+skips the rebuild comparison. Retire this exemption only if this host begins to
+build host-lint itself, which is not the case for a consumer.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="no-claude-co-author-trailers-on-packages-commits"><a class="header" href="#no-claude-co-author-trailers-on-packages-commits">No Claude co-author trailers on packages commits</a></h1>
+<ul>
+<li>Status: accepted</li>
+<li>Scope: packages</li>
+<li>Date: 2026-07-03</li>
+</ul>
+<h2 id="context-and-problem-statement-3"><a class="header" href="#context-and-problem-statement-3">Context and Problem Statement</a></h2>
+<p>The <code>packages</code> component is a fork of the OpenWrt packages feed
+(<code>openwrt/packages</code>, GPL-2.0). Work done here may be offered back to that
+upstream, whose commit history carries no AI-assistant co-author trailers and
+whose authorship attribution stays clean for a community feed. This host's
+default agent behaviour appends a <code>Co-Authored-By: Claude ...</code> trailer to commit
+messages. That trailer is unwanted on any commit in the packages worktree.</p>
+<h2 id="decision-3"><a class="header" href="#decision-3">Decision</a></h2>
+<p>Every commit created in the packages worktree (<code>software/packages/&lt;branch&gt;/</code>)
+omits the <code>Co-Authored-By: Claude ...</code> trailer. An agent committing under
+<code>software/packages/</code> suppresses the trailer its default behaviour would add. The
+prohibition is scoped to the packages component; the operator confirmed the scope
+is packages only, so commits in this host repository keep the trailer as before.</p>
+<h2 id="consequences-3"><a class="header" href="#consequences-3">Consequences</a></h2>
+<ul>
+<li>Good: packages commits stay upstream-clean, so a change offered to
+<code>openwrt/packages</code> needs no trailer scrubbing.</li>
+<li>Neutral: the rule is a commit-message convention rather than a hook the host
+enforces, because the packages worktree is a separate repository with its own
+hooks. An agent honours it by reading this decision and the CLAUDE.md
+project-specifics note that points here.</li>
+<li>Follow-up: if upstream provenance later needs a DCO sign-off or another trailer
+policy, record it as a sibling decision under the same scope.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="claudemd-operating-manual-for-an-agentic-project"><a class="header" href="#claudemd-operating-manual-for-an-agentic-project">CLAUDE.md: operating manual for an agentic project</a></h1>
+<p>This file tells you, the agent, how to work in this repository. Follow it
+exactly. The rules are written to be literal: when one says "do X", do X. Do
+not look for a cleverer path. When something is unclear or could mean two
+things, stop and ask the human before you act. Clarity beats cleverness here.</p>
+<h2 id="what-this-repository-is"><a class="header" href="#what-this-repository-is">What this repository is</a></h2>
+<p>This repository is an <strong>agentic project</strong> (e.g. <code>agentic-acme</code>). It is the
+externalized <em>thought</em> about a piece of software: the plans, the decisions, the
+specifications, the people it serves, and the rules you work under. The software
+itself (the <em>action</em>) lives beneath the project as a bare store with worktrees
+(the <em>Where</em> room). You write thought in the project and action in
+the worktree. Keep them separate.</p>
+<p>You are working in a <em>template</em>. A real project replaces the example personas
+with its own and adds its software as the hosted bare store with worktrees. The
+structure below stays the same.</p>
+<h2 id="the-five-rooms"><a class="header" href="#the-five-rooms">The five rooms</a></h2>
+<p>The host has five rooms, one for each question you ask about any piece of work.
+Put each kind of file in its room. Do not invent new top-level folders.</p>
+<div class="table-wrapper"><table><thead><tr><th>Question</th><th>Room</th><th>What goes here</th></tr></thead><tbody>
+<tr><td>Who</td><td><code>cast/</code></td><td>personas: the people (human or agent) the software serves</td></tr>
+<tr><td>What</td><td><code>&lt;software&gt;/</code> (with the code)</td><td>specifications: behaviour (<code>.allium</code>), timing (<code>.tla</code>), verified in the software's own CI</td></tr>
+<tr><td>When</td><td><code>plan/</code></td><td>the milestone index and one folder per milestone</td></tr>
+<tr><td>Where</td><td><code>&lt;software&gt;/</code></td><td>the hosted software, a bare store with worktrees; you add it</td></tr>
+<tr><td>Why</td><td><code>call/</code></td><td>decisions, in MADR format (see <code>call/0000</code>)</td></tr>
+<tr><td>How</td><td><code>CLAUDE.md</code> + <code>tools/</code></td><td>this manual, and the verification tools</td></tr>
+</tbody></table>
+</div>
+<p><code>STRUCTURE.md</code> is the short map of the same thing. Read it once.</p>
+<h2 id="how-you-work-four-principles"><a class="header" href="#how-you-work-four-principles">How you work: four principles</a></h2>
+<p>These four principles govern every change. They exist because language models
+make predictable mistakes; each principle blocks one.</p>
+<h3 id="1-think-before-coding"><a class="header" href="#1-think-before-coding">1. Think before coding</a></h3>
+<ul>
+<li>State your assumptions in plain text before you write code.</li>
+<li>If the request could mean more than one thing, list the meanings and ask which
+one. Do not pick one silently.</li>
+<li>If a simpler approach exists than the one you first reached for, say so.</li>
+<li>If any part of the request is unclear, stop and name the unclear thing. Ask.
+Do not guess.</li>
+</ul>
+<p>The goal: the human never reads your output and says "that is not what I meant."</p>
+<h3 id="2-keep-it-simple"><a class="header" href="#2-keep-it-simple">2. Keep it simple</a></h3>
+<ul>
+<li>Write the least code that solves the stated problem. Nothing speculative.</li>
+<li>Do not add features that were not asked for.</li>
+<li>Do not add an abstraction (a base class, an interface, a wrapper) for
+something used in exactly one place. Write the concrete thing.</li>
+<li>Do not add configuration for a value that has exactly one setting. Hardcode it.</li>
+<li>Do not handle errors that cannot happen given the current inputs.</li>
+<li>If your code is long and the same result fits in a fraction of the lines,
+rewrite it short before you show it.</li>
+</ul>
+<h3 id="3-make-surgical-changes"><a class="header" href="#3-make-surgical-changes">3. Make surgical changes</a></h3>
+<ul>
+<li>Touch only the lines the request needs. Clean up only the mess you made.</li>
+<li>Do not "improve" nearby code, comments, names, or whitespace that the request
+did not ask about.</li>
+<li>Do not refactor working code that is not part of the request.</li>
+<li>Match the existing style exactly: tabs or spaces, snake_case or camelCase,
+whatever the file already uses.</li>
+<li>If your change leaves an import or variable unused, remove it in the same
+commit. If you spot unrelated dead code or a bug, mention it to the human; do
+not silently fix or delete it.</li>
+</ul>
+<p>Check: every line you changed must trace to the request. If a line does not,
+revert it.</p>
+<h3 id="4-drive-to-a-verifiable-goal"><a class="header" href="#4-drive-to-a-verifiable-goal">4. Drive to a verifiable goal</a></h3>
+<p>Turn every task into a goal you can check, then loop until the check passes.</p>
+<ul>
+<li>"Add validation" becomes: write tests for the invalid inputs, then write code
+until those tests pass.</li>
+<li>"Fix the bug" becomes: write a test that reproduces the bug, then change code
+until that test passes.</li>
+<li>"Refactor X" becomes: confirm the tests pass, refactor, confirm they still pass.</li>
+</ul>
+<p>For any task with more than one step, write a short numbered plan first, and give
+each step a check:</p>
+<pre><code>&lt;what you will do&gt; -&gt; verify by: &lt;how you will confirm it worked&gt;
+</code></pre>
+<p>If the success check is weak ("make it work"), ask the human to make it concrete
+before you start.</p>
+<h2 id="names-numbers-and-milestones"><a class="header" href="#names-numbers-and-milestones">Names, numbers, and milestones</a></h2>
+<p>Numbers are identity. Slugs are content. Ordering lives in the index, never in
+the name.</p>
+<ul>
+<li>A milestone is a folder in <code>plan/</code> named <code>NNNN-slug</code>: a four-digit
+zero-padded number, a hyphen, then a lowercase hyphenated slug, for example
+<code>0001-example-milestone</code>. Decisions in <code>call/</code> use the same <code>NNNN-slug</code> form.</li>
+<li>Name a milestone after its content rather than its position. <code>0003-ci-pipeline</code> is
+good. Do <strong>not</strong> name things by ordinal position (<code>phase-one</code>, <code>M2</code>) or by a
+bare numeral (a header that is just "3" or "5.5"). Positions move when a plan
+is re-cut; content names stay attached to their content.</li>
+<li>The number is assigned when the work is accepted, and it never changes. To
+read sequence, read the index, not the filenames.</li>
+<li><code>tools/host-lifecycle</code> allocates these numbers and checks the names for you.
+Use it (see below) instead of numbering by hand.</li>
+</ul>
+<h2 id="decisions-call"><a class="header" href="#decisions-call">Decisions: <code>call/</code></a></h2>
+<p>When you make a choice that someone later will ask "why?", record it as a
+decision in <code>call/</code>, in MADR (Markdown Any Decision Record) format. The bootstrap
+decision <code>call/0000</code> explains the format and links to the MADR spec. One file per
+decision, <code>NNNN-slug.md</code>, number assigned when the decision is accepted.</p>
+<p><code>call/</code> records decisions about <strong>the software under development</strong>, why your
+software is built as it is. It does <strong>not</strong> hold methodology decisions. The
+methodology is settled in this spine (<code>CLAUDE.md</code> + <code>STRUCTURE.md</code>), inherited by
+copy-at-version; a change to it is made in the template and propagated by
+<code>host-lifecycle upgrade</code>, never re-litigated as a project <code>call/</code>.</p>
+<p><strong>Anti-ouroboros.</strong> A project must avoid feeding on its own methodological tail. If a
+<code>call/</code> decision restates a methodology rule that is then settled or changed
+upstream in the spine, retire it the MADR way: set <code>Status: superseded by the spine</code> in place (records are immutable: you change status, never delete). The
+live (<code>accepted</code>) Why room then holds only decisions still in force.
+<code>host-lifecycle validate</code> fails an <code>accepted</code> decision that is missing a <code>Scope:</code>
+header or declares <code>Scope: methodology</code>. The template ships <code>call/0000</code> only as a
+worked example; replace it with your software's own decisions.</p>
+<p><strong>Inherit from the source, not from a host.</strong> You inherit the methodology from
+<em>this template</em> (the versioned source you copy-at-version) alone. A host or
+management repo's <strong>top-level instance contents</strong> (its <code>call/</code>, <code>plan/</code>,
+<code>MEMORY.md</code>, the project-specific parts of its <code>CLAUDE.md</code>) are that project's own
+rooms and bind no adopter. Do not read them as normative.</p>
+<h2 id="specs-with-the-software-they-constrain"><a class="header" href="#specs-with-the-software-they-constrain">Specs, with the software they constrain</a></h2>
+<p>A spec states what the software must do; a tool turns it into a check. Specs live
+<strong>with the software they describe</strong> (in the software repo, beside the code, and
+verified by <strong>that repo's CI</strong>), the way tests live next to code, so a spec and the
+code it constrains move, version, and break together:</p>
+<ul>
+<li>Behaviour and requirements as <code>.allium</code> files, authored and maintained through
+the allium skills (<code>elicit</code>/<code>distill</code>/<code>tend</code>/<code>weed</code>/<code>propagate</code>), checked by
+<code>tools/allium</code> (<code>allium check</code> validates structure; <code>allium analyse</code> adds
+data-flow, reachability, terminal-state and deadlock analysis; <code>allium plan</code>
+derives the test obligations the suite must discharge). The software's CI runs
+<code>check</code> + <code>analyse</code> + <code>plan</code> and fails on any error or warning.</li>
+<li>Timing and concurrency as <code>.tla</code> files, checked by <code>tools/specula</code> (TLA+/TLC),
+run by the software's CI.</li>
+</ul>
+<p>A present spec carries its full lane (see "Mandatory when used", below). Wire the
+tool and its skills before authoring.</p>
+<p>The host's <code>plan/&lt;milestone&gt;/</code> <em>references</em> a spec (by path and the software pin);
+it does not contain it. Do not place specs in the host's <code>plan/</code> tree. Quarantining
+a spec from its software is a bad smell (the spec drifts from the code). A spec that
+ended up under <code>plan/*/spec/</code> is relocated into the software repo.</p>
+<h2 id="personas-cast"><a class="header" href="#personas-cast">Personas: <code>cast/</code></a></h2>
+<p><code>cast/</code> holds the personas: short profiles of the people the software serves. A
+persona is a hypothetical archetypal user, not a real individual. The examples
+here (<code>mara.md</code>, a human operator, and <code>wren.md</code>, an agentic LLM) show the two
+modalities; replace them with your project's own.</p>
+<p>Build at least one persona by discussion with the human before planning the work
+it serves. <code>cast/applying-personas.md</code> gives the cited process for doing this.
+Follow it.</p>
+<h2 id="the-verification-ladder"><a class="header" href="#the-verification-ladder">The verification ladder</a></h2>
+<p>Different kinds of property need different checkers, and different <em>strengths</em> of
+checker. Route each claim to the lane, and to the rung, that can prove it. The base
+lanes:</p>
+<ol>
+<li>
+<p><strong>Hygiene</strong>: <code>tools/host-lint</code>. Catches naming tells: ordinal labels and bare
+numerals leaking into commit messages, headers, and comments. Runs as a git
+hook. <strong>Self-referential software is excluded, not bypassed.</strong> Software that
+<em>detects</em> tells (a linter, parser, validator, grammar tool) must embed them in
+test fixtures, docs, and sometimes source, legitimate self-reference the hook
+would otherwise flag. Exclude that corpus through the tool's ignore mechanism
+(<code>.host-lintignore</code>), which the per-file hook scan MUST honor; validate each
+excluded file line-by-line so no real tell hides among the examples, and keep
+ordinary source scanned (reword an example comment rather than mute the file).
+When a tracked <em>document</em> must instead reproduce a tell <strong>verbatim</strong> (an old-name
+remap table, or a frozen dated review citing another document's numbered steps),
+it is <strong>boxed in the file, not path-excluded</strong>: wrap it in a fenced code block
+tagged <code>host-lint:ignore</code> (markdown only), and the naming scan skips that block
+while the rest of the file stays linted. A regular code block and inline
+backticks stay scanned, so a tell cannot be laundered by quoting it. The choice is
+three-way: reword a pedagogical example or a document's own ordinal label into
+content; box an irreducible literal citation; and path-exclude only the immutable
+record (the append-only memory log, dated review artifacts) and the
+self-referential corpus above.
+<strong>Never <code>--no-verify</code> past the gate to land a fixture.</strong> That silently defeats
+the lane, the same "let red hide" failure as a CI matrix that fail-fast-cancels
+its own jobs. (A fix to either, once found, is a behaviour change: ship it as a
+patch release with a matching tag.) <strong>Legitimate tell-shaped tokens are
+declared, not silenced.</strong> A version string, product name, or cited tracker
+reference that merely <em>looks</em> like a tell is declared in a provenance-checked
+allowlist (host-lint's <code>LEXICON</code>): each entry the full contextual phrase, masked
+before detection; a tracker reference carries its backing URL. Because a sound,
+declarable escape then exists, the identifier/reference tier MAY escalate an
+advisory warn into a blocking flag (the committed <code>strict</code> directive), so an
+<em>un</em>declared tell-shaped token becomes a hard signal. The allowlist is provenance,
+not a mute button: the tool refuses a bare master key, a phrase that is <em>itself</em> a
+tell (rename it, do not declare it), and an un-cited tracker reference (<code>#N</code>,
+<code>owner/repo#N</code>, or an opted-in <code>PROJ-NNNN</code> key); URL liveness is re-derived by a
+network-having lane, never the offline hook.</p>
+<p><strong>Prose hygiene is the same lane, applied continuously.</strong> Beyond naming tells,
+<code>host-lint --prose</code> audits authored docs for the LLM-slop prose tropes that
+tropes.fyi names (decoration dashes and arrows, tricolons, hypophora, and so on).
+The bar matches the naming audit: authored docs carry <strong>zero</strong> prose tropes, as an
+<strong>ongoing</strong> rule, not a one-time migration. It is wired into the <strong>receipts
+mechanism</strong>: the <code>verify</code> phase <strong>applies</strong> the prose audit and <strong>generates</strong> a
+receipt, and <code>software --check</code> re-verifies that receipt by re-running the prose
+audit (<code>host-lifecycle prose</code>, host-lint's <code>--docs</code> engine run in-process, so the
+gate needs no host-lint on PATH), so a doc that regresses to slop re-opens it as a
+HAZARD. The one exception
+is <code>MEMORY.md</code>, the <strong>agent's own append-only working memory</strong>: it is excluded from
+both the naming and prose audits via <code>.host-lintignore</code>, never rewritten.</p>
+<p><strong>The methodology grows by reflective practice, because an agent is blind to its own
+drift.</strong> An agent perceives neither the register it emits nor the restatements its own
+change stales, so both are re-examined on purpose, <strong>prompted</strong> at the trust
+boundaries (the verify gate, adoption), <strong>mechanical-first</strong>, and <strong>operator-validated</strong>.
+Two arms run under this one principle. The first, <strong>gather</strong>, looks forward and grows
+the living grammar: the lane enforces a shared corpus of tells, and that corpus is
+incomplete by nature, so new tell-shapes that emerge in practice are swept up rather
+than waited for. Discovery is <strong>mechanical-first</strong>: sweep the history and recent work
+for a recurring shape the lane does not catch. An agent seldom perceives its own
+register as a tell, so this reflection is <strong>prompted</strong>, at the verify gate before a
+milestone closes and at adoption, and the agent assists rather than leads. <strong>The
+operator validates</strong> whether a surfaced shape is a genuine tell or legitimate domain
+vocabulary, by one test: is the shape a property of how models segment work, or of
+this project's own domain? Authority over a grammar change rests with the operator;
+an agent proposes a change and never approves one.</p>
+<p><strong>A confirmed tell graduates into the shared grammar; legitimacy stays local.</strong> The
+two run in opposite directions because a tell is a property of machine register that
+recurs across projects, while a legitimate token (a version string, a product
+identifier, a cited tracker reference) belongs to one project. So a confirmed tell is
+<strong>proposed upstream</strong> to the shared grammar the lane consumes, where every project
+gains it on the next bump; the project that finds it does not edit that shared source
+itself. A legitimate tell-shaped token stays in the per-project <code>LEXICON</code>. The host's
+own maintainer validates universality and releases the graduation.</p>
+<p><strong>Growth never inverts the disposition order, and it looks forward.</strong> Reword a
+positional or ordinal reference into content by default, since a content name is
+almost always available; box or declare an irreducible citation; declare the
+numeral-free contextual prefix when a shape is a genuine quantity; and reserve a
+graduation for the residue that still recurs once rewording is impossible. Harvesting
+at adoption proposes what to catch from then on, and leaves the immutable past alone,
+which migration disposes of by renaming live files and boxing frozen records. When a
+later grammar bump flags an existing <strong>live</strong> doc, reword it; a <strong>frozen</strong> record is
+boxed. A graduation that proves to over-flag is narrowed by a later grammar release,
+the same as any behaviour fix.</p>
+<p><strong>The second arm, reconcile, looks backward at the project's own restatements.</strong>
+Copy-at-version keeps the verbatim spine current, but a project also <em>restates</em>
+methodology in its own prose: its room map, its components, its verifiers, its
+recorded layout. When a spine change moves a concept, that restatement silently
+drifts, because the upgrade propagates the spine yet never re-reads the paraphrase.
+<strong>Prefer pointing over paraphrasing</strong>: define each methodology concept once, at a
+stable <code>{#id}</code> anchor on a heading in an authored doc (its home), and <em>point</em> at it from elsewhere
+with a <code>[text](FILE#id)</code> link rather than restating it. For example, a home is the
+heading <code>## Components {#components}</code> (the <code>{#id}</code> sits at the end of the heading) and a
+pointer is <code>[components](STRUCTURE.md#components)</code>. The concepts are <code>components</code>,
+<code>verifiers</code>, <code>software-root</code>, and <code>spec-home</code>. The first two are project-local, read from
+its <code>.host-software</code>: the <code>[software]</code> members are the <code>components</code> (a project <em>with</em> a
+single-file entrance sets it apart with an <code>[entrance]</code> stanza naming that member; most have none), and the
+<code>[verification]</code> drivers are the <code>verifiers</code>. The last two are the fixed layout:
+<code>software-root</code> is where the project's software lives (<code>software/</code>) and <code>spec-home</code> is
+where its specs live, with the software. The lifecycle manifest is phases only, so no adopter
+inherits another project's facts; <code>manifest --check</code> rejects a project-fact stanza.
+<code>host-lifecycle reconcile</code> runs three checks over the tracked docs, operable at the
+weak-agent bar: <strong>link-integrity</strong> (every concept link resolves to its home),
+<strong>declared-anchor</strong> (the link names a real concept), and <strong>coverage</strong> (each
+project-local home names its full <code>.host-software</code> set, so a dropped tool fails by
+absence, the bite). Coverage guards the home and a pointer cannot drift; an enumeration
+left un-pointed is the author's choice and is not guarded. The earlier inline
+<code>&lt;!-- host-reconcile: KIND --&gt;</code> annotation is
+<strong>deprecated</strong>: it is kept checking during the transition and a surviving annotation is
+warned, and the form retires a spine revision later, never silently inert.
+<strong>The trigger is conditional and host-aware.</strong> <strong>Adoption</strong> runs the full reconcile
+once; for a <strong>development host</strong> that authors its spine changes, the <strong>verify gate</strong> is
+the binding trigger: <code>software --check</code> runs reconcile in its recheck. <strong>Disposition is
+three-way</strong>, as for a flagged tell: convert a live restatement to a pointer, box a
+frozen citation, forward-correct an immutable record (a <code>call/</code> body, a <code>Status: done</code>
+doc, <code>MEMORY.md</code>). A reconcile fix stays <strong>local</strong> and never propagates, the mirror of a
+gathered tell graduating <strong>upstream</strong>. A sibling check closes decision-status drift:
+<code>host-lifecycle validate</code> HAZARDs an <code>accepted</code> <code>call/</code> decision whose <code>Scope:</code> names
+<code>host-template</code>, since its rule is now spine-resident and belongs superseded there.
+<strong>The entrance check is reconcile's standalone sibling.</strong> A document read out of context
+cannot point at a definition, so a single-file entry restates the spine and stales, whether
+a front-door README or a standalone <code>SKILL.md</code> loaded on its own. The entrance check holds
+such a document by coverage and generation, the way reconcile holds a linkable one by
+pointers. A project declares one entrance, a global singleton, in an <code>[entrance]</code> stanza in
+<code>.host-software</code>: the <code>member</code> it belongs to (set apart from <code>components</code>), the <code>document</code>
+within that member (default <code>README.md</code>, so a <code>SKILL.md</code> or a landing page is reached by
+path), and the concepts it <code>restates</code> (<code>true</code> for every concept, or a named subset).
+<code>host-lifecycle entrance --check</code> then holds the document complete against the declared
+concepts: it generates the <code>.host</code> stamp and covers the rest. A document that restates only
+home-less doctrine declares no checkable concept, and the tool says so rather than claim a
+coverage it cannot deliver.
+The legacy per-member marker is retired: a surviving <code>front-door = true</code> or <code>entrance = true</code> on a <code>[software]</code> member is a loud error, not the entrance, so declare the stanza.</p>
+</li>
+<li>
+<p><strong>Requirements</strong>: <code>tools/allium</code> (MIT, by JUXT). Does the software meet the
+behaviour the spec states? Author and maintain <code>.allium</code> specs <strong>through the
+allium skills</strong>, not by hand: <code>elicit</code>/<code>distill</code> to author, <code>tend</code> to evolve,
+<code>weed</code> to find spec↔code divergence, <code>propagate</code> to generate the tests. Gate
+each spec in the software's CI with <code>allium check</code> (structure) + <code>allium analyse</code> (data flow, reachability, terminal states, deadlock) + <code>allium plan</code>
+(test obligations).</p>
+</li>
+<li>
+<p><strong>Timing and concurrency</strong>: <code>tools/specula</code> (Apache-2.0). TLA+ model
+checking: are the orderings and timings correct? Model-check each <code>.tla</code> with
+TLC in the software's CI.</p>
+</li>
+</ol>
+<p><strong>Deeper rungs, <code>tools/host-prove</code></strong> (our tooling, Unlicense). The base lanes are
+<em>bounded</em>: TLC checks one finite instance, allium's tests sample inputs. When a claim
+must hold for <em>all</em> parameter values or <em>all</em> inputs, host-prove drives three heavier
+verifiers as agentic skills, each turning the tool's output into one machine-readable
+verdict so the rung runs down to a small model:</p>
+<ol start="4">
+<li><strong>Symbolic / parametric</strong>: <strong>Apalache</strong> (TLA+ to SMT/Z3; the <code>apalache-symbolic</code>
+skill). Proves a <code>.tla</code> invariant across a whole symbolic parameter family at once,
+where TLC can only enumerate one instance.</li>
+<li><strong>Proof / unbounded</strong>: <strong>TLAPS</strong> (<code>tlapm</code>; the <code>tlaps-proof</code> skill). A deductive,
+machine-checked proof that a property holds for all states, the must-hold-for-all
+claims bounded and symbolic checking cannot close. (Authoring a proof needs a strong
+model; the skill scopes a weak model to running and maintaining existing proofs.)</li>
+<li><strong>Code-conformance</strong>: verify the <em>implementation</em> against the spec, beyond tests
+and trace validation. This rung is <strong>target-specific</strong>: Rust uses <strong>Kani</strong> (the
+<code>kani-conformance</code> skill), C uses CBMC, and so on. The methodology prescribes the
+<em>obligation</em>; the project picks the verifier its language supports. (Prefer
+byte/char-level targets: <code>str::split</code>/<code>Vec</code> make CBMC-style checkers blow up.)</li>
+</ol>
+<p>Read the ladder as: hygiene, then requirements, then bounded timing (TLC), then symbolic
+(Apalache), then proof (TLAPS), with code-conformance (Kani et al.) the orthogonal rung
+that ties a proven spec to the running code. The deeper rungs are <strong>opt-in and inert</strong>
+(see below): nothing installs or runs until a project declares one.</p>
+<p><strong>Mandatory when used (RFC-2119).</strong> Adopting a lane is optional (not every
+project needs TLA+); <strong>once a spec of a kind exists, its tool, skills, and CI
+lane are required.</strong> A component carrying any <code>.allium</code> spec MUST wire <code>tools/allium</code>
+and its skills and run <code>check</code> + <code>analyse</code> + <code>plan</code> in that repo's CI, and the
+<code>plan</code> obligations MUST be discharged by the software's tests. A component carrying
+any <code>.tla</code> spec MUST wire <code>tools/specula</code> and TLC-check it in that repo's CI. A spec
+present without its full lane is a <strong>defect</strong>, not a choice. The lanes are not
+reference decoration. The tools are referenced submodules; their skills are
+generated, gitignored symlinks (<code>link-skills.sh</code>), wired before you author a spec.
+This is <strong>enforced</strong>, not only stated: <code>host-lifecycle software --check</code> raises a
+HAZARD when a materialized component carries a <code>.allium</code> with no <code>allium check</code> +
+<code>allium analyse</code> CI workflow, or a <code>.tla</code> with no TLC lane.</p>
+<p>The deeper rungs work the same way, one level up: they are <strong>opt-in and inert until a
+project declares a rung</strong> by dispositioning an obligation <code>kani:</code>/<code>apalache:</code>/<code>tlaps:</code>
+(below). A declaration then obliges that rung's CI lane and a re-deriver that runs.
+<code>software --check</code> HAZARDs an obligation that declares <code>kani:</code> with no <code>cargo kani</code> lane,
+<code>apalache:</code> with no <code>apalache-mc</code> lane, or <code>tlaps:</code> with no <code>tlapm</code> lane, and it HAZARDs a
+declared rung whose shared re-deriver, host-prove, does not run, since a re-derivation that
+cannot run leaves the rung undischarged however complete the CI config reads. So install the
+re-deriver where the gate runs, the same way the verifier itself is installed. The digest a
+rung records is <strong>earned</strong> through <code>obligations --rederive --record-digests</code>, which re-runs the
+proof and records only on a pass, in place of a hand edit, so a fresh digest stands for a
+passing re-derivation on the current inputs. The mere presence of a <code>.tla</code> or a crate never
+activates a rung; only the declaration does, so a project pays for a heavier verifier exactly
+when, and only when, it chooses to.</p>
+<p><strong>Obligations are discharged, not just emitted.</strong> <code>allium plan</code> derives a test
+obligation for every config default, entity, enum, invariant, rule and transition.
+Each obligation MUST be <strong>dispositioned</strong> in a sibling <code>&lt;spec&gt;.obligations</code> manifest
+(the remap-dictionary discipline applied to tests) as <code>test:&lt;name&gt;</code> (a named test
+discharges it), <code>structural</code> (the spec's own <code>check</code>/<code>analyse</code> lane covers it),
+<code>waived: &lt;reason&gt;</code> (an honest, recorded gap), or a deeper-rung proof: <code>kani:&lt;harness&gt;</code>,
+<code>apalache:&lt;inv&gt;</code>, or <code>tlaps:&lt;theorem&gt;</code> (a host-prove rung discharges it, stronger than
+a test, for all inputs/parameters). <code>host-lifecycle obligations &lt;spec&gt; --tests &lt;dir&gt; [--prove &lt;dir&gt;]</code> fails on any undispositioned obligation, any stale disposition, any
+<code>test:&lt;name&gt;</code> absent from the test sources, and any rung proof name absent from the
+<code>--prove</code> sources; the software's CI runs it, and <code>software --check</code> HAZARDs a
+<code>.allium</code> that has no <code>.obligations</code> manifest. An
+obligation left undispositioned is a defect. Discharge is total, per component.</p>
+<p><strong>A verification lane reports clean only after it performs its check (no-hollow-green,
+<code>call/0035</code>).</strong> A <code>test:</code> disposition is name-presence until it carries an <code>exercises=&lt;symbol&gt;</code>
+link to a function the discharging test drives. <code>host-lifecycle obligations --strict-discharge</code>
+then HAZARDs a <code>test:</code> whose named test does not reference that symbol, an <code>#[ignore]</code>'d
+discharging test, a behavioural obligation relabelled <code>structural</code>, or a <code>waived:</code> lacking a
+reason. The link is an auditable heuristic, weaker than a proof: the claim that a test truly
+drives the rule is the opt-in re-derivation below, and what the tool cannot mechanically
+establish is labelled <em>attested</em> rather than asserted as proved. The strict check is staged
+warn-then-retire, so bumping the tool never reddens a green ladder. The build lane obeys the
+same rule: <code>software --verify-build</code> prints its clean line only when a build was verified and
+none was left unrun, and it exits non-zero on an in-scope build it could not rebuild, so it
+never attests a guarantee it did not establish.</p>
+<p><strong>A rung is discharged by re-derivation, not by name-presence (<code>call/0018</code>).</strong> That a
+proof <em>exists</em> is not that it <em>passes</em>. <code>--prove</code> only lints that the rung's named
+target is present (AVAILABLE ≠ DISCHARGED). The real discharge is
+<code>host-lifecycle obligations &lt;spec&gt; --rederive &lt;dir&gt;</code>, which re-runs each rung's verifier
+through host-prove <strong>in its recorded pinned toolchain</strong> and requires a PASS at the
+declared <code>bound=</code>, checkable anywhere, with no keys and no dependence on a specific CI;
+it generalizes the reproducible-build re-derivation (which reproduces a recorded artifact
+hash) so the same re-derivation applies to proofs as well as artifacts. The cheap offline signal is <strong>input-digest staleness</strong>: a
+rung may declare <code>inputs=&lt;files&gt;</code>, <code>--rederive --record-digests</code> fingerprints them with
+<code>git hash-object</code> into a committed <code>&lt;manifest&gt;.digests</code> ledger, and a later offline run
+reports the proof <strong>STALE</strong> if those inputs drifted without a fresh re-derivation.
+Enforcement is <strong>project-pluggable</strong>: a required check, any CI, a pre-push hook, or the
+operator running the verify phase; the methodology prescribes the re-derivation and ships
+the re-deriver, and never bakes in a CI.</p>
+<p>Two rules govern the tools:</p>
+<ul>
+<li><strong>Reference, don't vendor.</strong> Each tool is a git submodule pinned to a commit.
+Keep its code out of this repository. This governs an <strong>adopter</strong> consuming
+the tools. A <strong>development host</strong> that <em>authors</em> a host-* tool is the exception:
+it develops that tool as a Where-room software component of its own (materialized
+and released through the lifecycle like any software it builds) and consumes the
+built result (binary + worktree-sourced skills) from that worktree, rather than
+referencing its own source as a foreign submodule. Reference is for the consumer;
+the producer of a tool embeds it.</li>
+<li><strong>Instruct, don't patch.</strong> Drive the tools through this manual and their own
+interfaces. Do not edit a tool's source to make it fit. If a tool needs a
+change, raise it upstream.</li>
+</ul>
+<p>The <em>output</em> a tool produces about your project (a report, a counterexample, a
+generated check) belongs to your project, not to the tool's license, the same
+way a compiler's license does not cover the program it compiles.</p>
+<h2 id="the-host--tools"><a class="header" href="#the-host--tools">The host-* tools</a></h2>
+<p>Three of the tools are ours, released into the public domain (Unlicense):</p>
+<ul>
+<li><strong>host-grammar</strong>: the shared rules for valid names and numbers. A library, not
+a command. Both tools below depend on it.</li>
+<li><strong>host-lint</strong>: the <em>checker</em>. It reads text and flags naming tells.</li>
+<li><strong>host-lifecycle</strong>: the <em>generator</em>. It allocates numbers and scaffolds
+milestones, decisions, and personas without spending model tokens on
+mechanical work. Run <code>host-lifecycle next &lt;dir&gt;</code> for the next number and
+<code>host-lifecycle validate &lt;dir&gt;</code> to check a folder. It also materialises and
+audits the <em>Where</em> room: <code>host-lifecycle software --materialize|--check &lt;dir&gt;</code>
+realises the <code>.host-software</code> bare store + worktrees and verifies each is at its
+pin.</li>
+</ul>
+<p>Because the generator and the checker share <code>host-grammar</code>, what host-lifecycle
+emits is exactly what host-lint accepts. Trust that symmetry; do not number by
+hand.</p>
+<h3 id="the-lifecycle-phases-every-phase-emits-a-receipt"><a class="header" href="#the-lifecycle-phases-every-phase-emits-a-receipt">The lifecycle phases, every phase emits a receipt</a></h3>
+<p>host-lifecycle ships one Claude <strong>skill per lifecycle phase</strong>, generated into
+<code>.claude/skills/</code> by <code>link-skills.sh</code> exactly as the allium/specula skills are:
+<strong>classify</strong> (preview + case), <strong>adopt</strong> (governance + rooms + stamp), <strong>embed</strong>
+(the software as a bare store with worktrees), <strong>remap</strong> (the dictionary rename),
+<strong>verify</strong> (the gate sweep: <code>validate</code>, <code>software --check</code>, <code>obligations</code>,
+<code>book --check</code>), <strong>publish</strong> (the doc site), <strong>upgrade</strong> (the ledger), and
+<strong>release</strong> (the strict, tool-carried release: verify, build in the recorded
+toolchain, re-derive the artifact hash, re-pin, tag, receipt). Each owns the
+judgment around its mechanical command.</p>
+<p>The phases (their order, modality, command, and the evidence each carries) are
+not re-typed in prose; they live once in the tool-readable <strong><code>lifecycle.manifest</code></strong>
+(one <code>[phase "&lt;name&gt;"]</code> stanza each), which <code>host-lifecycle</code> reads at the project's
+adopted <code>.host</code> revision for <code>--next</code>, the <code>book</code> order, and the receipt gate. Read
+the whole lifecycle at a glance with <code>host-lifecycle manifest &lt;path&gt;</code>.</p>
+<p>Unlike a verification lane, which is conditional on a spec existing, the lifecycle
+is <strong>driven by the tool, never hand-operated</strong>, and the rule is <strong>every phase
+emits a receipt</strong>, not "every phase runs". Modality is first-class: a phase may be
+<strong>conditional</strong> (embed and release apply only with a Where room) or <strong>recurring</strong>
+(once per software component), so it can legitimately not run; even then it records
+a <strong>receipt</strong> written by the tool, in <code>.host-receipts</code> for a methodology-version phase
+(adopt, upgrade) and <code>.host-lifecycle-receipts</code> for an operational one: <code>done</code> with re-derivable
+evidence, <code>skip</code> with a cited reason, or tool-computed <code>n-a</code>. <code>host-lifecycle software --check</code> re-verifies each <code>done</code> by the manifest's closed <code>recheck =</code> and
+<strong>HAZARDs a phase with no receipt</strong>, the one defect the gate needs; a protected
+core (<code>verify</code>, <code>skippable = false</code>) refuses a skip outright. Operating a phase
+ad-hoc (hand-scaffolding rooms, hand-renaming files, hand-rolling the site or a
+release) leaves no receipt, and so is a defect by construction.</p>
+<h3 id="never-adopt-a-software-repository-in-place"><a class="header" href="#never-adopt-a-software-repository-in-place">Never adopt a software repository in place</a></h3>
+<p>A host is a <em>separate meta-repo</em>; the software it governs lives beneath it as the
+<em>Where</em> room (a bare store with worktrees recorded in <code>.host-software</code>). The two
+stay separable and independently versioned. That is the whole point of "keep
+them separate". So at <strong>first adoption</strong> (no <code>.host</code> stamp yet), if the target
+directory is itself a software repository (it carries a root build manifest
+(<code>Cargo.toml</code>, <code>package.json</code>, <code>go.mod</code>, <code>pyproject.toml</code>, …) and is not already
+managing software via <code>.host-software</code>), you <strong>MUST</strong> refuse to continue.
+<code>host-lifecycle classify &lt;dir&gt;</code> enforces this: it prints the refusal and exits
+non-zero instead of a case letter, rather than letting you turn the code repo
+into the host.</p>
+<p>Refusing is not the end of the task. Embed the software the right way instead:
+create or choose an empty host repository (e.g. <code>agentic-&lt;name&gt;</code>), <code>adopt</code> it
+there, then add the software as the Where room with a <code>[software "&lt;name&gt;"]</code>
+stanza in the host's <code>.host-software</code> (the repo's URL, a pinned SHA, the worktree
+set) and <code>software --materialize</code>. The classify refusal prints these exact steps.</p>
+<h2 id="audited-plans-and-append-only-memory"><a class="header" href="#audited-plans-and-append-only-memory">Audited plans and append-only memory</a></h2>
+<p>Two disciplines keep the host trustworthy across sessions.</p>
+<ul>
+<li><strong>Audited plans.</strong> Every change to <code>plan/</code> (the milestone index or any
+milestone document) and every decision in <code>call/</code> is committed and pushed
+immediately, in its own commit, not batched with code. After you finish a step
+in the software, update the plan to say what you actually did, in a separate
+commit.</li>
+<li><strong>Append-only memory.</strong> <code>MEMORY.md</code> is a running log of decisions, discovered
+constraints, and lessons. Add a short entry whenever you finish something
+significant, hit a non-obvious bug, or find an unexpected constraint, as you
+go, not at the end. Commit it on its own and push it. Never rewrite or delete an
+old entry; if one was wrong, add a new entry that corrects it and points back.</li>
+</ul>
+<p>The test for both: a new session with no memory of this conversation should be
+able to read <code>plan/</code>, <code>call/</code>, and <code>MEMORY.md</code> and continue without repeating a
+past mistake.</p>
+<h2 id="the-task-graph-in-plan-tasks-are-receipted-nodes"><a class="header" href="#the-task-graph-in-plan-tasks-are-receipted-nodes">The task graph: in-plan tasks are receipted nodes</a></h2>
+<p>A milestone's <code>## Build sequence</code> is not loose prose. Each step is a <strong>task</strong>: an
+anchored <code>### </code> heading under that section, ending in <code>{#anchor}</code> (the placement
+stock mdBook honors), for example <code>### Gather the data {#gather-data}</code>. Its
+identity is global, <code>plan/NNNN#anchor</code>, so a receipt and a dependency hang on a
+stable anchor, never a position that renumbers when a plan is re-cut. An anchored
+<code>### </code> heading belongs only under <code>## Build sequence</code>, and a build-sequence <code>### </code>
+without an anchor is refused, so a task is never confused with an ordinary
+subsection.</p>
+<p>A few bullets under each task heading carry its fields:</p>
+<pre><code>## Build sequence
+
+### Gather the data {#gather-data}
+
+- verify: cargo test gather
+- inputs: src/gather.rs
+
+### Ship it {#ship-it}
+
+- depends: #gather-data
+- verify: attested call/0007
+</code></pre>
+<ul>
+<li><strong><code>depends</code></strong> names the prerequisites: a local <code>#anchor</code>, or a cross-milestone
+<code>plan/NNNN#anchor</code>. A task with no <code>depends</code> takes the previous task in the
+section (the linear default), and the first task is a root. The project's tasks
+form <strong>one graph</strong> across milestones, and <code>host-lifecycle tasks</code> derives the
+<strong>ready frontier</strong> (the tasks whose prerequisites all carry a done receipt),
+which a coordinator may run in parallel.</li>
+<li><strong><code>verify</code></strong> is a command the gate re-runs (mechanical), or <code>attested &lt;call/NNNN | operator&gt;</code> (a decision the gate resolves, or an operator confirmation).</li>
+<li><strong><code>inputs</code></strong> names the files a mechanical verify covers, fingerprinted so the
+gate flags a done as stale once they drift (<code>call/0018</code>'s input-digest
+staleness, one level down).</li>
+</ul>
+<p><strong>Declare prerequisites; the tool derives parallelism.</strong> State for each task only
+what must finish before it. The needs-question is local and conservative, and a
+missing edge merely over-serializes (safe), while a guessed "independent" edge
+races two workers (a corruption), so the author never answers "what can run at
+once?" A coordinator fans a frontier out to parallel workers <strong>only when they are
+resource-isolated</strong> (separate worktrees), since <code>depends</code> orders work, it does not
+lock a shared resource.</p>
+<p><strong>Every task emits a receipt, and the gate is mandatory.</strong> <code>host-lifecycle tasks --record</code> writes a receipt into <code>.host-task-receipts</code> (it reads the task's own
+<code>verify</code>/<code>inputs</code>, so you never re-type them), a tool-written ledger you never
+hand-edit. <code>software --check</code> HAZARDs a task with no receipt, a <code>done</code> whose
+mechanical inputs drifted or whose citation does not resolve, a <code>skip</code> without a
+resolvable <code>call/NNNN</code>, and an orphan receipt whose task was renamed or removed. A
+<code>done</code> is re-derivable, never self-asserted: the cheap gate checks the input
+digest, and <code>tasks --rederive</code> re-runs the command and refreshes it. These task
+receipts are a third receipt kind beside the methodology-version and operational
+ledgers.</p>
+<h2 id="software-and-submodule-discipline"><a class="header" href="#software-and-submodule-discipline">Software and submodule discipline</a></h2>
+<p>The <strong>tools</strong> are submodules; the <strong>software</strong> is a bare store with worktrees.
+Both follow a commit-upstream-first rule:</p>
+<ul>
+<li><strong>A tool submodule:</strong> commit and push inside it (on <code>main</code>) first, then commit
+the updated submodule pointer in the host and push.</li>
+<li><strong>The software:</strong> commit and push inside the canonical worktree first, then
+record the new SHA as the <code>.host-software</code> <code>pin</code> and push that host commit. The
+recorded pin is the audit anchor a gitlink used to be.</li>
+</ul>
+<p>Never push a host commit whose tool pointer or software pin is not yet pushed. If
+a push fails (no network, no auth), stop, tell the human which commits are
+unpushed, and do not start work that depends on them.</p>
+<p><strong>Tag every release.</strong> A version bump (a change to the <code>version</code> in a tool's or
+the software's manifest (<code>Cargo.toml</code>, …)) <strong>MUST</strong> be accompanied by a matching
+annotated git tag <code>vX.Y.Z</code> at the release commit, pushed alongside it (<code>git tag -a vX.Y.Z -m "&lt;name&gt; vX.Y.Z" &amp;&amp; git push origin vX.Y.Z</code>). The tag <strong>is</strong> the release:
+a tag-triggered CI job builds the artifacts from it (e.g. a <code>v*</code> release workflow).
+An untagged version bump is an unreleased version, a defect; back-fill the tag at
+its bump commit. Do not re-pin <code>.host-software</code> (or a tool pointer) to a
+version-bumped commit that carries no matching tag.</p>
+<p><strong>Worktree-absence coherence.</strong> A separately-materialized path (the
+software worktree, or a tool submodule) is absent (or empty) until materialized; a
+fresh clone, CI, and a partial submodule init do not have it. So <strong>do not git-track
+an artifact that depends on such a path existing</strong> (a skill symlink into
+<code>&lt;software&gt;/</code> <em>or</em> into <code>tools/&lt;tool&gt;/skills/</code>): gitignore it and <strong>generate</strong> it
+after materialization: <code>link-skills.sh</code> produces <code>.claude/skills/*</code> for the tools
+present, and the software's links are recreated after <code>software --materialize</code>.
+Where an automated context genuinely needs the path, it materializes first;
+otherwise it must tolerate the absence. <code>host-lifecycle software --check</code> flags any
+tracked symlink whose target is not itself tracked here as a <code>HAZARD</code>. And: an
+un-materialized CI job must exercise each runtime-critical artifact. "done" means
+the whole CI sweep is green, not one artifact built.</p>
+<p><strong>Worktrees live under <code>software/</code>.</strong> Every materialized Where-room worktree
+<strong>MUST</strong> surface at <code>software/&lt;name&gt;/&lt;branch&gt;/</code> <em>under</em> the host root, never a bare
+external path disjoint from the tree. The rule an agent relies on is: <em>if you build it, its
+files live under the host root</em>, so an edit through the default-cwd path lands in
+the tree under test. When a backing store genuinely must live elsewhere (another
+filesystem or platform (e.g. a native-Windows build that cannot sit on a WSL
+share)), record it on the parallel-worktree line as <code>store=&lt;path&gt;</code> (and optionally
+<code>host=&lt;os&gt;</code>, the OS that <strong>materializes</strong> the store, i.e. where you run
+<code>host-lifecycle</code>, <em>not</em> the build platform; for a Windows Dev Drive reached from WSL
+that is <code>linux</code>, even though the build's own <code>attest-host</code> is <code>windows</code>). Off-platform,
+<code>host=</code> makes <code>--materialize</code>/<code>--check</code> skip the line rather than fail.
+<code>software --materialize</code> then realises the store at that path and the in-tree
+<code>software/&lt;name&gt;/&lt;branch&gt;/</code> as a <strong>symlink / directory junction / bind-mount</strong> to it. <code>host-lifecycle software --check</code> <strong>HAZARDs</strong> any recorded worktree path that
+escapes the host root, and any <code>store=</code> line whose in-tree handle is missing or
+does not resolve to the store. A disjoint external worktree with no in-structure
+handle is the wrong-tree footgun (edits silently land in a tree not under test)
+and is a defect, not a layout choice.</p>
+<p><strong>Reproducible builds, the production anchor.</strong> Software <em>initiated</em> under the
+methodology has <strong>reproducible builds</strong>: its deployed artifact MUST be byte-reproducible
+from the pinned source plus a recorded build recipe (a pinned <code>toolchain</code> and <code>build</code>
+command in <code>.host-software</code>). That is what makes the pin a true production anchor (a
+clean rebuild from the pin equals what is deployed) rather than just a source pin.
+Record per component which line ships (<code>deploy</code>) and the artifact's expected hash
+(<code>artifact = &lt;path&gt; &lt;sha256&gt;</code>); <code>host-lifecycle software --check</code> attests these cheaply
+(a present artifact that matches is <strong>verified</strong>; one built by a local toolchain that
+differs from the canonical hash is <strong>noted, not failed</strong>, the same reasoning
+<code>--install-hooks</code> uses, since the recorded hash is the pinned build host's output), and
+a CI job runs <code>host-lifecycle software --verify-build</code> to rebuild from the pin and fail
+unless the artifact reproduces. <code>--verify-build</code>, not <code>--check</code>, is the reproducibility
+proof. For <strong>greenfield</strong> software, non-reproducibility is a defect designed out from the
+start.</p>
+<p><strong>Hermetic builds, the dependency bundle.</strong> Reproducibility and hermeticity are the same
+lane: a component that ships static or self-contained release binaries MUST be able to
+reproduce them offline from pinned inputs, never from whatever a network fetch returns at
+build time. The recommended mechanism is a reusable, versioned, hash-pinned <strong>dependency
+bundle</strong>: vendor the dependency layer once, publish it as a downloadable release (the pattern
+<code>pgs-release</code> uses for its prebuilt sysroot), and have every build download and verify that
+bundle and build with no network. Record it per component as <code>deps-bundle = &lt;url&gt; &lt;sha256&gt;</code>
+in <code>.host-software</code>. <code>host-lifecycle software --verify-build</code> and <code>release</code> then perform the
+one controlled, pinned download, verify the sha (the provenance half of the gate), stage the
+vendored sources, and build under <code>--network none</code> (the egress half). The gate invariant is
+specific and enforceable: a component recording a <code>deps-bundle</code> MUST build offline, its staged
+bundle sha MUST match the recorded one, and <code>software --check</code> HAZARDs a <code>deps-bundle</code> pin that
+has drifted from the producer's committed <code>deps-bundle.lock</code>. A component that genuinely cannot
+vendor offline, such as one with a network-fetching <code>build.rs</code> or a non-Rust toolchain, may
+carry <code>hermetic-exempt = call/NNNN</code> citing a software-scoped case decision, the same escape
+shape as <code>repro-exempt</code>; the exemption is never available where offline vendoring is feasible.</p>
+<p><strong>Multi-platform builds.</strong> A component whose <em>one</em> source pin ships on several platforms
+records one <code>[build "&lt;name&gt;" "&lt;platform&gt;"]</code> subsection per platform under its
+<code>[software "&lt;name&gt;"]</code> stanza, each carrying its own <code>build</code>/<code>toolchain</code>/<code>artifact</code>/<code>deploy</code>
+(and optional <code>repro-exempt</code>) plus an <code>attest-host</code> naming the OS (<code>linux</code>, <code>windows</code>,
+<code>macos</code>) that reproduces it. <code>--check</code> and <code>--verify-build</code> iterate the builds and attest
+each only on its <code>attest-host</code>. A build whose host is not the current one is skipped, and
+the run does not fail (a Linux runner cannot reproduce the Windows artifact, and is not asked to).
+The flat single-build fields remain the form for a single-platform component.</p>
+<p><strong>Escape clause (migrated software only).</strong> Pre-existing software brought under the
+methodology may not be reproducible yet. It may carry <code>repro-exempt = call/NNNN</code> citing a
+recorded <strong>case decision</strong>, a software-scoped <code>call/</code> decision documenting why it is not
+yet reproducible and the interim provenance. <code>--verify-build</code> then warns and skips the
+rebuild comparison; <code>--check</code> still requires the citation to resolve. The exemption is
+meant to be retired as the component converges on reproducibility, and is <strong>never</strong>
+available to greenfield software.</p>
+<h2 id="upgrading"><a class="header" href="#upgrading">Upgrading</a></h2>
+<p>Adopting is one event; the template moves on. The <code>.host</code> stamp records the <code>baseline</code>
+ledger entry (every entry at or before its position in <code>UPGRADING.md</code> counts as applied).
+The <code>applied</code> set of out-of-order entries lives in <code>.host-receipts</code> (the methodology-version
+trail); <code>host-lifecycle migrate-receipts</code> moves it there from a legacy <code>.host</code>. <code>UPGRADING.md</code> is the ledger of actions, one <code>[upgrade "&lt;revision&gt;"]</code>
+stanza each, ordered by file position; a stanza may declare <code>independent</code> or
+<code>depends = &lt;id&gt; …</code> (logical prerequisites, distinct from the <code>requires</code> tool-version
+floor) and a <code>verify</code> post-condition.</p>
+<p>To upgrade, fetch the template to the target revision, then:</p>
+<ul>
+<li><code>host-lifecycle upgrade &lt;dir&gt;</code> lists every ledger entry <strong>not yet applied</strong>, by
+ledger position, never git ancestry (ledger SHAs are a linear-commit artifact and
+some are orphaned from HEAD). A legacy single-<code>revision</code> stamp is migrated once to a
+<code>baseline</code>. <code>upgrade --next</code> prints the single next safe action.</li>
+<li>Apply an entry, then record it with <code>host-lifecycle upgrade --record &lt;id&gt;</code> (an id,
+an unambiguous prefix, or a ledger ordinal). The tool validates the id, refuses if a
+<code>depends</code> is unapplied, runs the entry's <code>verify</code> post-condition (or, when it has
+none, requires an explicit <code>--unverified call/NNNN</code> citation) and appends an
+append-only claim. <strong>You never hand-edit the stamp.</strong></li>
+<li>A late <strong>independent</strong> entry may be cherry-applied without an earlier unrelated one:
+the deferred entries stay pending and <strong>re-list</strong>. A forgotten or premature record
+can never silently hide owed work (fail-safe). <code>upgrade --advance</code> later compacts a
+contiguous applied run into the <code>baseline</code>.</li>
+<li><code>host-lifecycle software --check</code> re-checks every recorded claim (a <code>verify</code> that no
+longer holds, or an applied entry whose <code>depends</code> is unapplied, is a loud <code>HAZARD</code>).</li>
+</ul>
+<p>The tool carries the process. Even a low-capability agent upgrades by reading one
+line and running one command, never editing the stamp by hand. Re-stamp is the tool's
+job, not yours.</p>
+<h2 id="provenance"><a class="header" href="#provenance">Provenance</a></h2>
+<p>The four working principles are rewritten, in our own words, from observations by
+Andrej Karpathy on where LLM coding goes wrong, by way of Jiayuan Zhang
+(@forrestchang) and the andrej-karpathy-skills contributors. The persona process
+in <code>cast/applying-personas.md</code> follows Powell, Keenan and McDaid (2007) on
+personas in XP, with later agile work cited alongside it. This manual is released
+into the public domain (Unlicense); the credit here is acknowledgement, not a
+license obligation.</p>
+<h2 id="project-specifics-udpspeeder-simd"><a class="header" href="#project-specifics-udpspeeder-simd">Project specifics: UDPspeeder-simd</a></h2>
+<p>The rules above are the inherited spine. The facts below are this project's own,
+recorded so an agent does not have to re-derive them from the code.</p>
+<ul>
+<li><strong>What it is.</strong> A Forward Error Correction UDP tunnel that improves a high-latency
+lossy link with Reed-Solomon redundancy. SIMD-accelerated. Forked from UDPspeeder.</li>
+<li><strong>Language and build.</strong> C++. Build it with <code>make</code> (the flat makefile) or with
+CMake (<code>cmake -B build &amp;&amp; cmake --build build</code>). The software is C++ only.</li>
+<li><strong>Style.</strong> <code>.clang-format</code> is authoritative; match the surrounding file exactly
+(braces, indentation, naming) rather than restyling.</li>
+<li><strong>Canonical branch.</strong> <code>branch_libev</code>, not <code>main</code>. The audited worktree is
+<code>software/udpspeeder-simd/branch_libev/</code>, pinned in <code>.host-software</code>.</li>
+<li><strong>License.</strong> The software is MIT (its <code>LICENSE.md</code> lives in the worktree). This
+governance shell is Unlicense. Keep the two separate.</li>
+<li><strong>Reproducibility.</strong> Brought under the methodology, not initiated by it: the
+stanza records a source <code>pin</code> with no <code>deploy</code> or <code>artifact</code>, so no reproducible
+build is claimed yet. Add a build recipe and a <code>repro-exempt = call/NNNN</code> (or a
+real <code>artifact</code>) before shipping a binary through the host.</li>
+<li><strong>Lanes.</strong> No <code>.allium</code> or <code>.tla</code> spec exists yet, so the requirements and timing
+lanes are inert. Author a spec through its skills and wire its CI lane before
+committing it; a present spec without its full lane is a defect.</li>
+</ul>
+<h2 id="project-specifics-the-packages-lane"><a class="header" href="#project-specifics-the-packages-lane">Project specifics: the packages lane</a></h2>
+<p>A second software component, <code>packages</code>, is embedded as a Where-room lane
+alongside UDPspeeder-simd, recorded in <code>.host-software</code>.</p>
+<ul>
+<li><strong>What it is.</strong> A fork of the OpenWrt packages feed (<code>openwrt/packages</code>): build
+recipes (Makefiles), patches, and options for OpenWrt applications and libraries.
+Makefile and shell, with some C. Layered on an OpenWrt buildroot via the feed
+system.</li>
+<li><strong>Canonical branch.</strong> <code>master</code>. The audited worktree is
+<code>software/packages/master/</code>, pinned in <code>.host-software</code>.</li>
+<li><strong>License.</strong> The feed is GPL-2.0 (its own <code>LICENSE</code> lives in the worktree). This
+governance shell is Unlicense. Keep the two separate.</li>
+<li><strong>Reproducibility.</strong> Migrated, not initiated here: a source <code>pin</code> on <code>master</code>
+with no <code>deploy</code> or <code>artifact</code>, so no reproducible build is claimed. It is a
+build-recipe feed, not a built artifact.</li>
+<li><strong>No Claude co-author trailers.</strong> Every commit made in the packages worktree
+omits the <code>Co-Authored-By: Claude ...</code> trailer, so the feed stays upstream-clean
+for <code>openwrt/packages</code>. This overrides the default trailer behaviour for the
+packages component only; host-repo commits keep it. See
+<a href="call/0003-no-claude-co-author-trailers-on-packages.html"><code>call/0003</code></a>.</li>
+</ul>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="migrationmd-the-process-moved-to-the-host-repo"><a class="header" href="#migrationmd-the-process-moved-to-the-host-repo">MIGRATION.md: the process moved to the <code>host</code> repo</a></h1>
+<p>How to bring an existing repo under this methodology, and how to upgrade one that
+adopted an earlier revision, now lives as a single instruction file in its own
+repo:</p>
+<p>https://github.com/connollydavid/host</p>
+<p>Point an agent or a patient human at that URL and follow it. The <code>host</code> file owns
+the adopt / migrate / upgrade <strong>procedure</strong>.</p>
+<p>This template owns the <strong>techniques</strong> that procedure installs (the <code>CLAUDE.md</code>
+spine, the room scaffold, the tool pins) and the revision-keyed upgrade
+<strong>ledger</strong>, <code>UPGRADING.md</code>. The procedure is stable and lives in one place; the
+ledger changes with the techniques that generate it, so it stays here with them.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="structure"><a class="header" href="#structure">Structure</a></h1>
+<p>An agentic project (e.g. <code>agentic-acme</code>) is the externalized <em>thought</em> about the
+work; the software under development is the <em>action</em>, hosted beneath it. Its
+rooms map to the five W's.</p>
+<div class="table-wrapper"><table><thead><tr><th>W</th><th>room</th><th>holds</th></tr></thead><tbody>
+<tr><td>Who</td><td><code>cast/</code></td><td>personas (Powell, Keenan &amp; McDaid 2007), examples Mara + Wren</td></tr>
+<tr><td>What</td><td><code>&lt;software&gt;/</code> (with the code)</td><td>behavioural (<code>.allium</code>) + temporal (<code>.tla</code>) specs, verified in the software's CI; the host <code>plan/</code> references them</td></tr>
+<tr><td>When</td><td><code>plan/</code></td><td>the milestone index and folders</td></tr>
+<tr><td>Where</td><td><code>&lt;software&gt;/</code></td><td>the hosted software, a bare store with worktrees; you add it</td></tr>
+<tr><td>Why</td><td><code>call/</code></td><td>decisions about the software (MADR; see <code>call/0000</code>); methodology lives in the spine, not here</td></tr>
+<tr><td>How</td><td><code>CLAUDE.md</code> + <code>tools/</code></td><td>the verification lanes</td></tr>
+</tbody></table>
+</div>
+<p><code>tools/</code> are referenced submodules, each under its own license; we orchestrate
+and wrap, never patch:</p>
+<ul>
+<li><code>tools/host-lint</code> (Unlicense): hygiene / anti-slop; checks names against <code>host-grammar</code>.</li>
+<li><code>tools/host-lifecycle</code> (Unlicense): token-free scaffolder/validator; generates names from <code>host-grammar</code>, so what it emits is exactly what <code>host-lint</code> accepts.</li>
+<li><code>tools/allium</code> (MIT, JUXT): requirements + property-based testing.</li>
+<li><code>tools/specula</code> (Apache-2.0): timing and concurrency via TLA+.</li>
+</ul>
+<p>(<code>host-grammar</code>, the shared naming/numbering rules crate, is a build dependency of <code>host-lint</code> and <code>host-lifecycle</code>, not a host submodule.)</p>
+<p>A lane is <strong>mandatory once a spec of its kind exists</strong> (RFC-2119 MUST; see <code>CLAUDE.md</code>): a <code>.allium</code> requires <code>tools/allium</code> + its skills + a <code>check</code>/<code>analyse</code>/<code>plan</code> CI lane with the obligations discharged by tests; a <code>.tla</code> requires <code>tools/specula</code> + a TLC lane. Adopting a lane is optional; ignoring a present spec's lane is a defect.</p>
+<p><code>.claude/skills/</code> are symlinks into those submodules' skills (reference, not
+copy). They are <strong>generated, not tracked</strong>: <code>link-skills.sh</code> creates a link for each
+<em>materialized</em> tool (skipping uninitialized submodules), because a tracked symlink
+into an uninitialized tool dangles and trips any tree-walking tool.
+Run it after <code>git submodule update --init</code>. Tool <em>outputs</em> are
+project-owned. host-lifecycle ships one skill <strong>per lifecycle phase</strong> (classify,
+adopt, embed, remap, verify, publish, upgrade, release), enumerated once in the
+tool-readable <code>lifecycle.manifest</code>; unlike a lane, the lifecycle is driven by the
+tool, and the rule is <strong>every phase emits a receipt</strong> (<code>done</code>/<code>skip</code>/<code>n-a</code> in
+<code>.host-receipts</code>), not "every phase runs". A phase with no receipt is a
+<code>software --check</code> HAZARD (<code>CLAUDE.md</code>).</p>
+<p>The <em>Where</em> room is the software under test, <strong>one or more</strong> components, each
+embedded as a <strong>bare store with worktrees</strong> under <code>software/&lt;name&gt;/</code>: the shared
+object store is <code>software/&lt;name&gt;/.git</code>, and each worktree is keyed by branch at
+<code>software/&lt;name&gt;/&lt;branch&gt;/</code> (the branch keeps its slashes, so <code>feature/login</code>
+nests). The canonical worktree (the audited state, where CI runs) is the
+component's recorded <code>branch</code> (default <code>main</code>) checked out at the <code>pin</code>; the rest are
+parallel lines, one per agent or live release branch. These trees are local and
+gitignored (a single <code>/software/</code> entry); the host commits a recipe (<code>.host-software</code>)
+with <strong>one <code>[software "&lt;name&gt;"]</code> stanza per component</strong> (mirroring <code>.gitmodules</code>),
+each recording the source URL, the pinned canonical SHA, the canonical <code>branch</code>, and
+any parallel-line branches, which <code>host-lifecycle software --materialize</code> realises
+and <code>--check</code> audits. Operate on a single component, or one branch worktree of it,
+with <code>--item &lt;name&gt;[@&lt;branch&gt;]</code>.
+The recorded pin replaces a submodule gitlink as the
+reproducibility anchor, so several branches stay materialized at once where a
+single submodule tree could not. Software initiated under the methodology has
+<strong>reproducible builds</strong>: the stanza also records the <code>build</code>/<code>toolchain</code> recipe and
+the deployed <code>artifact</code> hash, so <code>host-lifecycle software --verify-build</code> can rebuild
+from the pin and prove the deployed binary; migrated software not yet reproducible
+carries a <code>repro-exempt = call/NNNN</code> case decision (see <code>CLAUDE.md</code>). A component that
+ships static or self-contained binaries also records a <code>deps-bundle = &lt;url&gt; &lt;sha256&gt;</code>, a
+pinned vendored-dependency bundle it downloads, verifies, and builds offline against under
+<code>--network none</code>, so the build is hermetic (see <code>CLAUDE.md</code>). A component that
+ships on several platforms records one <code>[build "&lt;name&gt;" "&lt;platform&gt;"]</code> subsection per
+platform (each a distinct toolchain/artifact of the <em>same</em> pin, with an <code>attest-host</code>
+naming the OS that reproduces it); the flat single-build form stays valid for the
+single-platform case.</p>
+<p>To instantiate: clone, <code>git submodule update --init</code> (the tools), run
+<code>./link-skills.sh</code> (regenerate the skill symlinks for the tools you initialized),
+replace the <code>cast/</code> examples with your own personas, and set up your software as a
+bare store with worktrees (above). For bringing an <em>existing</em> repo under the
+methodology instead, follow the <code>host</code> repo (<code>github.com/connollydavid/host</code>).</p>
+<p>To publish docs with mdBook, run <strong><code>host-lifecycle book .</code></strong>, the canonical
+publisher, so you do not hand-roll a generator that drops a room or re-derives the
+src-scoping wrong. It writes a <code>book.toml</code> at the repo root scoped to a generated
+<code>mdBook/src/</code> (never <code>src = "."</code>, which would walk the tool submodules and the
+un-materialized software worktree and trip over whatever is not present), with the
+built HTML in <code>mdBook/out/</code>, and a <code>SUMMARY.md</code> in
+<strong>lifecycle order</strong>: Cast (Who), then Plan (When), then Software/Where (the What specs live
+with the code, read as a stub from <code>.host-software</code>), then Call (Why), then
+Reference/CLAUDE (How), then Memory. Then
+<code>host-lifecycle book --check .</code> fails the build unless every room with source
+renders a page, so a half-room site cannot ship. <code>book.toml</code> and the whole <code>mdBook/</code>
+tree are generated output (gitignored), so a project keeps <code>docs/</code> for its own
+authored documentation; the reference Site workflow under <code>.github/workflows/</code> runs
+both before <code>mdbook build</code>, which still runs from the repo root.</p>
+<p>A migrated or instantiated repo carries a <code>.host</code> stamp at its root
+recording the template revision it adopted (<code>template</code>/<code>revision</code>/<code>adopted</code>),
+written by <code>host-lifecycle adopt</code>. It is what a later upgrade diffs from. An
+optional <code>name</code> line pins the published book's title, so <code>host-lifecycle book</code>
+does not derive it from the checkout directory.</p>
+<p>The methodology lives in <code>CLAUDE.md</code>. Read it first. The whole template is
+released into the public domain (Unlicense); see <code>README.md</code> for provenance.</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="upgradingmd-the-version-to-version-upgrade-ledger"><a class="header" href="#upgradingmd-the-version-to-version-upgrade-ledger">UPGRADING.md: the version-to-version upgrade ledger</a></h1>
+<p>Adopting the methodology records a template revision in <code>.host</code>. The
+template then moves on, and an adopted repo must <strong>upgrade</strong> across the revision
+span. The upgrade re-applies spine doc changes <em>and</em> the <strong>structural migrations</strong> the span
+introduced (a re-embedding of the software, a tool bump). A <code>git diff</code> of the
+template shows the prose; it does not say "convert the submodule" or "untrack a
+symlink". This ledger does.</p>
+<p>Apply every entry below whose revision is <strong>newer</strong> than your stamp.
+<code>host-lifecycle upgrade &lt;dir&gt;</code> prints exactly those, decided by git ancestry
+against this template, so same-day revisions order correctly. Fetch the template
+to the target revision first; then apply the list and re-stamp. Each entry is
+keyed by the template revision at which its action became required.</p>
+<p>[upgrade "8c28e33"]
+title    = Software is a bare store with worktrees (call/0004)
+action   = Convert the embedded gitlink submodule to a bare store + worktrees (see the <code>host</code> repo, converting an existing submodule): preserve the pin, de-register the gitlink, write .host-software, gitignore the trees, then <code>host-lifecycle software --materialize</code>.
+requires = host-lifecycle v0.3.0</p>
+<p>[upgrade "325f2cf"]
+title    = Worktree-absence coherence (call/0005)
+action   = Untrack artifacts that depend on the worktree (skill symlinks into the software path); gitignore them and recreate after materialize. Keep an un-materialized CI job green. <code>host-lifecycle software --check</code> must report no HAZARD.
+requires = host-lifecycle v0.3.1</p>
+<p>[upgrade "71d12a8"]
+title    = Coherence generalized to tool submodules (call/0005)
+action   = Re-run <code>host-lifecycle software --check</code> (now flags any tracked symlink whose target is not tracked here, not just software-worktree paths). Untrack any flagged tool-skill symlinks and generate them instead (the link-skills.sh pattern); keep them gitignored.
+requires = host-lifecycle v0.4.1</p>
+<p>[upgrade "bbbfdc3"]
+title    = Reserve agentic-host for the meta repo; stamp is <code>.host</code>, scaffold is <code>host-template</code>
+action   = Rename your <code>.agentic-host</code> stamp to <code>.host</code>. Re-point your <code>template-agentic-host</code> submodule and its URL to <code>host-template</code>. A repo that adopts the methodology is "an agentic project" (e.g. <code>agentic-acme</code>); <code>agentic-host</code> now names only the meta repo.
+requires = host-lifecycle v0.5.0</p>
+<p>[upgrade "7ae93cd"]
+title    = Publish via <code>host-lifecycle book</code> (the canonical doc-site publisher)
+action   = Replace any hand-rolled mdBook generator/SUMMARY with <code>host-lifecycle book .</code>; it writes book.toml (src = "docs", never ".") + docs/ in lifecycle order, renders specs, and emits a Where stub from .host-software. Run <code>host-lifecycle book . &amp;&amp; host-lifecycle book --check .</code> before <code>mdbook build</code> (see .github/workflows/site.yml); gitignore the generated book.toml/docs/.
+requires = host-lifecycle v0.6.1</p>
+<p>[upgrade "6db01f3"]
+title    = Anti-ouroboros: call/ is for the software, methodology lives in the spine
+action   = The methodology is owned by the spine (copy-at-version), not your call/. In a single dedicated commit, set <code>Status: superseded by the spine</code> on every accepted call/ decision that merely restates a methodology rule now settled upstream (leave the file in place, since MADR records are immutable). Add a <code>Scope:</code> header to each remaining accepted decision. Do not treat any host/management repo's top-level instance rooms as normative. <code>host-lifecycle validate &lt;call-dir&gt;</code> now fails an accepted decision missing <code>Scope:</code> or declaring <code>Scope: methodology</code>.
+requires = host-lifecycle v0.7.0</p>
+<p>[upgrade "07025a7"]
+title    = book publisher v0.7.1: nested specs + retired-decision Archive
+action   = Bump your pinned <code>host-lifecycle book</code> revision to v0.7.1. Two rendering changes follow on the next build: specs nested in <code>spec/&lt;topic&gt;/</code> now render (previously dropped), and decisions whose MADR <code>Status:</code> is superseded/deprecated/rejected move into a trailing "Archive / Record" section (banner + nav-label suffix) instead of shipping as current chapters. The record signal is <code>Status:</code> only; <code>.host-lintignore</code> does not affect the book.
+requires = host-lifecycle v0.7.1</p>
+<p>[upgrade "e3b174d"]
+title    = Reproducible builds are the production anchor
+action   = Record build provenance in <code>.host-software</code> per component: <code>build</code> + <code>toolchain</code> (the deterministic recipe), <code>deploy</code> (which line ships), and <code>artifact = &lt;worktree-path&gt; &lt;sha256&gt;</code>. Add a CI job that runs <code>host-lifecycle software --verify-build</code> (rebuild from the pin; fail unless the artifact reproduces); see the reference <code>.github/workflows/reproducible-build.yml</code>. Software initiated under the methodology must reproduce. Pre-existing software not yet reproducible may carry <code>repro-exempt = call/NNNN</code> citing a software-scoped case decision; the exemption is retired as it converges and is never available to greenfield software.
+requires = host-lifecycle v0.8.0</p>
+<p>[upgrade "c137567"]
+title    = Per-platform builds for multi-platform software
+action   = For a component whose one source pin ships on several platforms, replace the flat single-build fields with one <code>[build "&lt;name&gt;" "&lt;platform&gt;"]</code> subsection per platform under its <code>[software "&lt;name&gt;"]</code> stanza, each with its own <code>build</code>/<code>toolchain</code>/<code>artifact</code>/<code>deploy</code> (and optional <code>repro-exempt</code>) plus an <code>attest-host</code> naming the OS (<code>linux</code>/<code>windows</code>/<code>macos</code>) that reproduces it. <code>host-lifecycle software --check</code>/<code>--verify-build</code> then attest each build only on its <code>attest-host</code>, skipping foreign-host builds rather than failing. Single-platform components need no change: the flat form stays valid.
+requires = host-lifecycle v0.9.0
+independent = true</p>
+<p>[upgrade "d3dc5ed"]
+title    = --check artifact mismatch is a note, not a failure
+action   = Bump your pinned <code>host-lifecycle</code> revision to v0.9.1. <code>software --check</code> no longer hard-fails when a present artifact's hash differs from the recorded canonical hash (a local-toolchain build legitimately differs); it prints a <code>note</code> instead, the way <code>--install-hooks</code> already does. A match still reports <code>verified</code>; <code>--verify-build</code> (the container/CI lane) remains the reproducibility proof. No recipe change is required; this only removes a dev-box false failure.
+requires = host-lifecycle v0.9.1
+independent = true</p>
+<p>[upgrade "b6232a5"]
+title    = Specs live with the software, not the host plan tree
+action   = Move any behaviour (.allium) or timing (.tla) specs out of the host's <code>plan/&lt;milestone&gt;/spec/</code> and into the software repo, beside the code they constrain. Add the verification lane to the <em>software's</em> CI, not the host's: allium gated with both <code>allium check</code> and <code>allium analyse</code> (install <code>allium-cli@3.4.2</code>; both exit non-zero on any error or warning), and specula/TLC (<code>tla2tools v1.8.0</code> on a Temurin <code>21</code> JDK). Remove the host's spec copies and its specula workflow; leave a forward note in the affected milestone. The host <code>plan/&lt;milestone&gt;/</code> now references a spec by path and software pin rather than containing it.
+requires = host-lifecycle v0.9.1</p>
+<p>[upgrade "c771d60"]
+title    = Verification lanes are mandatory when a spec of their kind exists
+action   = Wire the lane tools you use as submodules and generate their skills (gitignored) with <code>link-skills.sh</code>: <code>tools/allium</code> (+ its elicit/distill/tend/weed/propagate skills) for any <code>.allium</code>, <code>tools/specula</code> for any <code>.tla</code>. Author and maintain <code>.allium</code> specs THROUGH the skills, not by hand. In the <em>software</em> repo's CI, gate each <code>.allium</code> with <code>allium check</code> + <code>allium analyse</code> + <code>allium plan</code> (install <code>allium-cli@3.4.2</code>; both check and analyse exit non-zero on any error or warning) and discharge the <code>plan</code> test obligations with the suite; TLC-check each <code>.tla</code> (<code>tla2tools v1.8.0</code> on Temurin <code>21</code>). The lane is conditional (TLA+ stays optional until a <code>.tla</code> exists, allium until a <code>.allium</code> exists), but a spec present without its full lane is a defect, not a choice. Do not treat the lanes as reference decoration.
+requires = host-lifecycle v0.9.1
+depends  = b6232a5</p>
+<p>[upgrade "b8c54fc"]
+title    = The spec-lane MUST is enforced by software --check
+action   = Bump your pinned host-lifecycle to v0.10.0. <code>host-lifecycle software --check</code> now raises a HAZARD when a materialized component carries a <code>.allium</code> spec with no CI workflow running <code>allium check</code> + <code>allium analyse</code>, or a <code>.tla</code> with no TLC lane (<code>tlc2.TLC</code>/<code>tla2tools</code>). Wire the missing lane (per the previous entry) so --check is clean; an un-materialized worktree is skipped.
+requires = host-lifecycle v0.10.0
+depends  = c771d60</p>
+<p>[upgrade "821a216"]
+title    = Allium plan obligations must be dispositioned per component
+action   = For each <code>.allium</code>, add a sibling <code>&lt;spec&gt;.obligations</code> manifest that dispositions every obligation <code>allium plan</code> derives, one of <code>test:&lt;name&gt;</code> (a named test discharges it), <code>structural</code> (the check/analyse lane covers it), or <code>waived: &lt;reason&gt;</code>. Run <code>host-lifecycle obligations &lt;spec&gt; --tests &lt;dir&gt;</code> in the software's CI (it fails on any undispositioned/stale obligation or absent test ref). Bump host-lifecycle to v0.11.1, where <code>software --check</code> also HAZARDs a <code>.allium</code> with no <code>.obligations</code> manifest.
+requires = host-lifecycle v0.11.1
+depends  = b6232a5 c771d60</p>
+<p>[upgrade "f62d766"]
+title    = Lifecycle phases are an unconditional MUST, driven by host-lifecycle skills
+action   = Bump tools/host-lifecycle and run link-skills.sh so the phase skills (classify, adopt, embed, remap, verify, publish, upgrade) appear under .claude/skills/ alongside the allium/specula skills. Operate the methodology through these phases and their commands, never ad-hoc; the phases cover scaffolding, embedding, migration, verification, publishing, and upgrading. Unlike a verification lane, this is unconditional: there is no opt-out, and hand-operating any phase is a defect.
+requires = host-lifecycle v0.11.1
+independent = true</p>
+<p>[upgrade "0e83e3f"]
+title    = Tag every release (a version bump MUST carry a matching vX.Y.Z tag)
+action   = Audit your tools and software for version bumps that were never tagged (<code>git tag</code> vs the manifest <code>version</code>); back-fill an annotated <code>vX.Y.Z</code> tag at each bump commit and push it. From now on, every version bump is committed with its matching tag, pushed alongside; the tag is the release a <code>v*</code> CI workflow builds. Do not re-pin <code>.host-software</code> or a tool pointer to a version-bumped commit that has no matching tag.
+requires = host-lifecycle v0.11.1
+independent = true</p>
+<p>[upgrade "ae1e688"]
+title    = Never adopt a software repository in place
+action   = Bump your pinned host-lifecycle to v0.12.0 and re-run the classify phase as the first step of any adoption. <code>host-lifecycle classify &lt;dir&gt;</code> now refuses (exits non-zero, prints the embedding steps) when the target is itself a software repository (a root build manifest (<code>Cargo.toml</code>, <code>package.json</code>, <code>go.mod</code>, <code>pyproject.toml</code>, …) with no <code>.host</code> stamp and no <code>.host-software</code> recipe) instead of printing a case letter. A host is a separate meta-repo; the software is embedded as its Where room. If you previously adopted a methodology host directly on top of a software repo, split them: move the code into a bare store with worktrees recorded in the host's <code>.host-software</code>, so the host root carries only the rooms and config.
+requires = host-lifecycle v0.12.0
+independent = true</p>
+<p>[upgrade "7de7cb1"]
+title    = Materialized worktrees must live under the host root
+action   = Bump your pinned host-lifecycle to v0.13.0. Audit <code>.host-software</code> for any worktree whose path escapes the host root (an absolute or <code>..</code>-climbing <code>worktrees</code>/<code>worktree</code> entry, or a Where-room worktree materialized at a disjoint external path with no in-structure handle). Bring each under the root: for a store that must live off-tree (another filesystem or platform), record it on the parallel line as <code>worktree = &lt;dir&gt; &lt;branch&gt; &lt;pin&gt; store=&lt;path&gt; [host=&lt;os&gt;]</code> and re-run <code>software --materialize</code>, which realises the store at <code>&lt;path&gt;</code> and the in-tree <code>&lt;dir&gt;</code> as a symlink/junction to it. <code>software --check</code> now HAZARDs an escaping path and a <code>store=</code> line whose in-tree handle is missing or does not resolve to the store; <code>host=</code> gates a line to one OS so a foreign-OS CI skips it rather than failing.
+requires = host-lifecycle v0.13.0
+independent = true</p>
+<p>[upgrade "3f7c065"]
+title    = Honest partial upgrades: the applied-set stamp model
+action   = Bump your pinned host-lifecycle to v0.14.0. The <code>.host</code> stamp now records what is applied as a <code>baseline</code> ledger entry (every entry at or before its position in this file counts applied) plus an optional <code>applied</code> set of out-of-order entries, keyed by ledger position, never git ancestry. Your first <code>host-lifecycle upgrade</code> migrates a legacy single-<code>revision</code> stamp once (derives the baseline; no manual edit). Thereafter: <code>upgrade</code> lists pending by position, <code>upgrade --next</code> prints the single next safe action, and you record an applied entry with <code>host-lifecycle upgrade --record &lt;id&gt;</code> (id, unambiguous prefix, or ledger ordinal), which validates the id, refuses if a <code>depends</code> is unapplied, runs the entry's <code>verify</code> post-condition or requires <code>--unverified call/NNNN</code>, and appends an append-only claim. Never hand-edit the stamp. A late <code>independent</code> entry may be cherry-applied without an earlier unrelated one (deferred entries stay pending and re-list, so a forgotten or premature record can never hide owed work); <code>upgrade --advance</code> compacts a contiguous applied run into the baseline; <code>software --check</code> re-checks every recorded claim.
+requires = host-lifecycle v0.14.0
+independent = true</p>
+<p>[upgrade "4a98d92"]
+title    = Deeper verification rungs: Apalache (symbolic), TLAPS (proof), Kani (code-conformance)
+action   = Bump your pinned host-lifecycle to v0.15.0. The verification ladder gains opt-in deeper rungs above the bounded lanes, driven by a referenced <code>tools/host-prove</code> submodule (wire it and run <code>link-skills.sh</code> only if you use a rung; its <code>apalache-symbolic</code>, <code>tlaps-proof</code> and <code>kani-conformance</code> skills turn each verifier into a one-line verdict). An obligation may now be dispositioned <code>kani:&lt;harness&gt;</code>, <code>apalache:&lt;inv&gt;</code> or <code>tlaps:&lt;theorem&gt;</code> instead of <code>test:</code>/<code>structural</code>/<code>waived:</code>, since a proof discharges it for all inputs/parameters; <code>host-lifecycle obligations &lt;spec&gt; --prove &lt;dir&gt;</code> validates that the named proof exists. Declaring a rung obliges its CI lane: <code>software --check</code> now HAZARDs an obligation that declares <code>kani:</code> with no <code>cargo kani</code> lane, <code>apalache:</code> with no <code>apalache-mc</code> lane, or <code>tlaps:</code> with no <code>tlapm</code> lane. Nothing is required until you declare a rung, and bare <code>.tla</code>/crate presence never activates one. Route a parametric or unbounded <code>.tla</code> invariant to Apalache/TLAPS, and a code-conformance claim to your language's verifier (Rust uses Kani); prefer byte/char-level Kani targets (<code>str::split</code>/<code>Vec</code> blow CBMC up). Verifiers install from official prebuilt binaries pinned by version + SHA256; no Docker.
+requires = host-lifecycle v0.15.0
+depends  = b6232a5 c771d60
+verify   = host-lifecycle obligations 2&gt;&amp;1 | grep -q -- --prove</p>
+<p>[upgrade "a22704e"]
+title    = Self-referential software is excluded from the hygiene lane, not bypassed
+action   = Bump your pinned host-lifecycle to v0.15.1 (it fixes the first-upgrade breakage: <code>adopt</code> now registers the <code>host-template</code> submodule, the missing-template error remediates, and the <code>upgrade</code> skill matches the applied-set model). If your software detects the patterns the hygiene lane flags (a linter, parser, validator, grammar tool), it embeds them in test fixtures, docs and sometimes source, the legitimate self-reference the git hook would block. Exclude that corpus through <code>.host-lintignore</code> (host-lint v0.4.1+ honors it in the per-file hook scan, not only the <code>--all</code> walk), validated file-by-file so no real tell hides among the examples; keep ordinary source scanned (reword an example comment rather than mute the file). Never <code>--no-verify</code> past the gate to land a fixture; that silently defeats the lane. Finally, keep the template's own <code>tools/host-lifecycle</code> pin at or above the maximum <code>requires</code> in this ledger, so the pinned tool can actually run the ledger it ships.
+requires = host-lifecycle v0.15.1
+independent = true
+verify   = grep -rqs "Self-referential software is excluded" host-template/CLAUDE.md</p>
+<p>[upgrade "897ce0d"]
+title    = Sound discharge by re-derivation (call/0018) + the LEXICON provenance allowlist
+action   = Bump your pinned host-lifecycle to v0.18.1, host-lint to v0.6.0, and (if you run a deeper rung) host-prove to v0.2.0. A rung obligation is now discharged by RE-DERIVATION, not name-presence: <code>host-lifecycle obligations &lt;spec&gt; --rederive &lt;dir&gt;</code> re-runs each <code>kani:</code>/<code>apalache:</code>/<code>tlaps:</code> rung through host-prove in its recorded pinned toolchain and requires a PASS at the declared bound (AVAILABLE != DISCHARGED). The offline <code>--prove</code> check stays, honestly a name-presence lint. Add the cheap offline staleness signal by declaring <code>inputs=&lt;files&gt;</code> on a rung and recording <code>&lt;manifest&gt;.digests</code> with <code>--rederive --record-digests</code>; a later offline run reports STALE if the proven inputs drift without a fresh re-derivation. Enforcement is project-pluggable (a required check, any CI, a pre-push hook, or the operator's verify phase): no keys, no CI lock-in; it generalizes the reproducible-build re-derivation so that proofs are re-derived the way artifacts are. For the hygiene lane, declare legitimate tell-shaped tokens in a <code>LEXICON</code> (each the full contextual phrase, masked; a tracker reference carries its URL); <code>host-lifecycle adopt</code> seeds a comment-only scaffold. Because a sound escape now exists, the identifier/reference tier may escalate warn to flag via a committed <code>host-lint: strict</code> directive, and <code>host-lint: jira-key PROJ</code> opts a project key into citation-gating. Curate with <code>host-lint lexicon add</code> (it refuses a master key, a laundered tell, or an un-cited reference); <code>host-lint lexicon --check-urls</code> re-derives URL liveness in a network lane.
+requires = host-lifecycle v0.18.1
+depends  = 4a98d92
+verify   = grep -rqs "discharged by re-derivation" host-template/CLAUDE.md</p>
+<p>[upgrade "da000aa"]
+title    = Box irreducible literal citations in a host-lint:ignore fence
+action   = Bump your pinned host-lint to v0.7.0. The hygiene lane gains a per-block escape for a document that must reproduce a tell verbatim: a fenced code block tagged <code>host-lint:ignore</code> (markdown only). Its lines are skipped by the naming scan while the rest of the file stays linted, and a regular code block or inline backticks stay scanned so a tell cannot be laundered by quoting it. Reserve it for an irreducible literal citation (an old-name remap table, a frozen dated review citing another document's numbered steps); reword a pedagogical example or a document's own ordinal label into content, and path-exclude (<code>.host-lintignore</code>) only the immutable record (the append-only memory log, dated review artifacts) and the self-referential corpus. This loosens, never widens, the gate: it replaces blanket path-exclusion of editable docs with in-file, per-block, still-audited boxing.
+requires = host-lifecycle v0.18.1
+independent = true
+verify   = grep -rqs "boxed in the file, not path-excluded" host-template/CLAUDE.md</p>
+<p>[upgrade "617e420"]
+title    = Lifecycle manifest, and every phase emits a receipt
+action   = Bump your pinned host-lifecycle to the v0.18.1 build that ships <code>manifest</code>/<code>receipt</code>/<code>release</code>. The lifecycle phases (their order, modality, command and the evidence each carries) now live once in a tool-readable <code>lifecycle.manifest</code> at the template root (the CLAUDE.md/STRUCTURE.md prose point at it instead of re-typing the order), and a <code>release</code> phase is added (the strict, tool-carried release: verify, build in the recorded toolchain, re-derive the artifact hash, re-pin, tag, receipt). The rule changes from "every phase runs, no opt-out" to <strong>every phase emits a receipt</strong>: <code>host-lifecycle receipt --record &lt;phase&gt; [--component &lt;c&gt;] --disposition done|skip</code> writes an append-only <code>.host-receipts</code>, and <code>host-lifecycle software --check</code> now HAZARDs any manifest phase with no receipt, re-verifying each <code>done</code> by the manifest's closed <code>recheck =</code> (never the receipt's own say-so). Modality is first-class: a <code>conditional-on-Where</code> phase is tool-computed <code>n-a</code> where the project has no Where room, a <code>recurring-per-component</code> phase (embed, release) is receipted once per component, and a protected core (<code>verify</code>, <code>skippable = false</code>) refuses a skip. Back-fill a receipt for each phase your project has already done; <code>host-lifecycle manifest &lt;path&gt;</code> prints the whole lifecycle at a glance.
+requires = host-lifecycle v0.18.1
+independent = true
+verify   = grep -rqs "every phase emits a receipt" host-template/CLAUDE.md</p>
+<p>[upgrade "0cd6b0a"]
+title    = The Where room uses the nested software/<name>/<branch> layout
+action   = Bump your pinned host-lifecycle to v0.19.0. The Where room now materializes under <code>software/&lt;name&gt;/</code>: the bare store at <code>software/&lt;name&gt;/.git</code> and each worktree keyed by branch at <code>software/&lt;name&gt;/&lt;branch&gt;/</code> (the canonical worktree is the recorded <code>branch</code>, default <code>main</code>, checked out at the pin), replacing the old root-scattered <code>&lt;name&gt;/</code>, <code>&lt;name&gt;.git/</code>, <code>&lt;name&gt;.&lt;line&gt;/</code>. Migrate, in order: (1) replace the per-component <code>.gitignore</code> triplets with a single <code>/software/</code> entry; (2) remove the old root-scattered worktrees and bare stores (commit or stash any uncommitted parallel-worktree work first, since re-materialize is destructive); (3) run <code>host-lifecycle software --materialize .</code> to realise the new tree; (4) re-run <code>link-skills.sh</code> and re-point any software skill link at <code>software/&lt;name&gt;/&lt;branch&gt;/</code>; then <code>host-lifecycle software --check .</code> must be clean. The <code>worktree =</code> recipe line drops its leading <code>&lt;dir&gt;</code> token (the path now derives from the branch: <code>worktree = &lt;branch&gt; &lt;pin&gt; [store=&lt;path&gt;] [host=&lt;os&gt;]</code>), <code>worktrees =</code> is a branch list, and an optional <code>branch =</code> sets a non-<code>main</code> canonical branch. Operate on one component (or one branch worktree) with <code>software --item &lt;name&gt;[@&lt;branch&gt;]</code>. <code>software --check</code> also HAZARDs a dangling generated skill link now. A development host that authors a host-* tool embeds it as its own Where component rather than referencing its own source as a submodule (the reference-don't-vendor carve-out).
+requires = host-lifecycle v0.19.0
+independent = true
+verify   = grep -rqs "the producer of a tool embeds it" host-template/CLAUDE.md</p>
+<p>[upgrade "950fbd6"]
+title    = Prose hygiene is an ongoing hygiene-lane rule with a receipt
+action   = Treat the prose audit as a STANDING part of the hygiene lane, not a one-time pass. <code>host-lint --prose</code> (host-lint v0.7.0+) flags the LLM-slop prose tropes that tropes.fyi names (decoration dashes and arrows, tricolons, hypophora, and the rest) in authored docs. Clean every authored doc to ZERO prose tropes (reword to plain prose, the same bar as naming tells), then wire it into the receipts mechanism: the <code>verify</code> phase applies <code>host-lint --prose</code> and generates a receipt, and <code>host-lifecycle software --check</code> re-verifies that receipt by re-running <code>--prose</code> (add it to the <code>verify</code> phase <code>recheck =</code> in <code>lifecycle.manifest</code>), re-opening any regressed doc as a HAZARD. <code>MEMORY.md</code> is the agent's append-only working memory and is excepted from both the naming and prose audits via <code>.host-lintignore</code>, never rewritten.
+requires = host-lifecycle v0.19.0
+independent = true
+verify   = grep -rqs "Prose hygiene is the same lane" host-template/CLAUDE.md</p>
+<p>[upgrade "ecce498"]
+title    = Hermetic builds via a pinned dependency bundle
+action   = Bump your pinned host-lifecycle to the v0.20.0 build that ships the <code>deps-bundle</code> recipe field and the offline <code>--network none</code> build. A component that ships static or self-contained release binaries MUST be able to reproduce them offline from pinned inputs, never from a network fetch at build time. Vendor the dependency layer once and publish it as a reusable, versioned, hash-pinned downloadable release bundle (the pattern <code>pgs-release</code> uses for its prebuilt sysroot), then record it per component as <code>deps-bundle = &lt;url&gt; &lt;sha256&gt;</code> in <code>.host-software</code>. <code>host-lifecycle software --verify-build</code> and <code>release</code> perform the one controlled, pinned download, verify the sha (provenance), stage the vendored sources, and build under <code>--network none</code> (egress). The producer commits a <code>deps-bundle.lock</code> as the single source of truth, and <code>software --check</code> HAZARDs a <code>deps-bundle</code> pin that has drifted from it. A component that genuinely cannot vendor offline (a network-fetching <code>build.rs</code>, a non-Rust toolchain) may carry <code>hermetic-exempt = call/NNNN</code> citing a software-scoped case decision, the same escape shape as <code>repro-exempt</code>; the exemption is never available where offline vendoring is feasible.
+requires = host-lifecycle v0.20.0
+independent = true
+verify   = grep -rqs "reproduce them offline from pinned inputs" host-template/CLAUDE.md</p>
+<p>[upgrade "27d815b"]
+title    = The hygiene grammar grows by reflective practice
+action   = Bump your pinned host-lint to v0.9.0, which flags a positional reference to a milestone checklist item (the "box N" / "boxes N-M" / "steps N-M" shape), the same ordinal-by-position tell as a numbered name. Adopt the living-grammar doctrine: the shared tell corpus is incomplete and grows by reflective practice. Discovery is mechanical-first, a sweep of history and recent work for a recurring shape the lane misses, prompted at the verify gate before a milestone closes and at adoption, with the agent assisting rather than leading. The operator validates whether a surfaced shape is a genuine tell or legitimate domain vocabulary, by one test: is the shape a property of how models segment work, or of this project's own domain? A confirmed tell is proposed upstream to the shared grammar the lane consumes (a naming tell to host-lint, a prose trope to host-grammar), gained on the next bump; a legitimate tell-shaped token stays in the per-project <code>LEXICON</code>; the project that finds a tell does not edit the shared source itself. Reword by default; box or declare an irreducible citation; declare the numeral-free contextual prefix for a genuine quantity; reserve a graduation for the residue. A later grammar bump that flags a live doc is reworded, and a frozen record is boxed.
+requires = host-lifecycle v0.20.0
+independent = true
+verify   = grep -rqs "grows by reflective practice" host-template/CLAUDE.md</p>
+<p>[upgrade "e280a8d"]
+title    = The verify recheck re-runs the prose audit, so the gate enforces prose hygiene
+action   = Bump your pinned host-lifecycle to v0.22.0, which adds <code>host-lifecycle prose &lt;dir&gt;</code>, host-lint's <code>--docs</code> prose audit run in-process so the gate needs no host-lint on PATH (a development host whose host-lint is embedded Where software still runs it). The <code>verify</code> phase <code>recheck =</code> in <code>lifecycle.manifest</code> now chains <code>host-lifecycle prose .</code> after <code>validate</code>, so <code>software --check</code> re-verifies the verify receipt by re-running the prose audit and re-opens any doc that regressed to slop as a HAZARD. This enforces the standing prose-hygiene rule the spine already states; before it the recheck ran only <code>validate</code>, so a prose regression slipped past the gate.
+requires = host-lifecycle v0.22.0
+independent = true
+verify   = grep -rqs "host-lifecycle prose" host-template/lifecycle.manifest</p>
+<p>[upgrade "ac32d1c"]
+title    = Re-home the receipts family, tool-driven
+action   = Bump your pinned host-lifecycle to v0.23.0 and run <code>host-lifecycle migrate-receipts .</code> (one command, never hand-edited). It moves the applied-set out of <code>.host</code> into <code>.host-receipts</code> and splits the operational receipts (classify, embed, remap, verify, publish, release) out to <code>.host-lifecycle-receipts</code>; adopt and upgrade stay in <code>.host-receipts</code>. The binary auto-migrates on read, so the gate stays green across the boundary and an un-migrated project is still read correctly. A receipt is methodology-version (<code>.host-receipts</code>) only for adopt and upgrade; every other phase host-lifecycle runs is operational (<code>.host-lifecycle-receipts</code>). The old-layout reader is permanent backward compatibility, not a one-time shim.
+requires = host-lifecycle v0.23.0
+independent = true
+verify   = test -f .host-lifecycle-receipts</p>
+<p>[upgrade "d5a0034"]
+title    = Reflective practice grows in two arms: gather forward, reconcile backward
+action   = Bump your pinned host-lifecycle to v0.24.2, which adds <code>host-lifecycle reconcile &lt;dir&gt;</code> and wires the reconcile step into the <code>upgrade</code>/<code>adopt</code>/<code>verify</code> skills. Adopt the widened doctrine: an agent perceives neither the register it emits nor the restatements its own change stales, so reflective practice runs in two arms under one principle. The first arm, gather (unchanged), is forward: emergent tells in the corpus, a confirmed tell graduates upstream, cadence-driven. The second arm, reconcile (new), is backward: the project's own restatements of methodology (its room map, tool family, verification model, recorded Where layout), a confirmed drift fixed locally and never propagated. Prefer pointing at the spine over restating it; a restatement that must stay carries an inline <code>&lt;!-- host-reconcile: KIND --&gt;</code> annotation declaring an assertion <code>host-lifecycle reconcile</code> checks against a source of truth (the host-* family list and the verification-ladder drivers the lifecycle manifest records, the fixed <code>software/</code> and <code>plan/</code> layout), with kinds <code>family</code>, <code>verification</code>, <code>where-root</code>, <code>spec-path</code>. The trigger is conditional and host-aware: a <code>restates =</code> field on an UPGRADING entry marks a drift-capable move so the upgrade skill re-reads the named kinds, adoption runs the full reconcile once, and for a development host that authors its own spine changes the verify gate is the binding trigger (the verify recheck now chains <code>host-lifecycle reconcile .</code>). Disposition is three-way (reword a live restatement, box a frozen citation, forward-correct an immutable record). A sibling check: <code>host-lifecycle validate</code> now HAZARDs an accepted <code>call/</code> decision whose <code>Scope:</code> names <code>host-template</code>, since its rule is spine-resident and belongs superseded there.
+requires = host-lifecycle v0.24.2
+independent = true
+verify   = grep -rqs "Two arms run under this one principle" host-template/CLAUDE.md</p>
+<p>[upgrade "7be692f"]
+title    = Reconcile evolves to concept-as-URI; the lifecycle manifest is phases-only
+action   = Bump your pinned host-lifecycle to v0.25.0 and move to this host-template revision together (a partial bump leaves the old manifest stanzas under the hardened <code>manifest --check</code>). The lifecycle manifest is now phases only; a project's own facts live in its <code>.host-software</code>. Define each methodology concept once at a <code>{#id}</code> anchor on a heading (for example <code>## Components {#components}</code>) in a doc of your choice, and point at it elsewhere with <code>[text](FILE#id)</code>; reconcile runs link-integrity, declared-anchor, and coverage over your docs. The concepts: <code>components</code> (your host-* tools, the <code>[software]</code> members of <code>.host-software</code> minus a single-file front door marked <code>front-door = true</code> if you have one), <code>verifiers</code> (your verification drivers, named on a <code>drivers = ...</code> line under a <code>[verification]</code> stanza you add to <code>.host-software</code>, for example a <code>[verification]</code> stanza whose line is <code>drivers = host-lint allium specula host-prove</code>), <code>software-root</code> (where your software lives, <code>software/</code>), and <code>spec-home</code> (where your specs live, with the software). Each home that lists a set must name the whole set; coverage flags an omission. Convert each surviving inline <code>&lt;!-- host-reconcile: KIND --&gt;</code> annotation by replacing its enumeration and comment with a single such link. You may migrate gradually: the inline annotations keep working, warned, until a later revision retires them. See the reconcile section in <code>CLAUDE.md</code> for the full rules.
+requires = host-lifecycle v0.25.0
+independent = true
+verify   = grep -rqs "rejects a project-fact stanza" host-template/CLAUDE.md</p>
+<p>[upgrade "2229dbb"]
+title    = In-plan tasks are a receipted dependency graph
+action   = Bump your pinned host-lifecycle to v0.26.0 and move to this host-template revision together. Each entry under a milestone's <code>## Build sequence</code> becomes a task: an anchored <code>### </code> heading ending in <code>{#anchor}</code>, keyed <code>plan/NNNN#anchor</code>. A task declares its prerequisites with <code>- depends: #anchor</code> (or a cross-milestone <code>plan/NNNN#anchor</code>; omit the line for the previous task, the linear default), its check with <code>- verify: &lt;command&gt;</code> (mechanical) or <code>- verify: attested &lt;call/NNNN | operator&gt;</code>, and the files a mechanical verify covers with <code>- inputs: &lt;paths&gt;</code>. Record a receipt for each task with <code>host-lifecycle tasks --record &lt;plan/NNNN#anchor&gt; --disposition done|skip</code> (the tool reads the task's own <code>verify</code>/<code>inputs</code>, so you never re-type them); <code>software --check</code> then HAZARDs a task with no receipt, a <code>done</code> whose inputs drifted or whose citation does not resolve, a <code>skip</code> without a resolvable <code>call/NNNN</code>, and an orphan receipt whose task was renamed or removed. Declare only what must finish first; the tool derives what runs in parallel, and a coordinator parallelizes only resource-isolated workers. Migrate gradually: a plan with no anchored <code>### </code> task is untouched. See the task-graph section in <code>CLAUDE.md</code>.
+requires = host-lifecycle v0.26.0
+independent = true
+verify   = grep -rqs "in-plan tasks are receipted nodes" host-template/CLAUDE.md</p>
+<p>[upgrade "ba86125"]
+title    = The entrance check holds a self-contained document to the spine
+action   = Bump your pinned host-lifecycle to v0.29.0 and move to this host-template revision together. A document read out of context cannot point at a definition, so the entrance check holds it by coverage and generation, reconcile's standalone sibling. Declare one entrance, a global singleton, in an <code>[entrance]</code> stanza in <code>.host-software</code> naming the <code>member</code> it belongs to (set apart from <code>components</code>), the <code>document</code> within that member (default <code>README.md</code>), and the concepts it <code>restates</code> (<code>true</code> for every concept, or a named subset of <code>phases</code>, <code>tools</code>, <code>stamp</code>). <code>host-lifecycle entrance --check</code> then holds that document complete against the declared concepts. If you marked a single-file front door with the legacy <code>front-door = true</code> or <code>entrance = true</code> on its <code>[software]</code> member, replace it with an <code>[entrance]</code> stanza naming that member; the legacy marker is still accepted, warned, until a later revision retires it.
+requires = host-lifecycle v0.29.0</p>
+<pre><code>verify   = grep -rqs "entrance check is reconcile's standalone sibling" host-template/CLAUDE.md
+</code></pre>
+<p>[upgrade "de8a517"]
+title    = The legacy per-member entrance marker is retired
+action   = Bump your pinned host-lifecycle to v0.30.0 and move to this host-template revision together. The legacy per-member entrance marker is retired: a <code>front-door = true</code> or <code>entrance = true</code> on a <code>[software]</code> member is now a loud error, not silently accepted. Replace any such marker with an <code>[entrance]</code> stanza naming that member (the <code>member</code>, an optional <code>document</code> with default <code>README.md</code>, and <code>restates</code>); see the entrance section in <code>CLAUDE.md</code>. A project with no single-file entrance carries no such marker and needs no change.
+requires = host-lifecycle v0.30.0</p>
+<pre><code>verify   = grep -rqs "The legacy per-member marker is retired" host-template/CLAUDE.md
+</code></pre>
+<p>[upgrade "e068828"]
+title    = The generated book moves under mdBook/, freeing docs/
+action   = Bump your pinned host-lifecycle to v0.30.2 and move to this host-template revision together. <code>host-lifecycle book</code> now writes its generated mdBook source to <code>mdBook/src/</code> and the built HTML to <code>mdBook/out/</code>, with <code>book.toml</code> kept at the repo root, so <code>mdbook build</code> still runs from the root. This frees <code>docs/</code> for your own authored documentation. Update your <code>.gitignore</code>: replace the <code>/docs/</code> and <code>/book/</code> lines with a single <code>/mdBook/</code> line, keeping <code>/book.toml</code>. Regenerate the site with <code>host-lifecycle book .</code>, then remove the stale generated <code>docs/</code> and <code>book/</code> trees, which held only generated output under the old layout (<code>git clean -fd docs book</code> reaches them once they are no longer ignored). If your <code>.github/workflows/</code> publishes the site, point the publish step at <code>mdBook/out</code> in place of <code>book</code>. A project that has not yet published a site carries no generated <code>docs/</code>, so it needs only the gitignore and workflow change before it first runs <code>book</code>.
+requires = host-lifecycle v0.30.2
+independent = true
+verify   = grep -rqs "mdBook/src" host-template/STRUCTURE.md</p>
+<p>[upgrade "6174996"]
+title    = A declared rung obliges a runnable re-deriver, not just a present CI lane
+action   = Bump your pinned host-lifecycle to v0.31.0 and move to this host-template revision together. <code>software --check</code> now HAZARDs a declared deeper rung (<code>kani:</code>/<code>apalache:</code>/<code>tlaps:</code>) whose shared re-deriver, host-prove, does not run, beside the existing no-CI-lane HAZARD, because a re-derivation that cannot run leaves the rung undischarged however complete the CI config reads. So install host-prove on PATH wherever the gate runs: your local setup and the CI that runs <code>software --check</code> (<code>cargo install --git https://github.com/connollydavid/host-prove --rev &lt;its pin&gt;</code>). A project that declares no deeper rung carries no host-prove requirement and needs no change. And earn the digest a rung records through <code>host-lifecycle obligations &lt;spec&gt; --rederive &lt;crate-root&gt; --record-digests</code>, which re-runs the proof and records only on a pass, in place of a hand edit, so a fresh digest stands for a passing re-derivation on the current inputs.
+requires = host-lifecycle v0.31.0
+independent = true
+verify   = grep -rqs "a re-deriver that runs" host-template/CLAUDE.md</p>
+<p>[upgrade "46a1fd2"]
+title    = A verification lane reports clean only after it performs its check
+action   = Bump your pinned host-lifecycle to v0.32.0 and move to this host-template revision together. The obligation-discharge check now verifies an <code>exercises=&lt;symbol&gt;</code> link rather than only that a <code>test:</code> name resolves. Add to each behavioural obligation a link naming a function the discharging test drives, and run <code>host-lifecycle obligations &lt;spec&gt; --tests &lt;dir&gt; --strict-discharge</code> where the gate runs. The strict mode is opt-in, so a tool bump leaves your ladder green; the reject names the test and the symbol it is missing. Do not relabel a behavioural obligation <code>structural</code> to dodge it, and give every <code>waived:</code> a real reason. Separately, <code>software --verify-build</code> is now three-state: it prints its clean line only when a build was verified and none was UNVERIFIABLE, and it exits non-zero on an in-scope build it could not run (no container runtime, or no toolchain pin), so a runtime-less CI that relied on its exit 0 must gain a runtime or scope that build out. A project whose obligations are all <code>structural</code> carries no <code>exercises=</code> link and needs only the verify-build change.
+requires = host-lifecycle v0.32.0
+independent = true
+verify   = grep -rqs "reports clean only after it performs its check" host-template/CLAUDE.md</p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="the-agents-own-append-only-working-memory-excluded-from-the-naming-and-prose"><a class="header" href="#the-agents-own-append-only-working-memory-excluded-from-the-naming-and-prose">The agent's own append-only working memory. Excluded from the naming and prose</a></h1>
+<h1 id="audits-via-host-lintignore-never-rewrite-an-old-entry-correct-in-place-with-a"><a class="header" href="#audits-via-host-lintignore-never-rewrite-an-old-entry-correct-in-place-with-a">audits via .host-lintignore; never rewrite an old entry (correct in place with a</a></h1>
+<h1 id="dated-pointer-a-fresh-session-reads-plan-call-and-this-file-to-continue"><a class="header" href="#dated-pointer-a-fresh-session-reads-plan-call-and-this-file-to-continue">dated pointer). A fresh session reads plan/, call/, and this file to continue.</a></h1>
+<h2 id="2026-07-02--host-adopted"><a class="header" href="#2026-07-02--host-adopted">2026-07-02 — host adopted</a></h2>
+<ul>
+<li>Adopted <code>host-template</code> @ <code>565410a</code> for UDPspeeder-simd (case a, Shallow). Stamp
+written by <code>host-lifecycle adopt</code>; rooms <code>cast/ plan/ call/</code> scaffolded.</li>
+<li>Push auth: the stored git credential is the <code>slartibardfast</code> token, which had no
+push rights to <code>connollydavid/agentic-UDPspeeder-simd</code> (HTTP 403 on first dry-run
+push). The operator authorized the repo, after which <code>git push --dry-run</code> returned
+"Everything up-to-date". If a later push 403s again, surface it to the operator
+rather than retrying blindly.</li>
+<li>Tooling built from source with the system toolchain (rustc 1.96.1, Arch Linux).
+The methodology pins Rust 1.95.0 as the reproducible-build anchor; the local
+builds use 1.96.1, which is newer and builds clean. Record this wherever a
+canonical artifact hash is claimed.</li>
+<li>UDPspeeder-simd embeds as a bare store plus worktree at
+<code>software/udpspeeder-simd/branch_libev/</code> (its default branch is <code>branch_libev</code>,
+not <code>main</code>). Recorded in <code>.host-software</code> with no <code>deploy</code>/<code>artifact</code>, so it is a
+source pin with no reproducible-build claim yet (migrated software).</li>
+<li>host-lint is also a <code>.host-software</code> component (the gating tool): <code>--install-hooks</code>
+reads a component's <code>hooks</code> script and built <code>artifact</code> from its materialized
+worktree, so host-lint must be materialized and built for the commit gate to land.</li>
+</ul>
+<h2 id="2026-07-03--gate-green-runtimes-installed-push-auth-is-flaky"><a class="header" href="#2026-07-03--gate-green-runtimes-installed-push-auth-is-flaky">2026-07-03 — gate green; runtimes installed; push auth is flaky</a></h2>
+<ul>
+<li>The verify gate (<code>host-lifecycle software --check .</code>) is green: both components at
+pin, all phase receipts recorded, prose clean, reconcile clean. The commit-msg hook
+blocks an ordinal tell in a message (tested: <code>phase 1</code> is rejected, exit 1).</li>
+<li>Tooling on this machine, all under <code>~/.local</code>: <code>bin/host-lint</code>, <code>bin/host-lifecycle</code>
+(v0.35.1), <code>bin/host-prove</code> (v0.3.0), <code>bin/allium</code> (3.5.0), <code>jdk-21/</code> (Temurin
+21.0.11), <code>share/tla2tools.jar</code> (v1.8.0, sha256 237332bd). The gate needs
+<code>host-prove</code> on PATH because host-lint's own <code>kani:</code> obligations surface once it is
+materialized as a component; the cheap gate probes <code>host-prove --help</code>, it does not
+run Kani.</li>
+<li>Two clearance details: the toolchain HAZARD (artifact with no toolchain) is waived by
+<code>repro-exempt = call/0002</code> on host-lint (consumed tool, not reproduced here); and
+<code>remap</code> is a <code>skip</code> receipt, not <code>done</code>, because <code>remap --check</code> errors on an empty
+or absent <code>.host-remap</code>, so a no-rename case-(a) adoption cannot pass a <code>done</code>
+recheck.</li>
+<li>Push auth to <code>connollydavid/agentic-UDPspeeder-simd</code> is intermittent: the stored
+credential is the <code>slartibardfast</code> token, which 403s after the first few pushes
+landed. If <code>git push</code> 403s, surface it to the operator rather than retrying or
+swapping credentials. As of this entry, <code>f8d36ed</code> and <code>5ec59af</code> are local only.</li>
+</ul>
+<h2 id="2026-07-03--followed-the-host-procedure-conformant-no-upgrade-available"><a class="header" href="#2026-07-03--followed-the-host-procedure-conformant-no-upgrade-available">2026-07-03 — followed the host procedure: conformant, no upgrade available</a></h2>
+<ul>
+<li>Ran the case-(c) upgrade/verify cycle from the <code>host</code> procedure
+(<code>github.com/connollydavid/host</code>). <code>host-template</code> upstream is still at <code>565410a</code>,
+the exact revision the <code>.host</code> stamp adopted: a <code>git fetch</code> in the submodule found
+no commits after it, and <code>565410a</code> is an ancestor of <code>origin/main</code>.
+<code>host-lifecycle upgrade .</code> reports up to date (baseline <code>46a1fd2</code>, 0 out of order).
+With no newer methodology to pull in, following the host reduced to the verify gate.</li>
+<li>Verify gate is green. <code>host-lifecycle software --check .</code> exits 0 (both components at
+pin, every phase receipt valid, reconcile clean, prose clean, no worktree-symlink
+hazards); <code>validate plan/</code> and <code>validate call/</code> both <code>ok</code>; <code>host-lint --all</code> and
+<code>--log</code> clean. Independently confirmed: udpspeeder-simd worktree is at pin <code>3374e3b</code>
+on <code>branch_libev</code> with a clean tree, host-lint at <code>78804cd</code>, and the commit-msg hook
+still rejects an ordinal tell (a <code>phase 1</code> message exits 1, a clean message exits 0).</li>
+<li>udpspeeder-simd still carries no <code>.allium</code>/<code>.tla</code> spec, so the requirements and timing
+lanes stay inert and there is no spec-without-lane defect. Every spec found on disk
+belongs to a tool's own worktree, not to the software under development.</li>
+<li>Standalone <code>host-lint --prose</code> on the authored docs prints advisory <code>note:</code> lines but
+exits 0. Those notes are below the enforced bar; the in-process prose audit inside
+<code>software --check</code> is the gate that binds and it reports no flagging or warning tropes.
+Most notes sit in verbatim copied-in content (the <code>UPGRADING.md</code> ledger,
+<code>cast/applying-personas.md</code>) that is not reworded locally. The notes are not a red gate.</li>
+<li>Corrects the 2026-07-03 "push auth is flaky" entry above: the commits it listed as
+local-only (<code>f8d36ed</code>, <code>5ec59af</code>) are now pushed. <code>HEAD == origin/main</code> and the tree
+is clean. Push auth may still 403 intermittently; surface it to the operator if it does.</li>
+</ul>
+<h2 id="2026-07-03--embedded-the-packages-feed-as-a-second-software-lane"><a class="header" href="#2026-07-03--embedded-the-packages-feed-as-a-second-software-lane">2026-07-03 — embedded the packages feed as a second software lane</a></h2>
+<ul>
+<li>Added <code>packages</code> (a fork of <code>openwrt/packages</code>, GPL-2.0, an OpenWrt feed of
+Makefiles/shell/C) as a Where-room component in <code>.host-software</code>: source pin
+<code>1d40ad9</code> on canonical branch <code>master</code>, no build/artifact (migrated build-recipe
+feed, not a built artifact). Materialized to <code>software/packages/master/</code>;
+<code>software --check</code> is green.</li>
+<li>Mechanics for a new component: host-lifecycle has no <code>software --add</code>, so a new
+lane is a hand-edited <code>.host-software</code> stanza plus <code>software --materialize --item &lt;name&gt; .</code> (the <code>--item</code> scope avoids re-touching existing worktrees). The embed and
+release phase receipts are written with <code>host-lifecycle receipt --record &lt;phase&gt; --component packages --disposition done|skip (--evidence|--reason) .</code>; a new
+component HAZARDs on missing embed+release receipts until both are recorded.</li>
+<li>Key rule (call/0003): commits in the packages worktree carry NO <code>Co-Authored-By: Claude</code> trailer, so the feed stays upstream-clean for <code>openwrt/packages</code>. The
+operator confirmed the scope is packages only, so host-repo commits keep the
+trailer. Recorded in call/0003 and the CLAUDE.md packages project-specifics.</li>
+</ul>
+<h2 id="2026-07-03--push-auth-root-cause-slartibardfast-is-pull-only-helper-is-store"><a class="header" href="#2026-07-03--push-auth-root-cause-slartibardfast-is-pull-only-helper-is-store">2026-07-03 — push-auth root cause: slartibardfast is pull-only; helper is <code>store</code></a></h2>
+<ul>
+<li>The recurring push 403 has a concrete root cause rather than flakiness.
+<code>gh api repos/connollydavid/agentic-UDPspeeder-simd</code> shows the <code>slartibardfast</code>
+account has <code>push: false</code> (pull only); the owner account <code>connollydavid</code> (also
+logged in to gh) has push. And git's credential helper here is <code>store</code>
+(<code>~/.git-credentials</code>), not gh, so <code>gh auth switch -u &lt;user&gt;</code> does not change the
+token <code>git push</code> sends. The store already holds slartibardfast's token, so pushes
+go out as slartibardfast and are denied.</li>
+<li>To push as slartibardfast (the operator's intended identity), grant slartibardfast
+write on the repo; then a plain <code>git push</code> works with no helper change. To make
+<code>gh auth switch</code> actually route pushes, run <code>gh auth setup-git</code> so git uses the
+active gh account's token. Do not push as connollydavid without operator direction:
+it changes the public push identity, and the operator is provenance-sensitive.</li>
+<li>Pending operator decision (asked, away from keyboard): grant slartibardfast write,
+push as connollydavid, or operator pushes manually. As of this entry <code>main</code> is ahead
+by 7 unpushed commits (packages embed, call/0003, CLAUDE.md, two memory entries, the
+earlier verify-sweep entry, and the three-persona commit).</li>
+</ul>
+<h2 id="2026-07-03--resolved-push-as-connollydavid-via-a-one-shot-gh-credential"><a class="header" href="#2026-07-03--resolved-push-as-connollydavid-via-a-one-shot-gh-credential">2026-07-03 — resolved: push as connollydavid via a one-shot gh credential</a></h2>
+<ul>
+<li>Operator chose to push as the owner. The working recipe: <code>gh auth switch -u connollydavid</code>, then
+<code>git -c credential.helper= -c credential.helper='!gh auth git-credential' push origin main</code>.
+The empty <code>credential.helper=</code> resets the inherited <code>store</code> helper (which holds
+slartibardfast's read-only token and 403s), and the gh helper then supplies
+connollydavid's token for that one push, with no change to global git config.</li>
+<li>All pending commits landed (<code>23bdc1f..6f1e66a</code>); <code>main</code> is in sync with origin.</li>
+<li>Going forward: repeat that one-shot override, or run <code>gh auth setup-git</code> once (with
+connollydavid active) and clear the stale store token so a plain <code>git push</code> works.
+slartibardfast stays read-only on the repo (not a collaborator); grant it write only
+if a bot-identity push is wanted later. This supersedes the earlier "push auth is
+flaky" framing: the cause was permissions plus a static store token, not flakiness.</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="elasticlunr.min.js"></script>
+        <script src="mark.min.js"></script>
+        <script src="searcher.js"></script>
+
+        <script src="clipboard.min.js"></script>
+        <script src="highlight.js"></script>
+        <script src="book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+        <script>
+        window.addEventListener('load', function() {
+            window.setTimeout(window.print, 100);
+        });
+        </script>
+
+    </div>
+    </body>
+</html>
