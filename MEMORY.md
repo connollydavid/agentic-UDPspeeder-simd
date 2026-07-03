@@ -161,3 +161,23 @@
   (CI runs it), #ci-sdk-lane, #interop, #pr, #backports. The package files are authored in the
   packages worktree but NOT yet committed or pushed to the fork; the branch strategy and the
   outward push/PR await operator go.
+
+## 2026-07-03 — udpspeeder-simd pushed to the fork on a feature branch (PR held)
+
+- Operator chose fork + PR, but the PR needs a review round, so it is NOT opened. Committed
+  net/udpspeeder-simd/ (Makefile + files + test.sh) on branch `udpspeeder-simd` of
+  connollydavid/packages, commit db858a8, pushed. Author + DCO Signed-off-by = David Connolly
+  <david@connol.ly> (real name + public email, no Claude trailer, per call/0003 + OpenWrt rules).
+  Subject "udpspeeder-simd: add package"; body references
+  https://github.com/openwrt/packages/issues/28562.
+- The packages worktree had no git identity; set it to David Connolly / david@connol.ly. The
+  canonical master worktree was used in-place to make the branch then restored to master @
+  1d40ad9, so the .host-software pin and software --check stay intact; the feature branch lives
+  on the fork, not as a host-tracked worktree.
+- Open the PR (after review) from
+  https://github.com/openwrt/packages/compare/master...connollydavid:packages:udpspeeder-simd?expand=1
+  Before submitting, consider syncing the fork onto current openwrt/packages master (the branch
+  is based on the fork's master 1d40ad9, which may be behind upstream).
+- openwrt embed KEPT (operator decision), despite the ~2.5 min software --check cost.
+- Receipts: #fork-build/#feed-package/#service-integration/#interop done; #pr held (review round);
+  #test-script + #ci-sdk-lane pending (CI); #backports policy-constrained.
