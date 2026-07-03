@@ -18,3 +18,10 @@
     evidence = the build installed /etc/config/udpspeeder-simd + /etc/init.d/udpspeeder-simd; init flags validated against the fork's misc.cpp parser
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "plan/0000#interop"]
+    disposition = done
+    verify = attested operator
+    evidence = install paths disjoint from udpspeeder (/usr/bin, /etc/config, /etc/init.d all -simd suffixed); no CONFLICTS; both packages install side by side
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
