@@ -22,3 +22,24 @@
 - host-lint is also a `.host-software` component (the gating tool): `--install-hooks`
   reads a component's `hooks` script and built `artifact` from its materialized
   worktree, so host-lint must be materialized and built for the commit gate to land.
+
+## 2026-07-03 — gate green; runtimes installed; push auth is flaky
+
+- The verify gate (`host-lifecycle software --check .`) is green: both components at
+  pin, all phase receipts recorded, prose clean, reconcile clean. The commit-msg hook
+  blocks an ordinal tell in a message (tested: `phase 1` is rejected, exit 1).
+- Tooling on this machine, all under `~/.local`: `bin/host-lint`, `bin/host-lifecycle`
+  (v0.35.1), `bin/host-prove` (v0.3.0), `bin/allium` (3.5.0), `jdk-21/` (Temurin
+  21.0.11), `share/tla2tools.jar` (v1.8.0, sha256 237332bd). The gate needs
+  `host-prove` on PATH because host-lint's own `kani:` obligations surface once it is
+  materialized as a component; the cheap gate probes `host-prove --help`, it does not
+  run Kani.
+- Two clearance details: the toolchain HAZARD (artifact with no toolchain) is waived by
+  `repro-exempt = call/0002` on host-lint (consumed tool, not reproduced here); and
+  `remap` is a `skip` receipt, not `done`, because `remap --check` errors on an empty
+  or absent `.host-remap`, so a no-rename case-(a) adoption cannot pass a `done`
+  recheck.
+- Push auth to `connollydavid/agentic-UDPspeeder-simd` is intermittent: the stored
+  credential is the `slartibardfast` token, which 403s after the first few pushes
+  landed. If `git push` 403s, surface it to the operator rather than retrying or
+  swapping credentials. As of this entry, `f8d36ed` and `5ec59af` are local only.
