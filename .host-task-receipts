@@ -1,0 +1,20 @@
+[receipt "plan/0000#fork-build"]
+    disposition = done
+    verify = attested operator
+    evidence = fork cross-compiled by the x86_64 snapshot SDK (gcc-14.4.0 musl); speederv2_cross produced, no fork change needed
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
+
+[receipt "plan/0000#feed-package"]
+    disposition = done
+    verify = attested operator
+    evidence = SDK built udpspeeder-simd-2026.07.03~3374e3bb-r1.apk; dynamic deps libc/libstdcpp6/librt/libatomic1, MIT, maintainer David Connolly
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
+
+[receipt "plan/0000#service-integration"]
+    disposition = done
+    verify = attested operator
+    evidence = the build installed /etc/config/udpspeeder-simd + /etc/init.d/udpspeeder-simd; init flags validated against the fork's misc.cpp parser
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
