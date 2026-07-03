@@ -25,3 +25,17 @@
     evidence = install paths disjoint from udpspeeder (/usr/bin, /etc/config, /etc/init.d all -simd suffixed); no CONFLICTS; both packages install side by side
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "plan/0000#test-script"]
+    disposition = done
+    verify = attested operator
+    evidence = test.sh added beside the Makefile; exercised by the OpenWrt PR CI runtime test
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
+
+[receipt "plan/0000#pr"]
+    disposition = done
+    verify = attested operator
+    evidence = PR opened https://github.com/openwrt/packages/pull/29901 (udpspeeder-simd: add package), connollydavid:udpspeeder-simd to openwrt master
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
