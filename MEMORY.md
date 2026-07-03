@@ -69,3 +69,21 @@
 - Corrects the 2026-07-03 "push auth is flaky" entry above: the commits it listed as
   local-only (`f8d36ed`, `5ec59af`) are now pushed. `HEAD == origin/main` and the tree
   is clean. Push auth may still 403 intermittently; surface it to the operator if it does.
+
+## 2026-07-03 — embedded the packages feed as a second software lane
+
+- Added `packages` (a fork of `openwrt/packages`, GPL-2.0, an OpenWrt feed of
+  Makefiles/shell/C) as a Where-room component in `.host-software`: source pin
+  `1d40ad9` on canonical branch `master`, no build/artifact (migrated build-recipe
+  feed, not a built artifact). Materialized to `software/packages/master/`;
+  `software --check` is green.
+- Mechanics for a new component: host-lifecycle has no `software --add`, so a new
+  lane is a hand-edited `.host-software` stanza plus `software --materialize --item
+  <name> .` (the `--item` scope avoids re-touching existing worktrees). The embed and
+  release phase receipts are written with `host-lifecycle receipt --record <phase>
+  --component packages --disposition done|skip (--evidence|--reason) .`; a new
+  component HAZARDs on missing embed+release receipts until both are recorded.
+- Key rule (call/0003): commits in the packages worktree carry NO `Co-Authored-By:
+  Claude` trailer, so the feed stays upstream-clean for `openwrt/packages`. The
+  operator confirmed the scope is packages only, so host-repo commits keep the
+  trailer. Recorded in call/0003 and the CLAUDE.md packages project-specifics.
