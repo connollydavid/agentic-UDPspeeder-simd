@@ -63,3 +63,9 @@
     reason = no release of the packages feed cut through this host (migrated source-pin OpenWrt feed)
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "publish"]
+    disposition = done
+    evidence = book . -> 17 pages; book --check passes (every room renders); mdbook v0.4.40 builds mdBook/out; Site lane at .github/workflows/mdbook.yml deploys mdBook/out to gh-pages
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
