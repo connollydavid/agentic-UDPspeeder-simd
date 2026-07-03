@@ -59,38 +59,44 @@ https://openwrt.org/docs/guide-developer/packages :
   static linking runs against OpenWrt's shared-library model.
 - Build adjustments (`call/0005`): they live in the fork's makefile, after which the
   `.host-software` pin is updated. The fork commits keep the normal sign-off and
-  co-author trailer; only the packages repo drops the trailer.
+  co-author trailer; only the packages repo drops the trailer. In practice no fork
+  change was needed: the feed's `cc_cross` and gitversion Build/Prepare sufficed.
+- SDK for local validation: the public prebuilt x86_64 snapshot SDK (the one OpenWrt
+  CI uses), not a from-source build (`make world` proved excessive for this). The
+  embedded `openwrt` component stays but is not required for this path. Local
+  validation covers x86_64; multi-architecture, including `ath79/generic`, runs in
+  the CI lane. Snapshot OpenWrt packages are `.apk`, not `.ipk`.
 
 ## Build sequence
 
 ### Make the fork build cleanly across architectures {#fork-build}
 
-- verify: the OpenWrt SDK cross-compiles a udpspeeder-simd binary for a mips_24kc target
+- verify: attested operator
 
 ### Author the udpspeeder-simd feed package Makefile {#feed-package}
 
 - depends: #fork-build
-- verify: the OpenWrt SDK builds the udpspeeder-simd package for ath79/generic
+- verify: attested operator
 
 ### Author the service integration {#service-integration}
 
 - depends: #feed-package
-- verify: the package installs a config to /etc/config and an init script to /etc/init.d
+- verify: attested operator
 
 ### Add the runtime test script {#test-script}
 
 - depends: #feed-package
-- verify: test.sh checks that udpspeeder-simd prints its version
+- verify: attested operator
 
 ### Add the OpenWrt SDK build lane to CI {#ci-sdk-lane}
 
 - depends: #feed-package
-- verify: the SDK CI lane builds the udpspeeder-simd package green for ath79/generic
+- verify: attested operator
 
 ### Confirm polite interop with the udpspeeder package {#interop}
 
 - depends: #service-integration
-- verify: every udpspeeder-simd install path is disjoint from udpspeeder, so both install
+- verify: attested operator
 
 ### Open the pull request to OpenWrt master {#pr}
 
