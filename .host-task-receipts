@@ -46,3 +46,10 @@
     evidence = OpenWrt policy blocks new packages on release branches; provided docs/udpspeeder-simd-on-openwrt-releases.md for developer/power-user self-apply via release SDK or buildroot
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "plan/0000#ci-sdk-lane"]
+    disposition = done
+    verify = attested operator
+    evidence = host-repo SDK CI lane green: run 28668634429 built udpspeeder-simd .apk for x86/64 and ath79/generic (MIPS 24Kc, the issue target) against the current snapshot SDK
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
