@@ -39,3 +39,10 @@
     evidence = PR opened https://github.com/openwrt/packages/pull/29901 (udpspeeder-simd: add package), connollydavid:udpspeeder-simd to openwrt master
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "plan/0000#backports"]
+    disposition = done
+    verify = attested operator
+    evidence = OpenWrt policy blocks new packages on release branches; provided docs/udpspeeder-simd-on-openwrt-releases.md for developer/power-user self-apply via release SDK or buildroot
+    tool = host-lifecycle@0.35.1
+    recorded = 2026-07-03
