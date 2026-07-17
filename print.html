@@ -2002,6 +2002,23 @@ untouched upstream); #29901 left on its older base (PR diff is clean vs merge-ba
 builds on the snapshot SDK, so no rebase needed and none requested). .host-software NOT
 re-pinned (feature-branch work; the master pin is unchanged).</li>
 </ul>
+<h2 id="2026-07-17-30015-dirty-patches-detected--patches-must-be-quilt-refreshed"><a class="header" href="#2026-07-17-30015-dirty-patches-detected--patches-must-be-quilt-refreshed">2026-07-17: #30015 "Dirty patches detected" — patches must be quilt-refreshed</a></h2>
+<ul>
+<li>All ten Feeds Package Test Build jobs failed at <code>make package/udpspeeder/refresh</code>: the CI
+requires each patch byte-identical to quilt's canonical output. Our patch applied at exact
+offsets with no fuzz, yet still failed.</li>
+<li>Root cause: OpenWrt refreshes with <code>QUILT_DIFF_OPTS="-p" quilt --quiltrc=- refresh -p ab --no-index --no-timestamps</code> (openwrt/openwrt include/quilt.mk), and GNU diff <code>-p</code> appends
+function context to hunk headers (<code>@@ -51,7 +51,7 @@ cygwin:git_version</code>). <code>git format-patch</code>
+output lacks the suffix, so the refresh rewrites the file and the git-diff check trips.</li>
+<li>Fix recipe: extract the pinned source (<code>git archive 20230206.0</code>), set up <code>patches/</code> + series,
+<code>quilt --quiltrc=- push -a</code>, run the refresh command above, copy the refreshed patch back.
+Verified idempotent: a second refresh reports "is unchanged". Quilt preserves the git header
+(From/Subject/Signed-off-by/diffstat) untouched.</li>
+<li>Folded into the toolchain commit via <code>commit --fixup</code> + <code>GIT_SEQUENCE_EDITOR=: git rebase -i --autosquash</code>; range-diff showed only the two hunk-header lines changed, timeout commit
+byte-identical (<code>=</code>). Force-pushed <code>7a76af810...075f4a7e0</code> (lease + force-if-includes).</li>
+<li>Lesson: any patch destined for openwrt/packages should be generated or round-tripped through
+quilt with those exact args before committing, not taken raw from git format-patch.</li>
+</ul>
 
                     </main>
 
