@@ -277,3 +277,22 @@
   untouched upstream); #29901 left on its older base (PR diff is clean vs merge-base and CI
   builds on the snapshot SDK, so no rebase needed and none requested). .host-software NOT
   re-pinned (feature-branch work; the master pin is unchanged).
+
+## 2026-07-17: #30015 "Dirty patches detected" — patches must be quilt-refreshed
+
+- All ten Feeds Package Test Build jobs failed at `make package/udpspeeder/refresh`: the CI
+  requires each patch byte-identical to quilt's canonical output. Our patch applied at exact
+  offsets with no fuzz, yet still failed.
+- Root cause: OpenWrt refreshes with `QUILT_DIFF_OPTS="-p" quilt --quiltrc=- refresh -p ab
+  --no-index --no-timestamps` (openwrt/openwrt include/quilt.mk), and GNU diff `-p` appends
+  function context to hunk headers (`@@ -51,7 +51,7 @@ cygwin:git_version`). `git format-patch`
+  output lacks the suffix, so the refresh rewrites the file and the git-diff check trips.
+- Fix recipe: extract the pinned source (`git archive 20230206.0`), set up `patches/` + series,
+  `quilt --quiltrc=- push -a`, run the refresh command above, copy the refreshed patch back.
+  Verified idempotent: a second refresh reports "is unchanged". Quilt preserves the git header
+  (From/Subject/Signed-off-by/diffstat) untouched.
+- Folded into the toolchain commit via `commit --fixup` + `GIT_SEQUENCE_EDITOR=: git rebase -i
+  --autosquash`; range-diff showed only the two hunk-header lines changed, timeout commit
+  byte-identical (`=`). Force-pushed `7a76af810...075f4a7e0` (lease + force-if-includes).
+- Lesson: any patch destined for openwrt/packages should be generated or round-tripped through
+  quilt with those exact args before committing, not taken raw from git format-patch.
