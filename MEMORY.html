@@ -421,6 +421,39 @@ Claude co-author trailer; the packages commit has none (call/0003).</li>
 tarball, and prints <code>got &lt;real-hash&gt;</code>. <code>skip</code> does NOT work for a git-proto source
 (the github archive downloader refuses without a real sha256). Then compile to confirm.</li>
 </ul>
+<h2 id="2026-07-17--openwrt-pr-30015-netudpspeeder--timeout-fold-into-pr-29901"><a class="header" href="#2026-07-17--openwrt-pr-30015-netudpspeeder--timeout-fold-into-pr-29901">2026-07-17 — OpenWrt PR #30015 (net/udpspeeder) + timeout fold into PR #29901</a></h2>
+<ul>
+<li>Opened https://github.com/openwrt/packages/pull/30015 (net/udpspeeder) against
+openwrt/packages:master from connollydavid/packages:udpspeeder-toolchain-flags. Two atomic
+commits, PKG_RELEASE 3→4→5:
+<ul>
+<li><code>udpspeeder: build with the toolchain CXX and flags</code>: new patch
+010-build-with-toolchain-flags.patch builds the cross target with $(CXX) and honours
+$(CXXFLAGS)/$(LDFLAGS), makes gitversion overridable; package drops the Build/Prepare sed
+hacks, injects the version via MAKE_FLAGS, adds PKG_BUILD_FLAGS:=no-mips16.</li>
+<li><code>udpspeeder: pass the timeout option to the binary</code>: adds
+<code>procd_append_param command --timeout "${timeout}"</code> after --mtu in files/udpspeeder-init.
+<code>Fixes: .../issues/18955</code> auto-closes on merge. The option was validated and shipped in the
+sample config (tunnel2) but never passed to the binary.</li>
+</ul>
+</li>
+<li>no-mips16 is REQUIRED, not cosmetic: honouring CXXFLAGS pulls -mips16 onto
+mips_24kc/mipsel_24kc, where C++ std::atomic emits a <code>sync</code> barrier MIPS16 cannot encode
+("opcode not supported on this processor: mips2 (mips2) 'sync'"); no-mips16 strips it (MIPS32).</li>
+<li>Non-drift confirmed from binary help: <code>--timeout ... unit: ms, default: 8ms</code>; UCI schema
+default is 8, so wiring it is a no-op at the default and just makes the advertised option work.</li>
+<li>Verified locally via snapshot SDK on all ten CI arches (scratchpad/build_all.sh): all pass;
+both mips controls (without no-mips16) fail on the sync opcode, proving necessity.</li>
+<li>PR #29901 (net/udpspeeder-simd) had the identical latent timeout bug. Folded the same
+<code>--timeout</code> line into the single <code>udpspeeder-simd: add package</code> commit (amend, NO PKG_RELEASE
+bump since 1.0.0-1 is unreleased); force-pushed connollydavid:udpspeeder-simd → 3540c71ce.
+Posted a terse alignment comment (#issuecomment-5002468098) referencing #30015.</li>
+<li>Hygiene: packages commits carry NO Claude trailer (call/0003); sign-off = author = David
+Connolly <a href="mailto:david@connol.ly">david@connol.ly</a>. #30015 rebased onto current upstream/master (net/udpspeeder
+untouched upstream); #29901 left on its older base (PR diff is clean vs merge-base and CI
+builds on the snapshot SDK, so no rebase needed and none requested). .host-software NOT
+re-pinned (feature-branch work; the master pin is unchanged).</li>
+</ul>
 
                     </main>
 
