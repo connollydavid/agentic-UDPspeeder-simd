@@ -247,3 +247,33 @@
   `make package/<pkg>/download V=s`; the download clones, packs the reproducible git
   tarball, and prints `got <real-hash>`. `skip` does NOT work for a git-proto source
   (the github archive downloader refuses without a real sha256). Then compile to confirm.
+
+## 2026-07-17 — OpenWrt PR #30015 (net/udpspeeder) + timeout fold into PR #29901
+
+- Opened https://github.com/openwrt/packages/pull/30015 (net/udpspeeder) against
+  openwrt/packages:master from connollydavid/packages:udpspeeder-toolchain-flags. Two atomic
+  commits, PKG_RELEASE 3→4→5:
+  - `udpspeeder: build with the toolchain CXX and flags`: new patch
+    010-build-with-toolchain-flags.patch builds the cross target with $(CXX) and honours
+    $(CXXFLAGS)/$(LDFLAGS), makes gitversion overridable; package drops the Build/Prepare sed
+    hacks, injects the version via MAKE_FLAGS, adds PKG_BUILD_FLAGS:=no-mips16.
+  - `udpspeeder: pass the timeout option to the binary`: adds
+    `procd_append_param command --timeout "${timeout}"` after --mtu in files/udpspeeder-init.
+    `Fixes: .../issues/18955` auto-closes on merge. The option was validated and shipped in the
+    sample config (tunnel2) but never passed to the binary.
+- no-mips16 is REQUIRED, not cosmetic: honouring CXXFLAGS pulls -mips16 onto
+  mips_24kc/mipsel_24kc, where C++ std::atomic emits a `sync` barrier MIPS16 cannot encode
+  ("opcode not supported on this processor: mips2 (mips2) 'sync'"); no-mips16 strips it (MIPS32).
+- Non-drift confirmed from binary help: `--timeout ... unit: ms, default: 8ms`; UCI schema
+  default is 8, so wiring it is a no-op at the default and just makes the advertised option work.
+- Verified locally via snapshot SDK on all ten CI arches (scratchpad/build_all.sh): all pass;
+  both mips controls (without no-mips16) fail on the sync opcode, proving necessity.
+- PR #29901 (net/udpspeeder-simd) had the identical latent timeout bug. Folded the same
+  `--timeout` line into the single `udpspeeder-simd: add package` commit (amend, NO PKG_RELEASE
+  bump since 1.0.0-1 is unreleased); force-pushed connollydavid:udpspeeder-simd → 3540c71ce.
+  Posted a terse alignment comment (#issuecomment-5002468098) referencing #30015.
+- Hygiene: packages commits carry NO Claude trailer (call/0003); sign-off = author = David
+  Connolly <david@connol.ly>. #30015 rebased onto current upstream/master (net/udpspeeder
+  untouched upstream); #29901 left on its older base (PR diff is clean vs merge-base and CI
+  builds on the snapshot SDK, so no rebase needed and none requested). .host-software NOT
+  re-pinned (feature-branch work; the master pin is unchanged).
