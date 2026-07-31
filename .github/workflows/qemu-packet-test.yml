@@ -1,0 +1,122 @@
+name: qemu packet test
+
+# Authentic runtime coverage for both OpenWrt packages, on every architecture the
+# buildbot publishes rather than the five that OpenWrt's own CI runtime-tests.
+# Each job builds both packages against the current snapshot SDK, then runs a
+# tunnel under qemu-user and requires a payload to survive the round trip.
+#
+# The architecture list is data, in .github/scripts/arch-map.tsv, so adding a
+# target is an edit to that file rather than to this workflow.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 7 * * 1"
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/qemu-packet-test.yml
+      - .github/scripts/packet-test.sh
+      - .github/scripts/stage-sysroot.sh
+      - .github/scripts/arch-map.tsv
+
+permissions:
+  contents: read
+
+env:
+  PKG_REPO: https://github.com/connollydavid/packages.git
+  SIMD_BRANCH: udpspeeder-simd
+  UDPSPEEDER_BRANCH: udpspeeder-update-20260731
+
+jobs:
+  matrix:
+    name: Read the architecture map
+    runs-on: ubuntu-latest
+    outputs:
+      arches: ${{ steps.read.outputs.arches }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: read
+        run: |
+          json=$(awk -F'\t' '/^#/ || NF < 4 { next }
+          {
+            printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"qemu\":\"%s\",\"cpu\":\"%s\"}", \
+              sep, $1, $2, $3, $4; sep=","
+          }' .github/scripts/arch-map.tsv)
+          echo "arches={\"include\":[$json]}" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: ${{ matrix.arch }}
+    needs: matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.arches) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install the emulator
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y qemu-user-static zstd
+
+      - name: Fetch both packages from the fork
+        run: |
+          mkdir -p localfeed/net
+          git clone --depth 1 --filter=blob:none --sparse \
+            -b "$SIMD_BRANCH" "$PKG_REPO" simd
+          git -C simd sparse-checkout set net/udpspeeder-simd
+          cp -r simd/net/udpspeeder-simd localfeed/net/
+          git clone --depth 1 --filter=blob:none --sparse \
+            -b "$UDPSPEEDER_BRANCH" "$PKG_REPO" ups
+          git -C ups sparse-checkout set net/udpspeeder
+          cp -r ups/net/udpspeeder localfeed/net/
+
+      - name: Download the snapshot SDK for ${{ matrix.target }}
+        run: |
+          base="https://downloads.openwrt.org/snapshots/targets/${{ matrix.target }}"
+          sdk=$(wget -qO- "$base/sha256sums" | grep -oE 'openwrt-sdk[^*]+\.tar\.zst' | head -1)
+          echo "SDK: $sdk"
+          wget -qO sdk.tar.zst "$base/$sdk"
+          mkdir sdk && tar --zstd -xf sdk.tar.zst -C sdk --strip-components=1
+
+      - name: Build both packages
+        run: |
+          cd sdk
+          echo "src-link localfeed $GITHUB_WORKSPACE/localfeed" > feeds.conf
+          ./scripts/feeds update localfeed
+          ./scripts/feeds install -a -p localfeed
+          make defconfig
+          echo CONFIG_PACKAGE_UDPspeeder=m >> .config
+          echo CONFIG_PACKAGE_udpspeeder-simd=m >> .config
+          make defconfig
+          make package/feeds/localfeed/udpspeeder/compile -j"$(nproc)"
+          make package/feeds/localfeed/udpspeeder-simd/compile -j"$(nproc)"
+
+      - name: Stage a target sysroot
+        run: .github/scripts/stage-sysroot.sh sdk sysroot
+
+      - name: Pass packets through a tunnel
+        run: |
+          if [ "${{ matrix.cpu }}" = "build-only" ]; then
+            echo "${{ matrix.arch }} is build-only; see the note in arch-map.tsv"
+            exit 0
+          fi
+          rc=0
+          port=31000
+          for pkg in udpspeeder udpspeeder-simd; do
+            bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f | head -1)
+            if [ -z "$bin" ]; then
+              echo "no binary built for $pkg" >&2
+              rc=1
+              continue
+            fi
+            .github/scripts/packet-test.sh \
+              --binary "$bin" \
+              --sysroot sysroot \
+              --qemu "${{ matrix.qemu }}" \
+              --cpu "${{ matrix.cpu }}" \
+              --base-port "$port" || rc=1
+            port=$((port + 100))
+          done
+          exit $rc
