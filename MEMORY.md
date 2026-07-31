@@ -296,3 +296,34 @@
   byte-identical (`=`). Force-pushed `7a76af810...075f4a7e0` (lease + force-if-includes).
 - Lesson: any patch destined for openwrt/packages should be generated or round-tripped through
   quilt with those exact args before committing, not taken raw from git format-patch.
+
+## 2026-07-31 — upstream merged our toolchain-flags PR; taking it in both packages
+
+- wangyu-/UDPspeeder merged https://github.com/wangyu-/UDPspeeder/pull/356 (686d6079), then
+  reshaped it in b6a1b594: `cross` was restored to the hardcoded `${cc_cross}`, and the change
+  landed as a NEW target instead:
+  `cross_cxx: ${CXX} -o ${NAME}_cross -I. ${SOURCES} ${FLAGS} -O2 ${CXXFLAGS} ${LDFLAGS} ${LDLIBS}`.
+  Three deltas vs what we sent: `-O2` moved BEFORE `${CXXFLAGS}` (so a caller's -Os wins instead
+  of being overridden), `-lrt` dropped, `${LDLIBS}` added. Our `gitversion ?=` hunk survived
+  verbatim, so MAKE_FLAGS version injection still works.
+- Consequence for the merged net/udpspeeder patch: its second hunk (the `gitversion ?=` line) can
+  no longer apply to any source at or past b6a1b594, since upstream already has it. So the patch
+  had to be dropped as part of a version bump, not deferred.
+- `-lrt` is a no-op on OpenWrt, PROVEN not assumed: musl's `librt.a` in the toolchain is an 8-byte
+  empty archive (clock_gettime is in libc), and the packaged binary built with `LDLIBS="-lrt"` and
+  without it are byte-identical (sha256 502163f5...). NEEDED is libstdc++/libgcc_s/libc either way.
+  So neither package passes -lrt; a toolchain that needs it can pass LDLIBS. Left `DEPENDS:=+librt`
+  alone in both (inert: musl's libc provides it) rather than widen the diff.
+- The 3-year source bump 20230206.0 -> b6a1b594 is WIRE-SAFE, also proven: the only functional
+  change is swapping the in-tree `crc32h` for Stephan Brumme's `crc32_fast`. Both are standard
+  zlib CRC-32 (poly 0xEDB88320, init ~0, final complement); a comparison harness over every length
+  0..2048 x 8 random buffers matched exactly, and both give 0xCBF43926 for "123456789". The rest is
+  typo fixes, an `is_vaild`->`is_valid` rename, and a djb2/sdbm loop rewrite that removes a
+  one-byte over-read without changing the hash.
+- OpenWrt version convention for an untagged git source is `<base>~<shortsha>` + a full-sha
+  PKG_SOURCE_VERSION. Careful: `~` sorts BEFORE end-of-string (Debian style), so `20230206.0~<sha>`
+  would sort BELOW the released 20230206.0 and break the upgrade path. Used `20260731~b6a1b594`
+  (commit date as base) so it sorts above.
+- Fork: added the same `cross_cxx` target (commit 81fde6c, tagged v1.0.1, pushed); kept our
+  cross/cross2/cross3 as-is since this fork deliberately dropped the hardcoded compiler paths.
+  Re-pinned .host-software to 81fde6c.
