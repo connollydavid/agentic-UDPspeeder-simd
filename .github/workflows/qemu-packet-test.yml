@@ -19,6 +19,7 @@ on:
       - .github/scripts/packet-test.sh
       - .github/scripts/stage-sysroot.sh
       - .github/scripts/arch-map.tsv
+      - .github/scripts/isa-check.sh
 
 permissions:
   contents: read
@@ -103,7 +104,10 @@ jobs:
           objdump=$(ls sdk/staging_dir/toolchain-*/bin/*-objdump | head -1)
           rc=0
           for pkg in udpspeeder udpspeeder-simd; do
-            bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f | head -1)
+            # newest wins: a reused SDK can hold build dirs from earlier versions,
+            # and picking the first match can hand back a stale binary
+            bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f \
+              -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
             [ -n "$bin" ] || { echo "no binary built for $pkg" >&2; rc=1; continue; }
             .github/scripts/isa-check.sh --binary "$bin" \
               --expect "${{ matrix.isa }}" --objdump "$objdump" || rc=1
@@ -115,7 +119,10 @@ jobs:
           rc=0
           port=31000
           for pkg in udpspeeder udpspeeder-simd; do
-            bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f | head -1)
+            # newest wins: a reused SDK can hold build dirs from earlier versions,
+            # and picking the first match can hand back a stale binary
+            bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f \
+              -printf '%T@ %p\n' | sort -rn | head -1 | cut -d' ' -f2-)
             if [ -z "$bin" ]; then
               echo "no binary built for $pkg" >&2
               rc=1
