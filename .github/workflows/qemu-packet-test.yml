@@ -40,8 +40,9 @@ jobs:
         run: |
           json=$(awk -F'\t' '/^#/ || NF < 4 { next }
           {
-            printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"qemu\":\"%s\",\"cpu\":\"%s\"}", \
-              sep, $1, $2, $3, $4; sep=","
+            isa = (NF >= 5 ? $5 : "-")
+            printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"qemu\":\"%s\",\"cpu\":\"%s\",\"isa\":\"%s\"}", \
+              sep, $1, $2, $3, $4, isa; sep=","
           }' .github/scripts/arch-map.tsv)
           echo "arches={\"include\":[$json]}" >> "$GITHUB_OUTPUT"
 
@@ -96,12 +97,21 @@ jobs:
       - name: Stage a target sysroot
         run: .github/scripts/stage-sysroot.sh sdk sysroot
 
+      - name: Hold the binaries to the target instruction set
+        if: matrix.isa != '-'
+        run: |
+          objdump=$(ls sdk/staging_dir/toolchain-*/bin/*-objdump | head -1)
+          rc=0
+          for pkg in udpspeeder udpspeeder-simd; do
+            bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f | head -1)
+            [ -n "$bin" ] || { echo "no binary built for $pkg" >&2; rc=1; continue; }
+            .github/scripts/isa-check.sh --binary "$bin" \
+              --expect "${{ matrix.isa }}" --objdump "$objdump" || rc=1
+          done
+          exit $rc
+
       - name: Pass packets through a tunnel
         run: |
-          if [ "${{ matrix.cpu }}" = "build-only" ]; then
-            echo "${{ matrix.arch }} is build-only; see the note in arch-map.tsv"
-            exit 0
-          fi
           rc=0
           port=31000
           for pkg in udpspeeder udpspeeder-simd; do

@@ -22,51 +22,58 @@
 #   i386_pentium4         n270        no pentium4; pentium3 lacks SSE2
 #   powerpc_464fp         460exb      the 460 family model
 #
-# arm_fa526 is build-only, and the reason is the emulator rather than the
-# package. That target compiles to plain ARMv4, which has no bx and so cannot
-# enter Thumb code: the binary holds no bx or blx at all, where the ARMv5 build
-# of the same package holds 133. qemu-user always maps a Thumb vdso, so the call
-# to __vdso_gettimeofday runs Thumb bytes in ARM state and branches into the
-# weeds. Real hardware never meets this, because the Linux ARM vdso needs ARMv7
-# and a gemini kernel supplies none, leaving musl on plain syscalls. The
-# currently shipped package fails identically, so it is not a change here, and
-# qemu-user offers no way to withhold the vdso. Naming a v7 model would hide
-# genuine mismatches, so the packet test is skipped and the build still runs.
+# The fifth column names an instruction set to assert, or "-" for none. Only
+# arm_fa526 uses it, and the pairing is deliberate.
+#
+# That target compiles to plain ARMv4, which has no bx and so cannot enter Thumb
+# code: its binaries hold no bx or blx at all, where the ARMv5 build of the same
+# package holds 133. qemu-user always maps a Thumb vdso, so under an ARMv4 or
+# ARMv5 model the call to __vdso_gettimeofday runs Thumb bytes in ARM state and
+# branches into the weeds. Real hardware never meets this, because the Linux ARM
+# vdso needs ARMv7 and a gemini kernel supplies none, leaving musl on plain
+# syscalls. The currently shipped package fails the same way, so it is nothing
+# this repository changed, and qemu-user offers no way to withhold the vdso.
+#
+# Skipping the architecture would leave a hole, and simply naming a richer model
+# could hide a real mismatch. So it runs under cortex-a7, which can interwork,
+# and isa-check.sh holds the binaries to ARMv4 in the same job. The emulator
+# then proves the code runs, and the check proves the code is what the target
+# asks for.
 #
 # riscv64_riscv64 is the name the release branches use for riscv64_generic, and
 # no current target produces mips_4kec, so neither appears here.
-aarch64_cortex-a53	airoha/an7581	qemu-aarch64	cortex-a53
-aarch64_cortex-a72	bcm27xx/bcm2711	qemu-aarch64	cortex-a72
-aarch64_cortex-a76	bcm27xx/bcm2712	qemu-aarch64	cortex-a76
-aarch64_generic	armsr/armv8	qemu-aarch64	cortex-a53
-arm_arm1176jzf-s_vfp	bcm27xx/bcm2708	qemu-arm	arm1176
-arm_arm926ej-s	at91/sam9x	qemu-arm	arm926
-arm_cortex-a15_neon-vfpv4	armsr/armv7	qemu-arm	cortex-a15
-arm_cortex-a5_vfpv4	at91/sama5	qemu-arm	cortex-a7
-arm_cortex-a7	mediatek/mt7629	qemu-arm	cortex-a7
-arm_cortex-a7_neon-vfpv4	bcm27xx/bcm2709	qemu-arm	cortex-a7
-arm_cortex-a7_vfpv4	at91/sama7	qemu-arm	cortex-a7
-arm_cortex-a8_vfpv3	omap/generic	qemu-arm	cortex-a8
-arm_cortex-a9	bcm53xx/generic	qemu-arm	cortex-a9
-arm_cortex-a9_neon	imx/cortexa9	qemu-arm	cortex-a9
-arm_cortex-a9_vfpv3-d16	mvebu/cortexa9	qemu-arm	cortex-a9
-arm_fa526	gemini/generic	qemu-arm	build-only
-arm_xscale	kirkwood/generic	qemu-arm	arm926
-armeb_xscale	ixp4xx/generic	qemu-armeb	arm926
-i386_pentium-mmx	x86/geode	qemu-i386	pentium2
-i386_pentium4	x86/generic	qemu-i386	n270
-loongarch64_generic	loongarch64/generic	qemu-loongarch64	la464
-mips64_mips64r2	malta/be64	qemu-mips64	MIPS64R2-generic
-mips64_octeonplus	octeon/generic	qemu-mips64	Octeon68XX
-mips64el_mips64r2	malta/le64	qemu-mips64el	MIPS64R2-generic
-mips_24kc	ath79/generic	qemu-mips	24Kf
-mips_mips32	bmips/bcm6318	qemu-mips	4Kc
-mipsel_24kc	malta/le	qemu-mipsel	24Kf
-mipsel_24kc_24kf	pistachio/generic	qemu-mipsel	24Kf
-mipsel_74kc	bcm47xx/mips74k	qemu-mipsel	74Kf
-mipsel_mips32	bcm47xx/generic	qemu-mipsel	4Kc
-powerpc64_e5500	qoriq/generic	qemu-ppc64	e5500
-powerpc_464fp	apm821xx/nand	qemu-ppc	460exb
-powerpc_8548	mpc85xx/p1010	qemu-ppc	e500v2_v10
-riscv64_generic	d1/generic	qemu-riscv64	rv64
-x86_64	x86/64	qemu-x86_64	qemu64
+aarch64_cortex-a53	airoha/an7581	qemu-aarch64	cortex-a53	-
+aarch64_cortex-a72	bcm27xx/bcm2711	qemu-aarch64	cortex-a72	-
+aarch64_cortex-a76	bcm27xx/bcm2712	qemu-aarch64	cortex-a76	-
+aarch64_generic	armsr/armv8	qemu-aarch64	cortex-a53	-
+arm_arm1176jzf-s_vfp	bcm27xx/bcm2708	qemu-arm	arm1176	-
+arm_arm926ej-s	at91/sam9x	qemu-arm	arm926	-
+arm_cortex-a15_neon-vfpv4	armsr/armv7	qemu-arm	cortex-a15	-
+arm_cortex-a5_vfpv4	at91/sama5	qemu-arm	cortex-a7	-
+arm_cortex-a7	mediatek/mt7629	qemu-arm	cortex-a7	-
+arm_cortex-a7_neon-vfpv4	bcm27xx/bcm2709	qemu-arm	cortex-a7	-
+arm_cortex-a7_vfpv4	at91/sama7	qemu-arm	cortex-a7	-
+arm_cortex-a8_vfpv3	omap/generic	qemu-arm	cortex-a8	-
+arm_cortex-a9	bcm53xx/generic	qemu-arm	cortex-a9	-
+arm_cortex-a9_neon	imx/cortexa9	qemu-arm	cortex-a9	-
+arm_cortex-a9_vfpv3-d16	mvebu/cortexa9	qemu-arm	cortex-a9	-
+arm_fa526	gemini/generic	qemu-arm	cortex-a7	v4
+arm_xscale	kirkwood/generic	qemu-arm	arm926	-
+armeb_xscale	ixp4xx/generic	qemu-armeb	arm926	-
+i386_pentium-mmx	x86/geode	qemu-i386	pentium2	-
+i386_pentium4	x86/generic	qemu-i386	n270	-
+loongarch64_generic	loongarch64/generic	qemu-loongarch64	la464	-
+mips64_mips64r2	malta/be64	qemu-mips64	MIPS64R2-generic	-
+mips64_octeonplus	octeon/generic	qemu-mips64	Octeon68XX	-
+mips64el_mips64r2	malta/le64	qemu-mips64el	MIPS64R2-generic	-
+mips_24kc	ath79/generic	qemu-mips	24Kf	-
+mips_mips32	bmips/bcm6318	qemu-mips	4Kc	-
+mipsel_24kc	malta/le	qemu-mipsel	24Kf	-
+mipsel_24kc_24kf	pistachio/generic	qemu-mipsel	24Kf	-
+mipsel_74kc	bcm47xx/mips74k	qemu-mipsel	74Kf	-
+mipsel_mips32	bcm47xx/generic	qemu-mipsel	4Kc	-
+powerpc64_e5500	qoriq/generic	qemu-ppc64	e5500	-
+powerpc_464fp	apm821xx/nand	qemu-ppc	460exb	-
+powerpc_8548	mpc85xx/p1010	qemu-ppc	e500v2_v10	-
+riscv64_generic	d1/generic	qemu-riscv64	rv64	-
+x86_64	x86/64	qemu-x86_64	qemu64	-
