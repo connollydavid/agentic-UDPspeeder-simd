@@ -397,3 +397,31 @@
   meets it, since the Linux ARM vdso needs ARMv7 and a gemini kernel supplies none, leaving musl
   on plain syscalls. qemu-user has no flag to withhold the vdso, so the packet test is skipped
   for that arch rather than run under a v7 model that would hide real mismatches.
+
+## 2026-07-31 — udpspeeder-simd crashed on x86_64 without SSSE3 (found by faithful qemu models)
+
+- lib/fec.cpp initialised `addmul1_x86_fn = addmul1_ssse3` and only ever RAISED it to AVX2 or
+  AVX-512. Nothing probed SSSE3, and x86_64 does NOT imply it: AMD K8/K10 (Athlon 64, Opteron,
+  Phenom, Phenom II, Athlon II) lack it, as do early 64-bit Intel parts; AMD added it with
+  Bulldozer in 2011. Those CPUs took SIGILL on the first PSHUFB in the Reed-Solomon inner loop,
+  so the tunnel died on its first FEC batch. Upstream udpspeeder was unaffected.
+- Only visible under a faithful CPU model. Every earlier sweep used qemu's DEFAULT x86_64 model
+  (rich), and OpenWrt's own CI runtime-tests x86_64 on a GitHub runner that has SSSE3/AVX2, so the
+  bad path never ran. It appeared the moment the map named `-cpu qemu64` (the AMD64 baseline).
+- Fix (fork v1.0.2, f3834047): pointer starts at scalar and rises only as CPUID allows, via
+  cpu_has_ssse3() (leaf 1 ECX bit 9) and cpu_has_sse2(); new SSE2 addmul1 sits beneath SSSE3, so a
+  CPU without PSHUFB still vectorises. SSE2 has no byte shuffle, so it multiplies by repeated
+  doubling: `_mm_add_epi8(x,x)` for the shift and `_mm_cmpgt_epi8(0,x)` to select the reduction.
+  The reduction constant is read from `gf_mul_table[2][0x80]`, not hardcoded, so it follows the
+  field. Measured 1.73x scalar at 1500B (913 vs 1579 ns); ssse3 is 9.8x.
+- Also hardened packet_cook.cpp: its AVX2 tier was set from CPUID leaf 7 EBX bit 5 ALONE, with no
+  OSXSAVE/XCR0 check and no max-leaf check. Now mirrors the correct probe.
+- Test method worth reusing: `bench_addmul1_force(name)` pins one implementation so test_fec can
+  hold EVERY path against scalar over all 256 multipliers and sizes hitting each loop and tail.
+  Ran the suite under `qemu-x86_64 -cpu qemu64|Nehalem|Haswell` to exercise sse2/ssse3/avx2.
+  AVX-512BW cannot be verified this way: qemu-user leaves ZMM state disabled in XCR0, so the
+  OS-support check correctly declines it.
+- HARNESS BUG worth remembering: `find ... | head -1` picked a STALE build dir from an earlier
+  session in a reused SDK, so one x86_64 result described a binary nobody had built that run.
+  Select by newest mtime (`-printf '%T@ %p'| sort -rn`). Fresh CI SDKs never hit this; local
+  reused SDKs do.
