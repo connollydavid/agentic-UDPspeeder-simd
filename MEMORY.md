@@ -327,3 +327,21 @@
 - Fork: added the same `cross_cxx` target (commit 81fde6c, tagged v1.0.1, pushed); kept our
   cross/cross2/cross3 as-is since this fork deliberately dropped the hardcoded compiler paths.
   Re-pinned .host-software to 81fde6c.
+
+## 2026-07-31 — correction: PR #29901 has no test.sh (the 2026-07-03 entry is wrong)
+
+- The 2026-07-03 entry above says "#test-script done ... test.sh added beside the Makefile;
+  exercised by the OpenWrt PR CI runtime test", and `.host-task-receipts` records the same
+  evidence for `plan/0000#test-script`. Both are FALSE as of now, and have been since 2026-07-04.
+- Traced through the branch reflog: test.sh survived to b7ef6490 (2026-07-04 21:31) and was gone
+  in the very next amend, b9e331ec (2026-07-04 23:16), the one that fixed the Build/Prepare
+  double-expansion. It was dropped accidentally, not by decision, and every later force-push
+  carried the loss forward. The PR head has carried three files (Makefile, config, init) ever
+  since, so the CI arches flagged `runtime_test: true` have had nothing to run.
+- Operator decision on 2026-07-31: LEAVE IT OUT rather than restore it, so the package ships
+  without a runtime test. BKPepe had questioned the script anyway ("Do we need this script at
+  all? This should be covered by generic testing"). The `#test-script` receipt is therefore
+  stale and should be re-dispositioned by the operator (it is a tool-written ledger; not
+  hand-edited here).
+- Lesson: an amend that fixes one file can silently drop another. Diff the file LIST against the
+  PR head after every amend + force-push, not just the file contents.
