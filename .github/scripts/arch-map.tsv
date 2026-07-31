@@ -18,18 +18,27 @@
 #   arm_cortex-a5_vfpv4   cortex-a7   no cortex-a5 in qemu-user
 #   arm_xscale            arm926      no xscale or pxa model
 #   armeb_xscale          arm926      likewise, big endian
-#   i386_pentium-mmx      pentium2    closest with MMX and no SSE
-#   i386_pentium4         n270        no pentium4; pentium3 lacks SSE2
 #   powerpc_464fp         460exb      the 460 family model
 #
-# x86_64 goes the other way and is pinned to the floor rather than to a typical
-# part. Opteron_G1 is the emulator's model of the first x86_64 silicon, the
-# Opteron 240 of 2003, and subtracting sse3 takes it back to the earliest
-# stepping, which had none. The architecture guarantees SSE2 and nothing above
-# it, and the toolchain compiles to exactly that, so everything richer is
-# reached through CPUID at run time. A richer model leaves those fallback paths
-# unrun: the emulator default grants SSE3, and an assumption of SSSE3 that
-# faults on AMD K8 and K10 survived years of CI on hosts that all had it.
+# The x86 models are composed from features rather than picked from the list,
+# because every stock model is richer than the part its target names, and a
+# richer model hides a fault instead of finding one. What each target asks for:
+#
+#   i386_pentium-mmx      pentium,+mmx      MMX, no SSE, no CMOV
+#   i386_pentium4         pentium3,+sse2    SSE2, no SSE3, no SSSE3
+#   x86_64                Opteron_G1,-sse3  the Opteron 240 of 2003, earliest
+#                                           stepping, so SSE2 and nothing above
+#
+# Each boundary was confirmed by running a one-instruction program under the
+# model and requiring the illegal-instruction fault. The stock choices were all
+# too rich: pentium2 grants CMOV, which a Geode has not; n270 grants SSSE3, so
+# that job selected the SSSE3 path and never ran the SSE2 one a Pentium 4 uses;
+# and the emulator's own x86_64 default grants SSE3. An assumption of SSSE3
+# that faults on AMD K8 and K10 survived years of CI on hosts that all had it,
+# which is the whole argument for naming the floor rather than a typical part.
+#
+# x86 has four subtargets and three package architectures: geode and legacy
+# both fall to the i386 default of pentium-mmx, so one row covers the pair.
 #
 # The fifth column names an instruction set to assert, or "-" for none. Only
 # arm_fa526 uses it, and the pairing is deliberate.
@@ -49,8 +58,11 @@
 # then proves the code runs, and the check proves the code is what the target
 # asks for.
 #
-# riscv64_riscv64 is the name the release branches use for riscv64_generic, and
-# no current target produces mips_4kec, so neither appears here.
+# riscv64_riscv64 and mips_4kec have package directories on the buildbot but are
+# frozen leftovers, not live architectures: they were last built in April and
+# July of 2025 against zlib 1.3.1, where a live architecture carries a build
+# from this month. riscv64_riscv64 is the name the release branches use for
+# riscv64_generic, and nothing in the tree sets CPU_TYPE to 4kec.
 aarch64_cortex-a53	airoha/an7581	qemu-aarch64	cortex-a53	-
 aarch64_cortex-a72	bcm27xx/bcm2711	qemu-aarch64	cortex-a72	-
 aarch64_cortex-a76	bcm27xx/bcm2712	qemu-aarch64	cortex-a76	-
@@ -69,8 +81,8 @@ arm_cortex-a9_vfpv3-d16	mvebu/cortexa9	qemu-arm	cortex-a9	-
 arm_fa526	gemini/generic	qemu-arm	cortex-a7	v4
 arm_xscale	kirkwood/generic	qemu-arm	arm926	-
 armeb_xscale	ixp4xx/generic	qemu-armeb	arm926	-
-i386_pentium-mmx	x86/geode	qemu-i386	pentium2	-
-i386_pentium4	x86/generic	qemu-i386	n270	-
+i386_pentium-mmx	x86/geode	qemu-i386	pentium,+mmx	-
+i386_pentium4	x86/generic	qemu-i386	pentium3,+sse2	-
 loongarch64_generic	loongarch64/generic	qemu-loongarch64	la464	-
 mips64_mips64r2	malta/be64	qemu-mips64	MIPS64R2-generic	-
 mips64_octeonplus	octeon/generic	qemu-mips64	Octeon68XX	-
