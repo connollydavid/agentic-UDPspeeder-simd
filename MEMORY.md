@@ -345,3 +345,55 @@
   hand-edited here).
 - Lesson: an amend that fixes one file can silently drop another. Diff the file LIST against the
   PR head after every amend + force-push, not just the file contents.
+
+## 2026-07-31 — OpenWrt packaging idioms, and how to test under qemu properly
+
+- VERSION FORM for an untagged git source: do NOT hand-write PKG_VERSION. Set PKG_SOURCE_DATE
+  plus a full-sha PKG_SOURCE_VERSION and let include/download.mk derive it:
+  `PKG_VERSION := $(subst -,.,$(PKG_SOURCE_DATE))~$(call version_abbrev,$(PKG_SOURCE_VERSION))`,
+  giving `2026.07.31~b6a1b594` (version_abbrev = 8 chars; it returns the FULL sha under DUMP, so
+  the feed index shows the long form while the build uses the short one). Feed usage: 96 packages
+  use PKG_SOURCE_DATE vs 3 that hand-write a `~` version. Changing the version form changes
+  PKG_MIRROR_HASH, since the tarball's inner subdir is $(PKG_NAME)-$(PKG_VERSION).
+- UPSTREAM UDPspeeder TRUNCATES THE VERSION: print_help does `strncpy(buf, gitversion, 10)`, so
+  `--help` (the flag OpenWrt's generic check finds) shows ten characters only. The old version
+  `20230206.0` was ten characters exactly, so the check passed by luck for years. Any longer
+  version needs `test-version.sh`, the idiomatic override (70 in the feed). Our simd fork already
+  prints the full version, so only net/udpspeeder needs the override.
+- DEPS ARE DERIVED FROM THE ELF: include/package-pack.mk runs scripts/gen-dependencies.sh, which
+  reads NEEDED and FAILS the build for a linked library that is not declared. It never checks for
+  extras, so a declared-but-unlinked dep is inert. librt and libatomic were both provably inert:
+  70/70 builds and packet tests across all 35 published architectures with both removed, no binary
+  NEEDs either, and no `__atomic_*`/`__sync_*` symbol anywhere. On musl, Package/librt/install
+  copies nothing at all (`ifneq ($(CONFIG_USE_MUSL),y)`).
+- RUNTIME TESTS, the idiom: `test.sh <pkgname> <version>` runs INSIDE a target-arch container
+  (binfmt + qemu-user-static) with the package installed. `pre-test.sh` installs test deps
+  (`apk add socat`). A package-specific test.sh REPLACES the generic tests (version check
+  included), and test-version.sh is only consulted by the generic path, so test.sh must assert the
+  version itself. BusyBox in OpenWrt is built with NC_SERVER=n and NC_EXTRA=n, so nc can neither
+  listen nor exec: use socat via pre-test.sh. Do not use a fixed sleep, the container is emulated;
+  retry the payload instead.
+- QEMU CPU MODELS, do not trust the default. powerpc_8548 (CPU_TYPE 8548, e500v2) fails under the
+  default 32-bit PPC model with an illegal instruction, and it is NOT the package: the faulting
+  word disassembles to `iseleq` inside musl libc, which holds 63 isel instructions while our
+  binaries hold none. `-cpu e500v2_v10` runs it. Control: the musl loader alone faults under the
+  default and prints its version under e500v2_v10. Every arch now names a verified model in
+  .github/scripts/arch-map.tsv; where qemu-user lacks the exact CPU the closest SUPERSET is used
+  (xscale and fa526 -> arm926, cortex-a5 -> cortex-a7, pentium-mmx -> pentium2, pentium4 -> n270,
+  since a weaker model invents failures and a richer one hides them and skews feature detection).
+- PROBE BY OUTPUT, NOT EXIT STATUS: musl's loader prints its version and exits 1. A first pass at
+  CPU discovery keyed on exit status and reported every architecture broken. Judge the output.
+- SCOPE: OpenWrt's CI runtime-tests only aarch64_generic, arm_cortex-a15_neon-vfpv4,
+  i386_pentium-mmx, mips_24kc and x86_64; powerpc_8548 is runtime_test:false. So the CPU-model
+  work is OUR local lane's concern, not something the OpenWrt PR depends on.
+- arm_fa526 (gemini) is BUILD-ONLY under qemu-user, and the cause is the emulator, not the
+  package. That target compiles plain ARMv4: its binary holds ZERO bx/blx, where the ARMv5 build
+  of the same package holds 133, so it cannot enter Thumb code at all. qemu-user always maps a
+  Thumb vdso, so the call to __vdso_gettimeofday runs Thumb bytes in ARM state and branches to a
+  wild address; the in_asm trace ends in `IN: __vdso_gettimeofday` decoding 46c046c0 (Thumb
+  nop;nop) as ARM and branching to 0x40b2838c, exactly the SIGSEGV si_addr. Proven not ours two
+  ways: the CURRENTLY SHIPPED 20230206.0 package fails identically under -cpu arm926, and a
+  trivial C++ program against the same musl and libstdc++ runs fine there. Real hardware never
+  meets it, since the Linux ARM vdso needs ARMv7 and a gemini kernel supplies none, leaving musl
+  on plain syscalls. qemu-user has no flag to withhold the vdso, so the packet test is skipped
+  for that arch rather than run under a v7 model that would hide real mismatches.
