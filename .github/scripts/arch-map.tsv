@@ -22,6 +22,15 @@
 #   i386_pentium4         n270        no pentium4; pentium3 lacks SSE2
 #   powerpc_464fp         460exb      the 460 family model
 #
+# x86_64 goes the other way and is pinned to the floor rather than to a typical
+# part. Opteron_G1 is the emulator's model of the first x86_64 silicon, the
+# Opteron 240 of 2003, and subtracting sse3 takes it back to the earliest
+# stepping, which had none. The architecture guarantees SSE2 and nothing above
+# it, and the toolchain compiles to exactly that, so everything richer is
+# reached through CPUID at run time. A richer model leaves those fallback paths
+# unrun: the emulator default grants SSE3, and an assumption of SSSE3 that
+# faults on AMD K8 and K10 survived years of CI on hosts that all had it.
+#
 # The fifth column names an instruction set to assert, or "-" for none. Only
 # arm_fa526 uses it, and the pairing is deliberate.
 #
@@ -76,4 +85,4 @@ powerpc64_e5500	qoriq/generic	qemu-ppc64	e5500	-
 powerpc_464fp	apm821xx/nand	qemu-ppc	460exb	-
 powerpc_8548	mpc85xx/p1010	qemu-ppc	e500v2_v10	-
 riscv64_generic	d1/generic	qemu-riscv64	rv64	-
-x86_64	x86/64	qemu-x86_64	qemu64	-
+x86_64	x86/64	qemu-x86_64	Opteron_G1,-sse3	-
