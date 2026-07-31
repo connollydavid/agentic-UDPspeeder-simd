@@ -503,6 +503,11 @@ shows a developer or power user how to self-apply it with a release SDK or build
 <li>depends: #pr</li>
 <li>verify: attested operator</li>
 </ul>
+<h3 id="upstream-cross-cxx"><a class="header" href="#upstream-cross-cxx">Take upstream's cross_cxx merge into both packages</a></h3>
+<ul>
+<li>depends: #pr</li>
+<li>verify: attested operator</li>
+</ul>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="software-where"><a class="header" href="#software-where">Software: where</a></h1>
 <p>The action this project produces. Each component is a bare object store with worktrees, not committed into this repo; the recipe below is the reproducibility anchor. Materialize the worktrees locally with:</p>
 <pre><code>host-lifecycle software --materialize .
@@ -516,7 +521,7 @@ shows a developer or power user how to self-apply it with a release SDK or build
 <h2 id="udpspeeder-simd"><a class="header" href="#udpspeeder-simd">udpspeeder-simd</a></h2>
 <ul>
 <li>url: https://github.com/connollydavid/UDPspeeder-simd.git</li>
-<li>pin: <code>d266e374fc0cefea5084c135a4e7534db865f4a6</code></li>
+<li>pin: <code>81fde6cf56aa839717163fc24287e6c97c0482b1</code></li>
 <li>worktrees: none (single canonical line)</li>
 </ul>
 <h2 id="packages"><a class="header" href="#packages">packages</a></h2>
@@ -2018,6 +2023,37 @@ Verified idempotent: a second refresh reports "is unchanged". Quilt preserves th
 byte-identical (<code>=</code>). Force-pushed <code>7a76af810...075f4a7e0</code> (lease + force-if-includes).</li>
 <li>Lesson: any patch destined for openwrt/packages should be generated or round-tripped through
 quilt with those exact args before committing, not taken raw from git format-patch.</li>
+</ul>
+<h2 id="2026-07-31--upstream-merged-our-toolchain-flags-pr-taking-it-in-both-packages"><a class="header" href="#2026-07-31--upstream-merged-our-toolchain-flags-pr-taking-it-in-both-packages">2026-07-31 — upstream merged our toolchain-flags PR; taking it in both packages</a></h2>
+<ul>
+<li>wangyu-/UDPspeeder merged https://github.com/wangyu-/UDPspeeder/pull/356 (686d6079), then
+reshaped it in b6a1b594: <code>cross</code> was restored to the hardcoded <code>${cc_cross}</code>, and the change
+landed as a NEW target instead:
+<code>cross_cxx: ${CXX} -o ${NAME}_cross -I. ${SOURCES} ${FLAGS} -O2 ${CXXFLAGS} ${LDFLAGS} ${LDLIBS}</code>.
+Three deltas vs what we sent: <code>-O2</code> moved BEFORE <code>${CXXFLAGS}</code> (so a caller's -Os wins instead
+of being overridden), <code>-lrt</code> dropped, <code>${LDLIBS}</code> added. Our <code>gitversion ?=</code> hunk survived
+verbatim, so MAKE_FLAGS version injection still works.</li>
+<li>Consequence for the merged net/udpspeeder patch: its second hunk (the <code>gitversion ?=</code> line) can
+no longer apply to any source at or past b6a1b594, since upstream already has it. So the patch
+had to be dropped as part of a version bump, not deferred.</li>
+<li><code>-lrt</code> is a no-op on OpenWrt, PROVEN not assumed: musl's <code>librt.a</code> in the toolchain is an 8-byte
+empty archive (clock_gettime is in libc), and the packaged binary built with <code>LDLIBS="-lrt"</code> and
+without it are byte-identical (sha256 502163f5...). NEEDED is libstdc++/libgcc_s/libc either way.
+So neither package passes -lrt; a toolchain that needs it can pass LDLIBS. Left <code>DEPENDS:=+librt</code>
+alone in both (inert: musl's libc provides it) rather than widen the diff.</li>
+<li>The 3-year source bump 20230206.0 -&gt; b6a1b594 is WIRE-SAFE, also proven: the only functional
+change is swapping the in-tree <code>crc32h</code> for Stephan Brumme's <code>crc32_fast</code>. Both are standard
+zlib CRC-32 (poly 0xEDB88320, init ~0, final complement); a comparison harness over every length
+0..2048 x 8 random buffers matched exactly, and both give 0xCBF43926 for "123456789". The rest is
+typo fixes, an <code>is_vaild</code>-&gt;<code>is_valid</code> rename, and a djb2/sdbm loop rewrite that removes a
+one-byte over-read without changing the hash.</li>
+<li>OpenWrt version convention for an untagged git source is <code>&lt;base&gt;~&lt;shortsha&gt;</code> + a full-sha
+PKG_SOURCE_VERSION. Careful: <code>~</code> sorts BEFORE end-of-string (Debian style), so <code>20230206.0~&lt;sha&gt;</code>
+would sort BELOW the released 20230206.0 and break the upgrade path. Used <code>20260731~b6a1b594</code>
+(commit date as base) so it sorts above.</li>
+<li>Fork: added the same <code>cross_cxx</code> target (commit 81fde6c, tagged v1.0.1, pushed); kept our
+cross/cross2/cross3 as-is since this fork deliberately dropped the hardcoded compiler paths.
+Re-pinned .host-software to 81fde6c.</li>
 </ul>
 
                     </main>
