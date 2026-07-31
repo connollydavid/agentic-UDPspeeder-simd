@@ -114,3 +114,8 @@ https://openwrt.org/docs/guide-developer/packages :
 
 - depends: #pr
 - verify: attested operator
+
+### Take upstream's cross_cxx merge into both packages {#upstream-cross-cxx}
+
+- depends: #pr
+- verify: attested operator
