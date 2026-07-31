@@ -425,3 +425,32 @@
   session in a reused SDK, so one x86_64 result described a binary nobody had built that run.
   Select by newest mtime (`-printf '%T@ %p'| sort -rn`). Fresh CI SDKs never hit this; local
   reused SDKs do.
+
+## 2026-07-31 — qemu64 is not the x86_64 floor; the first Opteron is
+
+Asked whether we are aligned with the very first x86_64 chip, and the honest answer needed
+evidence at both ends rather than an assertion. Findings worth keeping:
+
+- `-cpu qemu64` GRANTS SSE3. It caught the SSSE3 crash, but it is not the architectural floor and
+  never was. The floor is `-cpu Opteron_G1,-sse3`: qemu's model of the AMD Opteron 240 of 2003,
+  the first x86_64 silicon, with SSE3 subtracted for the earliest stepping. SSE3 only arrived on
+  K8 revision E in 2005. The arch map's x86_64 row now names that model.
+- Compile-time floor is already right: the OpenWrt x86_64 toolchain defaults to `-march=x86-64`
+  with sse3, ssse3, sse4, cx16 and popcnt all DISABLED (`gcc -Q --help=target` proves it, and
+  `CONFIG_TARGET_OPTIMIZATION` is only `-Os -pipe`, so nothing raises it).
+- `XGETBV` IS NOT BASELINE. It arrived with XSAVE in 2008, so a K8 faults on it. Our probes check
+  CPUID leaf 1 ECX bit 27 (OSXSAVE) first, and the EMITTED code keeps the order: every xgetbv sits
+  behind `bt $0x1b,%ecx` / `jae`. Verified in the disassembly, not just the source. Worth
+  re-checking after any compiler bump, since the guard is a branch the optimiser could in
+  principle move.
+- CRC32C's hardware path is behind `crc32c_has_hw()` (leaf 1 ECX bit 20, SSE4.2) and falls back to
+  the slicing-by-8 table, so it is safe on K8 too.
+- Static screen worth reusing, the x86 analogue of isa-check.sh: disassemble and list every
+  mnemonic outside the baseline together with its containing function. `udpspeeder` holds ZERO;
+  `udpspeeder-simd` confines all of them to `addmul1_{ssse3,avx2,avx512}`, `xor_tile_{avx2,avx512}`
+  and `crc32c_hw`, each reached only through CPUID. That is the property to hold, not "it ran".
+- Dynamic proof: both packages pass the packet test under `Opteron_G1` and `Opteron_G1,-sse3`, and
+  test_udpspeeder under those models selects sse2 and agrees with scalar over all 256 multipliers,
+  declining ssse3/avx2/avx512bw.
+- Reading tests through a grep can invent a hollow section: filtering on "addmul1" hid the tier
+  results, whose pass lines read "sse2 agrees with scalar". Read the section, not a keyword.
