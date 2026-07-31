@@ -454,3 +454,27 @@ evidence at both ends rather than an assertion. Findings worth keeping:
   declining ssse3/avx2/avx512bw.
 - Reading tests through a grep can invent a hollow section: filtering on "addmul1" hid the tier
   results, whose pass lines read "sse2 agrees with scalar". Read the section, not a keyword.
+
+## 2026-07-31 — the x86 lacuna: OpenWrt has three x86 package arches, not one
+
+Asked whether x86 coverage is complete. It was not, and the gap was in the emulation models
+rather than in the architecture list.
+
+- OpenWrt publishes FOUR x86 subtargets (64, generic, geode, legacy) but THREE package
+  architectures. geode and legacy declare no CPU_TYPE, so both fall to the i386 default of
+  `pentium-mmx` (include/target.mk). One row covers the pair; generic is pentium4; 64 is x86_64.
+- BOTH i386 models were too rich, the same failure as qemu64 on x86_64:
+  - `n270` (Atom) HAS SSSE3, so the i386_pentium4 job selected the SSSE3 path and never once ran
+    the SSE2 tier a real Pentium 4 uses. Now `pentium3,+sse2`, which is exactly a P4's ISA.
+  - `pentium2` HAS CMOV, which a Geode GX/LX and a Pentium MMX do not. Now `pentium,+mmx`.
+- qemu-user genuinely gates these, proven by one-instruction controls rather than assumed:
+  `pentium2` runs cmov and faults on pshufb; `pentium2,-cmov` and `pentium,+mmx` fault on cmov;
+  `n270` runs BOTH cmov and pshufb; `pentium3,+sse2` runs movdqa and faults on movddup. Feature
+  subtraction/addition on a stock model works, so compose the model instead of borrowing one.
+- Static screen of the geode build: nothing above the floor outside CPUID-guarded functions. The
+  one CMOV lives inside `addmul1_ssse3`, which GCC is free to emit because `target("ssse3")`
+  implies P6, and it only ever runs on a CPU that has SSSE3 and therefore CMOV. Not a defect.
+- All three x86 arches pass both packages under the tightened models.
+- `mips_4kec` and `riscv64_riscv64` DO have package directories on the buildbot, so the listing
+  alone suggests 37 arches. They are frozen: last built April and July of 2025 against zlib 1.3.1,
+  where a live arch carries a build from this month. Check the DATES, not the directory.
