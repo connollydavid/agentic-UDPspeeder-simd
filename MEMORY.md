@@ -478,3 +478,29 @@ rather than in the architecture list.
 - `mips_4kec` and `riscv64_riscv64` DO have package directories on the buildbot, so the listing
   alone suggests 37 arches. They are frozen: last built April and July of 2025 against zlib 1.3.1,
   where a live arch carries a build from this month. Check the DATES, not the directory.
+
+## 2026-07-31 — MMX helps the XOR and hurts the multiply; measure per path
+
+"MMX is still SIMD" — and OpenWrt's lowest x86 arch (i386_pentium-mmx, from geode and legacy) has
+MMX and nothing above it. So the fork was taken down to that floor. Two opposite results, and the
+lesson is that "add a lower SIMD tier" is not one decision but one per kernel.
+
+- MMX addmul1: WRITTEN, MEASURED, REVERTED. The repeated-doubling multiply costs ~5 ops/byte at
+  MMX's 8-byte width, against ONE L1-resident load per byte for scalar, which indexes a single
+  256-byte row of gf_mul_table for a fixed c. Measured on a real 32-bit build: mmx 0.55x scalar
+  (3166 vs 1738 ns at 1500B); sse2 1.70x. SSE2 only wins by doubling the width. The floor keeps
+  the scalar table, which is correct AND faster.
+- MMX xor_tile: KEPT. XOR is one op per width, so width converts straight into throughput.
+  Against the four-byte word path i386 actually had: mmx 1.46x, sse2 3.08x.
+- The bigger find: packet_cook.cpp's ENTIRE x86 SIMD block was `#if defined(__x86_64__)`, so every
+  32-bit build used the 4-byte word loop — including i386_pentium4, which has SSE2. x86/generic is
+  a commonly used target, so that was a 3.08x left on the floor for years. fec.cpp had already been
+  widened to __i386__; packet_cook.cpp had not. When widening one file's ISA guards, grep for the
+  same guard elsewhere.
+- MEASURE 32-BIT MMX ON A 32-BIT BUILD. On x86_64 GCC emulates __m64 with SSE (TARGET_MMX_WITH_SSE),
+  so an x86_64 measurement of MMX is not MMX. Build with the OpenWrt i386 toolchain and run the
+  binary natively (WSL2 runs i386 ELF fine); qemu timings are useless for ISA ratios.
+- EMMS is mandatory: MMX registers alias the x87 stack and the tunnel does FP work in its timers.
+- Renaming a force() tier label silently turns the reference call into a no-op, so the test compares
+  a tier against itself and always passes. Renamed tier 0 "scalar"->"word" and had to fix the test's
+  reference call in the same breath. A hollow green, exactly the shape call/0035 warns about.
