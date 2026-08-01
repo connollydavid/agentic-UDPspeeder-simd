@@ -559,3 +559,26 @@ shipped has used the word path**. Confirmed by objdump: with the flag, 20 SPE op
 - **The sweep's spe row is red until the package bumps.** `arch-map.tsv` now asserts SPE opcodes for
   powerpc_8548, but the sweep builds from the package's pinned `PKG_VERSION`. It passes only once the
   package points at a fork release carrying the makefile detection, i.e. the pending v1.0.3 bump.
+
+## The aarch64 gap was ours alone, and the pins needed a negative control
+
+Closing the NEON and ARM-CRC32 gaps required **no OpenWrt change at all**. Proof: building the fork
+with the airoha (cortex-a53) toolchain and that target's own `-mcpu` yields 6 `crc32c*` instructions
+and 9 `eor v*.16b` NEON ops. The code already ships; only the tests were absent.
+
+- **`__ARM_FEATURE_CRC32` needs a named core.** Measured across the OpenWrt aarch64 toolchains:
+  `-mcpu=cortex-a53`, `-a72` and `-a76` define it, `-mcpu=generic` (armsr/armv8, `CONFIG_CPU_TYPE`
+  `generic`) does not. So three of the four published aarch64 targets ship the hardware checksum.
+  Debian's `aarch64-linux-gnu-g++` defaults to no core, which is why fork CI compiled the path out
+  and `[CRC32C hw vs sw agreement]` skipped silently. CI now also builds `-mcpu=cortex-a53` and
+  **requires the comparison to have run**, since a skip must not read as a pass.
+- **A pin that does not switch is a hollow green.** `bench_*_force()` returning 1 while the path stays
+  the same makes the reference and the candidate the same code, so the comparison passes vacuously.
+  Both aarch64 pins were checked by deliberately faulting `addmul1_neon` and the NEON `xor_tile` and
+  confirming each named test fails. Never trust a new comparison without that control.
+- **The tier tests used to leave the reference pinned.** They ended with `force("scalar")` /
+  `force("word")`, so every round-trip test after them ran the reference path, not the dispatched
+  one. Now they end with `bench_*_auto()`. This was already wrong on x86 and would have silently
+  removed NEON from the aarch64 round-trips.
+- **qemu-aarch64 `-cpu cortex-a53` does implement CRC32**, unlike the AVX-512 case, so this gap is
+  fully closable under emulation.
