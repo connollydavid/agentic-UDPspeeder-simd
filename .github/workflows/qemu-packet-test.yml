@@ -104,6 +104,11 @@ jobs:
           objdump=$(ls sdk/staging_dir/toolchain-*/bin/*-objdump | head -1)
           rc=0
           for pkg in udpspeeder udpspeeder-simd; do
+            # spe asserts a path only the simd package has; holding the stock
+            # package to it would fail on something it never claimed
+            if [ "${{ matrix.isa }}" = spe ] && [ "$pkg" != udpspeeder-simd ]; then
+              continue
+            fi
             # newest wins: a reused SDK can hold build dirs from earlier versions,
             # and picking the first match can hand back a stale binary
             bin=$(find sdk/build_dir -path "*/.pkgdir/*/usr/bin/$pkg" -type f \

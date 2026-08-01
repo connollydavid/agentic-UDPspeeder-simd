@@ -28,6 +28,23 @@ done
 [ -n "$BINARY" ] && [ -n "$EXPECT" ] && [ -n "$OBJDUMP" ] || usage
 [ -e "$BINARY" ] || { echo "no such binary: $BINARY" >&2; exit 1; }
 
+# The ARM expectations below hold a binary to no more than its target's
+# instruction set, because a richer emulator model would run past it unnoticed.
+# This one runs the other way and holds a binary to containing something. The
+# SPE XOR on the e500v2 is reached through a build flag rather than a macro, so
+# losing the flag costs the fastest path on that target and changes nothing a
+# packet test can see. Requiring the opcodes turns that silence into a failure.
+if [ "$EXPECT" = "spe" ]; then
+	found=$("$OBJDUMP" -d "$BINARY" 2>/dev/null |
+		grep -cE '\bev(ldd|stdd|xor)\b' || true)
+	if [ "$found" -eq 0 ]; then
+		echo "ISA FAIL $(basename "$BINARY"): no SPE opcodes, the e500 XOR was not built" >&2
+		exit 1
+	fi
+	echo "ISA OK $(basename "$BINARY"): $found SPE opcodes present"
+	exit 0
+fi
+
 got=$(readelf -A "$BINARY" 2>/dev/null | sed -n 's/.*Tag_CPU_arch: //p' | head -1)
 if [ "$got" != "$EXPECT" ]; then
 	echo "ISA FAIL $(basename "$BINARY"): Tag_CPU_arch is '$got', expected '$EXPECT'" >&2

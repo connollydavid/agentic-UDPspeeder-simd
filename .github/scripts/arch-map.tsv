@@ -40,8 +40,10 @@
 # x86 has four subtargets and three package architectures: geode and legacy
 # both fall to the i386 default of pentium-mmx, so one row covers the pair.
 #
-# The fifth column names an instruction set to assert, or "-" for none. Only
-# arm_fa526 uses it, and the pairing is deliberate.
+# The fifth column names an instruction set to assert, or "-" for none. Two
+# architectures use it, in opposite directions, and each pairing is deliberate.
+#
+# arm_fa526 asks for "v4", and is held to no more than that.
 #
 # That target compiles to plain ARMv4, which has no bx and so cannot enter Thumb
 # code: its binaries hold no bx or blx at all, where the ARMv5 build of the same
@@ -57,6 +59,16 @@
 # and isa-check.sh holds the binaries to ARMv4 in the same job. The emulator
 # then proves the code runs, and the check proves the code is what the target
 # asks for.
+#
+# powerpc_8548 asks for "spe", and is held to containing it. The e500v2 core
+# does the tile XOR 64 bits at a time through its SPE unit, and GCC has dropped
+# SPE support, so that path is hand-written assembly reached by a build flag
+# rather than by a macro the compiler defines. udpspeeder-simd reads the -mcpu
+# the target passes and sets the flag itself. Nothing a packet test can observe
+# changes if that reading ever breaks: the tunnel still passes traffic, on the
+# slower word path. Requiring the opcodes is what makes the loss audible. This
+# assertion applies to udpspeeder-simd alone, the stock package having no SPE
+# path to lose.
 #
 # riscv64_riscv64 and mips_4kec have package directories on the buildbot but are
 # frozen leftovers, not live architectures: they were last built in April and
@@ -95,6 +107,6 @@ mipsel_74kc	bcm47xx/mips74k	qemu-mipsel	74Kf	-
 mipsel_mips32	bcm47xx/generic	qemu-mipsel	4Kc	-
 powerpc64_e5500	qoriq/generic	qemu-ppc64	e5500	-
 powerpc_464fp	apm821xx/nand	qemu-ppc	460exb	-
-powerpc_8548	mpc85xx/p1010	qemu-ppc	e500v2_v10	-
+powerpc_8548	mpc85xx/p1010	qemu-ppc	e500v2_v10	spe
 riscv64_generic	d1/generic	qemu-riscv64	rv64	-
 x86_64	x86/64	qemu-x86_64	Opteron_G1,-sse3	-
