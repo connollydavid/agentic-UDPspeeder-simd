@@ -504,3 +504,29 @@ lesson is that "add a lower SIMD tier" is not one decision but one per kernel.
 - Renaming a force() tier label silently turns the reference call into a no-op, so the test compares
   a tier against itself and always passes. Renamed tier 0 "scalar"->"word" and had to fix the test's
   reference call in the same breath. A hollow green, exactly the shape call/0035 warns about.
+
+## Dispatch is a separate claim from implementation, and it needed its own lane
+
+The tier comparisons pin a path and hold it against a reference. That says nothing about which path
+the dispatcher CHOOSES, and the choice is what the SSSE3 fault broke. A CI runner carries every
+feature, so it always chooses the top path; no runner-only job can see the bug class.
+
+- Three runtime dispatchers exist, not one: addmul1 (fec.cpp), xor_tile (packet_cook.cpp) and crc32c
+  (crc32c.h, an SSE4.2 probe resolving a function pointer on first call). All three now report their
+  choice through bench_*_auto() and are held to EXPECT_ADDMUL1 / EXPECT_XOR_TILE / EXPECT_CRC32C.
+- The auto hook must RE-DERIVE, not read back. bench_addmul1_force() overwrites the pointer, so the
+  reporter re-runs the real selection (addmul1_select(), extracted from init_fec) and the selection
+  now resets to scalar first rather than only raising. Reading the pointer back would report whatever
+  a previous test pinned.
+- QEMU TCG IMPLEMENTS NO AVX-512 AT ANY CPU MODEL (checked on qemu 11.0.2): -cpu Skylake-Server warns
+  "TCG doesn't support requested feature ... avx512bw", clears the CPUID bit and leaves XCR0 at 0x207
+  rather than 0xE6. So the AVX-512 path cannot be exercised under emulation at all, on any model,
+  ever. That row instead proves the gate DECLINES on a part whose model name says otherwise. AVX-512BW
+  correctness is verified only when a GitHub runner happens to land on an Intel host.
+- The OpenWrt i386 toolchains default to -march=i486, so the march must be named explicitly to
+  reproduce what OpenWrt ships (pentium-mmx for geode/legacy, pentium4 for generic).
+- A pentium-mmx-built binary runs clean on qemu's 486 model and correctly selects scalar/word/sw, so
+  the bottom rung of the ladder is reachable and tested even below OpenWrt's own floor.
+- The Makefile forces `export STAGING_DIR=/tmp/`, which overrides the environment, so the OpenWrt
+  toolchain wrapper only warns and no STAGING_DIR needs setting for a `make test-cross` build. It
+  matters only when invoking the cross gcc directly.
