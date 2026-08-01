@@ -530,3 +530,32 @@ feature, so it always chooses the top path; no runner-only job can see the bug c
 - The Makefile forces `export STAGING_DIR=/tmp/`, which overrides the environment, so the OpenWrt
   toolchain wrapper only warns and no STAGING_DIR needs setting for a `make test-cross` build. It
   matters only when invoking the cross gcc directly.
+
+## The SPE XOR was never shipped, and the package could not have told us
+
+The e500v2 SPE unit does the tile XOR 64 bits at a time. That path needs `SPE=1` on the make line,
+and `net/udpspeeder-simd` passes only `cross_cxx gitversion=...`, so **every mpc85xx build ever
+shipped has used the word path**. Confirmed by objdump: with the flag, 20 SPE opcodes; without it, 0.
+
+- **GCC defines no e500 macro.** GCC removed SPE support, which is why the path is a hand-written
+  `xor_spe.S` plus `-Wa,-mspe` rather than intrinsics. Diffing the predefines of `-mcpu=8548` against
+  `-mcpu=464fp` yields only soft-float proxies (`__NO_FPRS__`, `_SOFT_FLOAT`, `_SOFT_DOUBLE`,
+  `__NO_LWSYNC__`). Keying on those would ship `evxor` to a soft-float classic PowerPC and fault, the
+  SSSE3 bug again. So auto-detection from the compiler is not available.
+- **The target says it instead, and the software can read it.** OpenWrt's `MAKE_VARS` exports
+  `CXXFLAGS="$(TARGET_CXXFLAGS) ..."`, `TARGET_CXXFLAGS = TARGET_CFLAGS`, and that carries
+  `CPU_CFLAGS_$(CPU_TYPE)`, i.e. `-mcpu=8548`. So the makefile can read the core from the flags it is
+  already handed, and the package needs no CPU conditional. Note the fork's own cross targets take
+  the march inside `CC`, not `CXXFLAGS`, so the filter searches `CC CXX CFLAGS CXXFLAGS`.
+- **8548 alone is too narrow.** OpenWrt maps these 32-bit PowerPC types: 603e, 8540, 8548, 405, 440,
+  464fp. **8540 is e500v1 and also has SPE** (v1 lacks only double-precision SPE FP, which this does
+  not use). No published target uses 8540 today. Match both, with `filter` (whole words) not
+  `findstring` (substring).
+- **The XOR round-trip cannot catch a wrong XOR, only a missing one.** It asserts
+  `changed && restored`. XOR is its own inverse, so a wrong-but-deterministic path still restores; a
+  deliberate truncation was caught in exactly the degenerate cases where the XOR did nothing at all.
+  The differential comparison against the word reference is what actually bites, verified by
+  truncating an SPE call and watching that test alone fail across every tile, length and offset.
+- **The sweep's spe row is red until the package bumps.** `arch-map.tsv` now asserts SPE opcodes for
+  powerpc_8548, but the sweep builds from the package's pinned `PKG_VERSION`. It passes only once the
+  package points at a fork release carrying the makefile detection, i.e. the pending v1.0.3 bump.
