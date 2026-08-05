@@ -33,8 +33,13 @@ jobs:
           "$HL" book --check .
       - name: Build site
         run: mdbook build
+      # keep_files, because this publishes to the branch root and the default
+      # is to delete everything that is not in publish_dir. The apk feed lives
+      # at /apk on the same branch, and without this the next docs change would
+      # remove it silently, visible only to whoever tried to install from it.
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./mdBook/out
+          keep_files: true
