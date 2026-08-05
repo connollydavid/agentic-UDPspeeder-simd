@@ -128,13 +128,14 @@ jobs:
 
       # Two keys, because the two formats sign differently and neither tool
       # reads the other's. apk mkndx takes an EC prime256v1 key; usign takes its
-      # own keypair. Both stay in secrets and reach the job through env rather
-      # than a command line. The public halves are published beside the indexes,
-      # since a client cannot verify either feed without them.
+      # own keypair. Every half stays in a secret and reaches the job through
+      # env rather than a command line. The public halves are published beside
+      # the indexes, since a client cannot verify either feed without them.
       - name: Take the signing keys
         env:
           APK_KEY: ${{ secrets.APK_SIGNING_KEY }}
           OPKG_KEY: ${{ secrets.OPKG_SIGNING_KEY }}
+          OPKG_PUB: ${{ secrets.OPKG_PUBLIC_KEY }}
         run: |
           missing=0
           if [ -z "$APK_KEY" ]; then
@@ -148,18 +149,20 @@ jobs:
             echo "        (set the secret to the contents of key-build)"
             missing=1
           fi
-          # usign offers no way to derive a public key from a secret one, so the
-          # public half is committed rather than reconstructed. It is public by
-          # definition, users have to install it, and keeping it in the tree
-          # makes it reviewable. apk's is derived from the secret, so it is not.
-          if [ ! -f .github/keys/usign.pub ]; then
-            echo "FAIL  .github/keys/usign.pub is missing; 24.10 clients could not"
-            echo "      verify the feed. Commit the public half of the usign pair."
+          # usign cannot derive a public key from a secret one, so the public
+          # half is supplied rather than reconstructed. It is held as a secret
+          # like the other two, no key material in the tree, either half.
+          # Nothing here prints it, since GitHub would mask it anyway; the
+          # fingerprint below is derived, so it stays readable.
+          if [ -z "$OPKG_PUB" ]; then
+            echo "FAIL  OPKG_PUBLIC_KEY unset; 24.10 clients could not verify the feed"
+            echo "        (set it to the contents of key-build.pub)"
             missing=1
           fi
           [ "$missing" -eq 0 ] || exit 1
           printf '%s' "$APK_KEY"  > private-key.pem; chmod 600 private-key.pem
           printf '%s' "$OPKG_KEY" > key-build;       chmod 600 key-build
+          printf '%s' "$OPKG_PUB" > key-build.pub
 
       - name: Build the host tools
         run: |
@@ -185,9 +188,12 @@ jobs:
           [ -x "$USIGN" ] || { echo "FAIL  no usign host tool"; exit 1; }
           mkdir -p site
           openssl ec -in private-key.pem -pubout -out site/apk-public-key.pem
-          # -F reads the public key; there is no flag that reads the secret one
-          "$USIGN" -F -p .github/keys/usign.pub > keyid.txt
-          cp .github/keys/usign.pub "site/usign-$(cat keyid.txt).pub"
+          # -F reads the public key; there is no flag that reads the secret one.
+          # The fingerprint is derived, so it is not masked and can be checked
+          # against what a client has installed.
+          "$USIGN" -F -p key-build.pub > keyid.txt
+          echo "usign key fingerprint: $(cat keyid.txt)"
+          cp key-build.pub "site/usign-$(cat keyid.txt).pub"
           for d in collected/pkg-*; do
             rest=${d#collected/pkg-}; rel=${rest%%-*}; arch=${rest#*-}
             dst="site/$rel/$arch"; mkdir -p "$dst"; cp "$d"/* "$dst"/
@@ -211,7 +217,7 @@ jobs:
             fi
             echo "ok    $rel/$arch: $(ls "$dst" | grep -cE '\.(apk|ipk)$') package(s)"
           done
-          rm -f private-key.pem key-build
+          rm -f private-key.pem key-build key-build.pub
 
       - name: Write the landing page
         run: |
