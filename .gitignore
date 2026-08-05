@@ -12,3 +12,6 @@
 # The host commits the .host-software recipe; the trees are local, rebuilt by
 # host-lifecycle software --materialize, never tracked.
 /software/
+
+# The local environment fingerprint: this machine's state, never shared.
+.host-envhash
