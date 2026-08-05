@@ -188,9 +188,25 @@ jobs:
           [ -x "$USIGN" ] || { echo "FAIL  no usign host tool"; exit 1; }
           mkdir -p site
           openssl ec -in private-key.pem -pubout -out site/apk-public-key.pem
-          # -F reads the public key; there is no flag that reads the secret one.
-          # The fingerprint is derived, so it is not masked and can be checked
-          # against what a client has installed.
+          # The two usign halves arrive as separate secrets and nothing so far
+          # has established they are one pair. A mismatch would sign with one
+          # key and publish the other's public half, so every client would
+          # reject a feed that otherwise looks well-formed. Sign a scratch file
+          # and verify it to prove the pair before anything is published.
+          echo pair-check > pairtest
+          "$USIGN" -S -m pairtest -s key-build
+          if ! "$USIGN" -V -q -m pairtest -p key-build.pub; then
+            echo "FAIL  OPKG_PUBLIC_KEY is not the public half of OPKG_SIGNING_KEY"
+            echo "      Regenerate both from one usign -G run and reset them."
+            exit 1
+          fi
+          rm -f pairtest pairtest.sig
+          echo "ok    usign keypair matches"
+          # -F fingerprints either half, so the id could come from the secret
+          # key just as well. It is taken from the public one because that is
+          # the file published below, and the two must agree. The fingerprint
+          # is derived rather than secret, so it is not masked and can be
+          # checked against what a client has installed.
           "$USIGN" -F -p key-build.pub > keyid.txt
           echo "usign key fingerprint: $(cat keyid.txt)"
           cp key-build.pub "site/usign-$(cat keyid.txt).pub"
