@@ -39,16 +39,24 @@ jobs:
       - uses: actions/checkout@v7
       - id: read
         run: |
-          json=$(awk -F'\t' '/^#/ || NF < 4 { next }
+          # Each architecture is swept against both lines: the release the feed
+          # serves, and main, so a break in OpenWrt's tree shows up here before
+          # it reaches a release rather than after.
+          json=$(awk -F'\t' -v rels="25.12 main" '
+          /^#/ || NF < 4 { next }
           {
             isa = (NF >= 5 ? $5 : "-")
-            printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"qemu\":\"%s\",\"cpu\":\"%s\",\"isa\":\"%s\"}", \
-              sep, $1, $2, $3, $4, isa; sep=","
+            n = split(rels, r, " ")
+            for (i = 1; i <= n; i++) {
+              printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"qemu\":\"%s\"," \
+                     "\"cpu\":\"%s\",\"isa\":\"%s\",\"release\":\"%s\"}", \
+                sep, $1, $2, $3, $4, isa, r[i]; sep=","
+            }
           }' .github/scripts/arch-map.tsv)
           echo "arches={\"include\":[$json]}" >> "$GITHUB_OUTPUT"
 
   test:
-    name: ${{ matrix.arch }}
+    name: ${{ matrix.arch }} (${{ matrix.release }})
     needs: matrix
     runs-on: ubuntu-latest
     strategy:
@@ -74,9 +82,22 @@ jobs:
           git -C ups sparse-checkout set net/udpspeeder
           cp -r ups/net/udpspeeder localfeed/net/
 
-      - name: Download the snapshot SDK for ${{ matrix.target }}
+      - name: Download the ${{ matrix.release }} SDK for ${{ matrix.target }}
         run: |
-          base="https://downloads.openwrt.org/snapshots/targets/${{ matrix.target }}"
+          if [ "${{ matrix.release }}" = main ]; then
+            base="https://downloads.openwrt.org/snapshots/targets/${{ matrix.target }}"
+          else
+            idx="https://downloads.openwrt.org/releases"
+            # newest point release or rc on the chosen line
+            ver=$(wget -qO- "$idx/" \
+              | grep -oE '"${{ matrix.release }}\.[0-9]+(-rc[0-9]+)?/"' \
+              | tr -d '"/' | sort -V | tail -1)
+            if [ -z "$ver" ]; then
+              echo "FAIL  no ${{ matrix.release }} release found"; exit 1
+            fi
+            echo "release line ${{ matrix.release }} resolves to $ver"
+            base="$idx/$ver/targets/${{ matrix.target }}"
+          fi
           sdk=$(wget -qO- "$base/sha256sums" | grep -oE 'openwrt-sdk[^*]+\.tar\.zst' | head -1)
           echo "SDK: $sdk"
           wget -qO sdk.tar.zst "$base/$sdk"
@@ -118,6 +139,29 @@ jobs:
               --expect "${{ matrix.isa }}" --objdump "$objdump" || rc=1
           done
           exit $rc
+
+      # The sweep builds a package for every published architecture and proves
+      # each one runs. Discarding them afterwards means a failure cannot be
+      # opened, and anyone wanting to try one on real hardware has to rebuild
+      # the SDK to get back what this job already had. Keeping them is not
+      # distribution: a run artifact expires, carries no signature, and is not
+      # a feed. The signed package comes from OpenWrt once the PR merges.
+      - name: Keep the packages this run verified
+        if: always()
+        run: |
+          mkdir -p out
+          find sdk/bin -name '*.apk' -o -name '*.ipk' 2>/dev/null | while read -r p; do
+            case "$(basename "$p")" in udpspeeder*|UDPspeeder*) cp "$p" out/ ;; esac
+          done
+          ls -l out/ || echo "no package files found under sdk/bin"
+
+      - name: Upload them
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: packages-${{ matrix.release }}-${{ matrix.arch }}
+          path: out/
+          if-no-files-found: warn
 
       - name: Pass packets through a tunnel
         run: |
