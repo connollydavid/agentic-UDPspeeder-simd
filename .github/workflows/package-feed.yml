@@ -1,0 +1,254 @@
+name: package feed
+
+# Signed package repositories for udpspeeder-simd, served from GitHub Pages.
+#
+# Only udpspeeder-simd is published. The stock udpspeeder is OpenWrt's own
+# package and installable from the official feed already, so shipping our build
+# of it beside theirs would add a second answer to a question that has one.
+#
+# Two release lines, and they do not share a format. 25.12 uses apk, whose index
+# is one signed file built by `apk mkndx` with an EC key. 24.10 uses opkg, whose
+# index is a Packages file signed detached by usign with a different key. So the
+# publish step branches and there are two secrets.
+#
+# Laid out by release rather than by format, because a later release will also
+# be apk while carrying a different ABI, and one directory cannot serve both.
+#
+# This exists because udpspeeder-simd is in no feed until openwrt/packages
+# #29901 merges. Once it does, the official feed is the better answer and this
+# should be retired rather than left running beside it.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 8 * * 1"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: apk-feed
+  cancel-in-progress: false
+
+env:
+  PKG_REPO: https://github.com/connollydavid/packages.git
+  SIMD_BRANCH: udpspeeder-simd
+
+jobs:
+  matrix:
+    name: Read the architecture map
+    runs-on: ubuntu-latest
+    outputs:
+      arches: ${{ steps.read.outputs.arches }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: read
+        run: |
+          # 25.12 serves apk, 24.10 serves opkg. The format follows the release,
+          # so it is carried here rather than worked out again downstream.
+          json=$(awk -F'\t' '
+          /^#/ || NF < 4 { next }
+          {
+            printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"release\":\"25.12\",\"fmt\":\"apk\"}", sep, $1, $2; sep=","
+            printf "%s{\"arch\":\"%s\",\"target\":\"%s\",\"release\":\"24.10\",\"fmt\":\"opkg\"}", sep, $1, $2
+          }' .github/scripts/arch-map.tsv)
+          echo "arches={\"include\":[$json]}" >> "$GITHUB_OUTPUT"
+
+  build:
+    name: ${{ matrix.arch }} ${{ matrix.release }}
+    needs: matrix
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.matrix.outputs.arches) }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Install tools
+        run: sudo apt-get update && sudo apt-get install -y zstd
+
+      - name: Fetch the package
+        run: |
+          git clone --depth 1 --filter=blob:none --sparse \
+            --branch "$SIMD_BRANCH" "$PKG_REPO" feed
+          git -C feed sparse-checkout set net/udpspeeder-simd
+          mkdir -p localfeed/net
+          cp -r feed/net/udpspeeder-simd localfeed/net/
+
+      - name: Download the ${{ matrix.release }} SDK for ${{ matrix.target }}
+        run: |
+          idx="https://downloads.openwrt.org/releases"
+          ver=$(wget -qO- "$idx/" \
+            | grep -oE "\"${{ matrix.release }}\.[0-9]+(-rc[0-9]+)?/\"" \
+            | tr -d '"/' | sort -V | tail -1)
+          if [ -z "$ver" ]; then echo "FAIL  no ${{ matrix.release }} release found"; exit 1; fi
+          base="$idx/$ver/targets/${{ matrix.target }}"
+          sdk=$(wget -qO- "$base/sha256sums" | grep -oE 'openwrt-sdk[^*]+\.tar\.zst' | head -1)
+          wget -qO sdk.tar.zst "$base/$sdk"
+          mkdir sdk && tar --zstd -xf sdk.tar.zst -C sdk --strip-components=1
+
+      - name: Build
+        run: |
+          cd sdk
+          echo "src-link localfeed $GITHUB_WORKSPACE/localfeed" > feeds.conf
+          ./scripts/feeds update localfeed
+          ./scripts/feeds install -a -p localfeed
+          make defconfig
+          echo CONFIG_PACKAGE_udpspeeder-simd=m >> .config
+          make defconfig
+          make package/feeds/localfeed/udpspeeder-simd/compile -j"$(nproc)"
+
+      - name: Collect
+        run: |
+          mkdir -p out
+          find sdk/bin \( -name 'udpspeeder-simd*.apk' -o -name 'udpspeeder-simd*.ipk' \) \
+            -exec cp {} out/ \;
+          if [ -z "$(ls -A out)" ]; then
+            echo "FAIL  the build produced no package for ${{ matrix.arch }} ${{ matrix.release }}"
+            exit 1
+          fi
+          ls -l out/
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: pkg-${{ matrix.release }}-${{ matrix.arch }}
+          path: out/
+
+  index:
+    name: Sign the indexes and publish
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: collected
+          pattern: pkg-*
+
+      # Two keys, because the two formats sign differently and neither tool
+      # reads the other's. apk mkndx takes an EC prime256v1 key; usign takes its
+      # own keypair. Both stay in secrets and reach the job through env rather
+      # than a command line. The public halves are published beside the indexes,
+      # since a client cannot verify either feed without them.
+      - name: Take the signing keys
+        env:
+          APK_KEY: ${{ secrets.APK_SIGNING_KEY }}
+          OPKG_KEY: ${{ secrets.OPKG_SIGNING_KEY }}
+        run: |
+          missing=0
+          if [ -z "$APK_KEY" ]; then
+            echo "FAIL  APK_SIGNING_KEY unset; 25.12 cannot be signed"
+            echo "        openssl ecparam -name prime256v1 -genkey -noout -out private-key.pem"
+            missing=1
+          fi
+          if [ -z "$OPKG_KEY" ]; then
+            echo "FAIL  OPKG_SIGNING_KEY unset; 24.10 cannot be signed"
+            echo "        usign -G -s key-build -p key-build.pub"
+            echo "        (set the secret to the contents of key-build)"
+            missing=1
+          fi
+          # usign offers no way to derive a public key from a secret one, so the
+          # public half is committed rather than reconstructed. It is public by
+          # definition, users have to install it, and keeping it in the tree
+          # makes it reviewable. apk's is derived from the secret, so it is not.
+          if [ ! -f .github/keys/usign.pub ]; then
+            echo "FAIL  .github/keys/usign.pub is missing; 24.10 clients could not"
+            echo "      verify the feed. Commit the public half of the usign pair."
+            missing=1
+          fi
+          [ "$missing" -eq 0 ] || exit 1
+          printf '%s' "$APK_KEY"  > private-key.pem; chmod 600 private-key.pem
+          printf '%s' "$OPKG_KEY" > key-build;       chmod 600 key-build
+
+      - name: Build the host tools
+        run: |
+          sudo apt-get update && sudo apt-get install -y wget zstd
+          idx="https://downloads.openwrt.org/releases"
+          ver=$(wget -qO- "$idx/" | grep -oE '"25\.12\.[0-9]+(-rc[0-9]+)?/"' \
+            | tr -d '"/' | sort -V | tail -1)
+          base="$idx/$ver/targets/x86/64"
+          sdk=$(wget -qO- "$base/sha256sums" | grep -oE 'openwrt-sdk[^*]+\.tar\.zst' | head -1)
+          wget -qO sdk.tar.zst "$base/$sdk"
+          mkdir sdk && tar --zstd -xf sdk.tar.zst -C sdk --strip-components=1
+          (cd sdk && make package/system/apk/host/compile package/system/usign/host/compile -j"$(nproc)")
+          echo "APK=$(find sdk/staging_dir/host/bin -name apk -type f | head -1)"     >> "$GITHUB_ENV"
+          echo "USIGN=$(find sdk/staging_dir/host/bin -name usign -type f | head -1)" >> "$GITHUB_ENV"
+          echo "MKINDEX=$PWD/sdk/scripts/ipkg-make-index.sh"                          >> "$GITHUB_ENV"
+
+      # One index per architecture per release: a client asks for its own and
+      # will not read another's.
+      - name: Build and sign every index
+        run: |
+          set -euo pipefail
+          [ -x "$APK" ]   || { echo "FAIL  no apk host tool";   exit 1; }
+          [ -x "$USIGN" ] || { echo "FAIL  no usign host tool"; exit 1; }
+          mkdir -p site
+          openssl ec -in private-key.pem -pubout -out site/apk-public-key.pem
+          # -F reads the public key; there is no flag that reads the secret one
+          "$USIGN" -F -p .github/keys/usign.pub > keyid.txt
+          cp .github/keys/usign.pub "site/usign-$(cat keyid.txt).pub"
+          for d in collected/pkg-*; do
+            rest=${d#collected/pkg-}; rel=${rest%%-*}; arch=${rest#*-}
+            dst="site/$rel/$arch"; mkdir -p "$dst"; cp "$d"/* "$dst"/
+            if [ "$rel" = "25.12" ]; then
+              (cd "$dst" && "$GITHUB_WORKSPACE/$APK" mkndx \
+                 --sign "$GITHUB_WORKSPACE/private-key.pem" \
+                 --output packages.adb *.apk)
+            else
+              (cd "$dst" \
+                 && "$MKINDEX" . 2>/dev/null > Packages.manifest \
+                 && grep -vE '^(Maintainer|LicenseFiles|Source|SourceName|Require|SourceDateEpoch)' \
+                      Packages.manifest > Packages \
+                 && rm -f Packages.manifest \
+                 && case "$(((64 + $(stat -L -c%s Packages)) % 128))" in \
+                      110|111) echo "  padding Packages around the usign SHA-512 bug"; \
+                               { echo ""; echo ""; } >> Packages ;; \
+                    esac \
+                 && gzip -9nc Packages > Packages.gz \
+                 && "$GITHUB_WORKSPACE/$USIGN" -S -m Packages \
+                      -s "$GITHUB_WORKSPACE/key-build")
+            fi
+            echo "ok    $rel/$arch: $(ls "$dst" | grep -cE '\.(apk|ipk)$') package(s)"
+          done
+          rm -f private-key.pem key-build
+
+      - name: Write the landing page
+        run: |
+          keyid=$(cat keyid.txt)
+          cat > site/index.html <<HTML
+          <!doctype html><meta charset=utf-8>
+          <title>udpspeeder-simd package feed</title>
+          <style>body{font-family:ui-monospace,Menlo,monospace;max-width:46rem;
+          margin:4rem auto;padding:0 1.25rem;line-height:1.6}
+          pre{background:#0000000d;padding:1rem;overflow-x:auto}</style>
+          <h1>udpspeeder-simd</h1>
+          <p>An interim feed. Once
+          <a href="https://github.com/openwrt/packages/pull/29901">#29901</a>
+          merges, install from the official feed instead.</p>
+          <h2>OpenWrt 25.12 (apk)</h2>
+          <pre>wget -O /etc/apk/keys/udpspeeder-simd.pem \\
+            https://connollydavid.github.io/agentic-UDPspeeder-simd/feed/apk-public-key.pem
+          echo "https://connollydavid.github.io/agentic-UDPspeeder-simd/feed/25.12/\$(apk --print-arch)" \\
+            >> /etc/apk/repositories
+          apk update &amp;&amp; apk add udpspeeder-simd</pre>
+          <h2>OpenWrt 24.10 (opkg)</h2>
+          <pre>wget -O /etc/opkg/keys/$keyid \\
+            https://connollydavid.github.io/agentic-UDPspeeder-simd/feed/usign-$keyid.pub
+          . /etc/openwrt_release
+          echo "src/gz udpspeeder_simd https://connollydavid.github.io/agentic-UDPspeeder-simd/feed/24.10/\$DISTRIB_ARCH" \\
+            >> /etc/opkg/customfeeds.conf
+          opkg update &amp;&amp; opkg install udpspeeder-simd</pre>
+          HTML
+
+      # Pages here is served from the gh-pages branch, and mdbook.yml owns its
+      # root. Publishing through the Actions artifact route would switch the
+      # Pages source and take the book offline, so this writes into a
+      # subdirectory of the same branch and leaves everything else alone.
+      - name: Publish under /feed on gh-pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./site
+          destination_dir: feed
+          keep_files: false
