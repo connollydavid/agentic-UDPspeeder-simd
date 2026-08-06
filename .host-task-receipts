@@ -53,3 +53,10 @@
     evidence = host-repo SDK CI lane green: run 28668634429 built udpspeeder-simd .apk for x86/64 and ath79/generic (MIPS 24Kc, the issue target) against the current snapshot SDK
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "plan/0000#test-script"]
+    disposition = done
+    verify = attested operator
+    evidence = net/udpspeeder-simd/test.sh and pre-test.sh ship on feed-main, feed-25.12 and feed-24.10 at their .host-software pins; no lane here runs it, the qemu sweep runs its own packet-test.sh
+    tool = host-lifecycle@0.49.3
+    recorded = 2026-08-06
