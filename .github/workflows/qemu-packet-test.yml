@@ -26,7 +26,6 @@ permissions:
 
 env:
   PKG_REPO: https://github.com/connollydavid/packages.git
-  SIMD_BRANCH: udpspeeder-simd
   UDPSPEEDER_BRANCH: udpspeeder-update-20260731
 
 jobs:
@@ -79,8 +78,11 @@ jobs:
       - name: Fetch both packages from the fork
         run: |
           mkdir -p localfeed/net
+          # The published feed branch for this line, not the branch behind the
+          # pull request. That one is pinned to the version under review and is
+          # frozen, so testing it told us only what the review already says.
           git clone --depth 1 --filter=blob:none --sparse \
-            -b "$SIMD_BRANCH" "$PKG_REPO" simd
+            -b "feed-${{ matrix.release }}" "$PKG_REPO" simd
           git -C simd sparse-checkout set net/udpspeeder-simd
           cp -r simd/net/udpspeeder-simd localfeed/net/
           git clone --depth 1 --filter=blob:none --sparse \

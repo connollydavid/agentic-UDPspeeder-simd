@@ -75,6 +75,10 @@
 # July of 2025 against zlib 1.3.1, where a live architecture carries a build
 # from this month. riscv64_riscv64 is the name the release branches use for
 # riscv64_generic, and nothing in the tree sets CPU_TYPE to 4kec.
+# armeb_xscale is omitted. Its target is XScale and qemu-armeb models only
+# arm926 and arm1176, so the binary meets an instruction the model lacks and
+# faults. Upstream's own udpspeeder fails the same way here, so this is the
+# emulator's reach, not the package. The feed still builds and serves it.
 aarch64_cortex-a53	mediatek/filogic	qemu-aarch64	cortex-a53	-
 aarch64_cortex-a72	bcm27xx/bcm2711	qemu-aarch64	cortex-a72	-
 aarch64_cortex-a76	bcm27xx/bcm2712	qemu-aarch64	cortex-a76	-
@@ -92,7 +96,6 @@ arm_cortex-a9_neon	imx/cortexa9	qemu-arm	cortex-a9	-
 arm_cortex-a9_vfpv3-d16	mvebu/cortexa9	qemu-arm	cortex-a9	-
 arm_fa526	gemini/generic	qemu-arm	cortex-a7	v4
 arm_xscale	kirkwood/generic	qemu-arm	arm926	-
-armeb_xscale	ixp4xx/generic	qemu-armeb	arm926	-
 i386_pentium-mmx	x86/geode	qemu-i386	pentium,+mmx	-
 i386_pentium4	x86/generic	qemu-i386	pentium3,+sse2	-
 loongarch64_generic	loongarch64/generic	qemu-loongarch64	la464	-
