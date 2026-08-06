@@ -11,11 +11,11 @@
     branch   = main
     hooks    = pre-commit
     artifact = target/release/host-lint 03c61c5aab2129d488a921a30ef2f4cd4a99e8d40bc5734ad5101b508806adae
-    repro-waiver = call/0002
+    repro-exempt = call/0002
 
 # The software under development. Migrated (pre-existing), recorded as a source pin
 # on its canonical branch with no deploy artifact, so no reproducible build is
-# claimed yet (add a recipe + repro-waiver, or a real artifact, before shipping).
+# claimed yet (add a recipe + repro-exempt, or a real artifact, before shipping).
 [software "udpspeeder-simd"]
     url    = https://github.com/connollydavid/UDPspeeder-simd.git
     pin    = f3834047fb76ccd2e230c21e27c7fe86a575d1ab
@@ -25,7 +25,7 @@
     # uses whatever g++ the runner image carried. Recording a hash for a build
     # that cannot be reproduced would claim a guarantee we have not established.
     # call/0006 states the interim provenance and what retires this.
-    repro-waiver = call/0006
+    repro-exempt = call/0006
 
 # A fork of the OpenWrt packages feed (Makefiles/shell/C). Migrated (pre-existing),
 # recorded as a source pin on its canonical branch (master) with no deploy artifact:
