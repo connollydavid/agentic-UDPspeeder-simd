@@ -75,7 +75,7 @@
 # July of 2025 against zlib 1.3.1, where a live architecture carries a build
 # from this month. riscv64_riscv64 is the name the release branches use for
 # riscv64_generic, and nothing in the tree sets CPU_TYPE to 4kec.
-aarch64_cortex-a53	airoha/an7581	qemu-aarch64	cortex-a53	-
+aarch64_cortex-a53	mediatek/filogic	qemu-aarch64	cortex-a53	-
 aarch64_cortex-a72	bcm27xx/bcm2711	qemu-aarch64	cortex-a72	-
 aarch64_cortex-a76	bcm27xx/bcm2712	qemu-aarch64	cortex-a76	-
 aarch64_generic	armsr/armv8	qemu-aarch64	cortex-a53	-
