@@ -65,10 +65,16 @@ jobs:
     steps:
       - uses: actions/checkout@v7
 
+      # qemu-user, not qemu-user-static: the static package installs the
+      # emulators as qemu-<arch>-static, and arch-map.tsv names them unsuffixed.
+      # The emulator is invoked by path here, so nothing needs binfmt.
       - name: Install the emulator
         run: |
           sudo apt-get update
-          sudo apt-get install -y qemu-user-static zstd
+          sudo apt-get install -y qemu-user zstd
+          for q in $(awk -F'\t' '!/^#/ && NF>=4 {print $3}' .github/scripts/arch-map.tsv | sort -u); do
+            command -v "$q" >/dev/null || { echo "FAIL  $q missing after install"; exit 1; }
+          done
 
       - name: Fetch both packages from the fork
         run: |
