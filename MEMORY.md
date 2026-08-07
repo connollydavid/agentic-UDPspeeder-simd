@@ -582,3 +582,39 @@ and 9 `eor v*.16b` NEON ops. The code already ships; only the tests were absent.
   removed NEON from the aarch64 round-trips.
 - **qemu-aarch64 `-cpu cortex-a53` does implement CRC32**, unlike the AVX-512 case, so this gap is
   fully closable under emulation.
+
+## What the next feed build owes
+
+Deferred on 2026-08-07, after the publish run went green: 111 jobs, no failures, two packages
+across 35 architectures and three release lines, each installed from the signed feed in a stock
+rootfs and refused without the published key.
+
+- **The banner's build date is the SDK's date, not the build's.** `target/sdk/Makefile` bakes
+  `SOURCE_DATE_EPOCH` into the SDK's `include/version.mk` and `include/toplevel.mk` exports it;
+  GCC honours that variable and expands `__DATE__` and `__TIME__` from it. So the published
+  binaries report the date the SDK was cut: `Jun 29 2026 12:59:20` on 25.12 and main,
+  `Jul 24 2026 07:21:50` on 24.10. One source reports two dates, and both read as a stale binary
+  to someone filing a bug. Feeding the line a real timestamp is not the fix, since the determinism
+  is OpenWrt's own reproducibility measure. Drop the line or relabel it; `source commit` and the
+  version already answer what it is asked.
+- **That edit is not local.** The fork's copy sits in `main.cpp`, and CI ties the tag to
+  `PROGRAM_VERSION`, so touching the banner means a new tag, which means both
+  `udpspeeder-simd-snapshot` Makefiles take a new `PKG_VERSION` and a new `PKG_MIRROR_HASH` (the
+  tarball name follows the version) on all three feed branches. The stock package's line is
+  upstream's own, reached only through `010-note-snapshot-build.patch`, so it is dropped there or
+  not at all.
+- **The pins are stale by one commit on each of four entries**: `feed-main` a22b5740,
+  `feed-25.12` ebc5ab6c, `feed-24.10` e646bb33, the fork 0ba7c9f5. The `.host-software` comment
+  above the feed worktrees still says the feed "is not published at present and its workflow is
+  disabled", which stopped being true when it went live. Correct it in the commit that re-pins.
+- **No SDK is pinned, and the workflow runs itself weekly.** Each build job resolves the newest
+  point release of its line at run time and verifies the SDK against that release's own
+  `sha256sums`; the schedule fires every Monday at 08:00 UTC. A cron run can therefore republish
+  different binaries, from a different toolchain and carrying a different baked date, with no
+  recipe change and no host commit. The checksum is provenance, not a pin. Decide whether the feed
+  wants an SDK pinned per line, or whether floating with the release is what a snapshot feed
+  should do.
+- **The feed retires once openwrt/packages #29901 and the net/udpspeeder version bump offered
+  upstream both land**, since the official feed is then the better answer for either package and
+  should not be left running beside it. That condition lived in the workflow's header comment
+  until the comments were stripped, and this entry is now the only record of it.
