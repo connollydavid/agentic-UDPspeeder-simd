@@ -18,7 +18,7 @@
 # claimed yet (add a recipe + repro-exempt, or a real artifact, before shipping).
 [software "udpspeeder-simd"]
     url    = https://github.com/connollydavid/UDPspeeder-simd.git
-    pin    = b4ef0d913437521a46a56dfbb242e3208a931420
+    pin    = cf6bb414e5985edca45d26834253c2784d355cfc
     branch = branch_libev
     # This component publishes release binaries but records no build recipe or
     # artifact hash, because the build is not yet deterministic: the native line
@@ -45,9 +45,9 @@
     # names of their own rather than the ones OpenWrt ships or is being asked
     # to ship. The feed is not published at present and its workflow is
     # disabled.
-    worktree = feed-25.12 343150edd94fbd5718ca34584843708342a697b5
-    worktree = feed-24.10 d4cdd33fe47f6ac9ef7ef779ee398fe3b72b5833
-    worktree = feed-main b7c280f59d8eec3f03658116d93968f4a5469572
+    worktree = feed-25.12 448c2b49ce6291f6fb5752c96bb9809fd7570011
+    worktree = feed-24.10 759b587a9dbed4f10c000b2ed7f67f61f453fe29
+    worktree = feed-main 4aef0fc8b36705ddfecc44aaee5644c74f9cf580
 
 # OpenWrt upstream (the buildroot). Embedded as a source pin on its canonical branch
 # (main; the master branch mirrors the same commit) so the x86_64 SDK can be built from
