@@ -40,14 +40,19 @@
     # its pin and both are inspectable at once.
     worktree = udpspeeder-update-20260731 51a2696b59b4ab824380e6cabe9e3a1a53c619b8
     # The published feed, one branch per OpenWrt release line, snapshot
-    # included. None is offered upstream. Each carries two packages,
-    # net/udpspeeder-snapshot and net/udpspeeder-simd-snapshot, which take
-    # names of their own rather than the ones OpenWrt ships or is being asked
-    # to ship. The feed is not published at present and its workflow is
-    # disabled.
-    worktree = feed-25.12 448c2b49ce6291f6fb5752c96bb9809fd7570011
-    worktree = feed-24.10 759b587a9dbed4f10c000b2ed7f67f61f453fe29
-    worktree = feed-main 4aef0fc8b36705ddfecc44aaee5644c74f9cf580
+    # included. None is offered upstream. Each carries four packages,
+    # net/udpspeeder-snapshot, net/udpspeeder-simd-snapshot and the two from
+    # utils/flashprog-snapshot, which take names of their own rather than the
+    # ones OpenWrt ships or is being asked to ship. It is published at
+    # https://connollydavid.github.io/UDPspeeder-simd/feed and rebuilt weekly.
+    worktree = feed-25.12 b5facb064dc0da1f5ecd1d5ef288abbcd914fccf
+    worktree = feed-24.10 d4963746b6a8358e55e6ea7b2e5079de30a7a3a2
+    worktree = feed-main 5f675e024b433353c688be0ce9c8bf39ae969df0
+    # The flashprog package offered to openwrt/packages in issue 29591, and the
+    # branch carrying the matrix that verifies it. The latter is ours alone and
+    # is never offered upstream.
+    worktree = flashprog dae3f98a78063316a70ce41b87cd9fb74512d5ff
+    worktree = ci-flashprog c7bc5626a463725d2e31d147b3a835faae7673d1
 
 # OpenWrt upstream (the buildroot). Embedded as a source pin on its canonical branch
 # (main; the master branch mirrors the same commit) so the x86_64 SDK can be built from

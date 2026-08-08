@@ -681,3 +681,45 @@ release candidate). Branch `flashprog` in the packages fork, commit 5ca6daa.
   `git add` left the CI scripts at mode 100644, and all 123 jobs died at their first step with
   exit 126. `git update-index --chmod=+x` is the fix, and the general rule is that a mode
   change made under `/mnt/c` has to be set in the index, not the filesystem.
+
+## Correcting the flashprog entry: the design it describes is gone
+
+The entry above, "The flashprog package, and why its programmer list is spelled out", described
+commit 5ca6daa and is now wrong in three places. It is left standing because this log is
+append-only; read this entry instead.
+
+- **There are no config symbols and no `Config.in`.** That design put four `default y` bools in a
+  menu, which meant the buildbot shipped the full package to everyone and the saving existed only
+  for people already running menuconfig. The operator called it a mistake, correctly: OpenWrt is
+  size-focused and the feed download is what most people install.
+- **There are two packages, not one.** `flashprog` is the default variant carrying everything the
+  architecture supports; `flashprog-spi` carries only the programmers that need no library. Both
+  own `/usr/bin/flashprog`, so they conflict: `flashprog` declares `CONFLICTS`, `flashprog-spi`
+  declares `PROVIDES:=flashprog`, the shape `net/chrony` and `libs/libwebsockets` use. Renaming the
+  binary per variant, which is what `utils/flashrom` does, is wrong here because flashprog
+  dispatches subcommands and its man pages carry its own name.
+- **The programmer list is no longer spelled out, and the riscv64 gate is gone with it.** The recipe
+  selects upstream's `group_serial`, `group_usb`, `group_ftdi`, `group_jlink` and, on x86,
+  `group_internal`, naming only `dummy`, `linux_spi` and `linux_mtd`, which belong to no group we
+  select. Measured against the hand-written list this costs 8 kB and three obsolete x86 programmers
+  (`atahpt`, `atapromise`, `nicnatsemi`) and drops `rayer_spi`, a parallel-port cable programmer no
+  modern board can use. It buys a recipe a third the size that cannot break when upstream renames or
+  narrows a programmer, because group selection is soft where a named programmer is a hard
+  `error()`. The old entry's riscv64 and loongarch64 special case dissolved: the raw-memory
+  programmers are now only ever added inside the x86 branch.
+
+Two findings from that work are worth keeping.
+
+- **A group's membership is the real argument against groups, and it is about `DEPENDS`.**
+  `group_usb` gained `ch347_spi` and `dirtyjtag_spi` across releases. A version bump can therefore
+  add a programmer whose library the recipe never declared, and soft selection reads `staging_dir`,
+  so it activates only when something else happened to stage that library. `ft4222_spi` already
+  shows the shape: it is in `group_usb` and `group_ftdi` but needs libusb, so selecting `group_ftdi`
+  alone links a library the package would not have declared. Declaring all four libraries
+  unconditionally is what makes groups safe here.
+- **flashprog needs `libpci`, never `pciids`.** It calls only config-space, enumeration and filter
+  functions, never `pci_lookup_name`, and matches devices numerically against its own table. Proven
+  three ways: no such call in the source, both PCI programmers reaching their expected errors in a
+  rootfs with no `/usr/share/hwdata/pci.ids`, and pciutils' own documentation calling the database a
+  name lookup table. Depending on `libpci` rather than `pciutils` therefore avoids `pciids` at
+  1,651,592 bytes installed, plus `libkmod` and the `lspci` binary.
