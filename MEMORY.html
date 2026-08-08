@@ -789,6 +789,67 @@ upstream both land</strong>, since the official feed is then the better answer f
 should not be left running beside it. That condition lived in the workflow's header comment
 until the comments were stripped, and this entry is now the only record of it.</li>
 </ul>
+<h2 id="the-flashprog-package-and-why-its-programmer-list-is-spelled-out"><a class="header" href="#the-flashprog-package-and-why-its-programmer-list-is-spelled-out">The flashprog package, and why its programmer list is spelled out</a></h2>
+<p>Written 2026-08-08 for openwrt/packages issue #29591, which asks for flashprog beside the
+flashrom package that #29679 had just updated to 1.7.0. One package, <code>utils/flashprog</code>,
+targeting v1.5 (released 2026-02-13; v1.6-rc1 was tagged the day before this work and is a
+release candidate). Branch <code>flashprog</code> in the packages fork, commit 5ca6daa.</p>
+<ul>
+<li><strong>Selecting a programmer group also enables the ones upstream disables.</strong> flashprog offers
+<code>group_pci</code>, <code>group_usb</code>, <code>group_ftdi</code>, <code>group_serial</code>, <code>group_jlink</code> and <code>group_internal</code>
+as meson choices, which reads like the tidy way to express an OpenWrt config menu. It is
+not. In <code>meson.build</code> the selection test is <code>groups.contains(true) or 'all' in programmer or 'auto' in programmer and default</code>, and <code>and</code> binds tighter than <code>or</code>, so group membership
+alone selects a programmer and its own <code>default: false</code> is never consulted. Passing
+<code>group_pci</code> therefore builds <code>atahpt</code> ("not yet working"), <code>atapromise</code> and <code>nicnatsemi</code>
+("not complete nor tested"), all three of which upstream's Makefile sets to <code>no</code>. The
+package names all 32 programmers individually instead, which reproduces upstream's default
+set exactly and is what the long list in the recipe is buying.</li>
+<li><strong>Naming a programmer is a hard selection, and unavailable is a hard error.</strong> A named
+programmer that meson cannot build on the target calls <code>error()</code> and fails configure; a
+group-selected one merely reports "Not available on platform". So spelling the list out
+moves the architecture question from a silent skip to something the recipe must get right.
+<code>cpus_raw_mem</code> covers x86, mips, ppc, arm, aarch64, sparc, arc and e2k but <strong>not riscv64 or
+loongarch64</strong>, both of which OpenWrt publishes, and <code>cpus_port_io</code> is x86 only. The recipe
+gates on <code>$(ARCH)</code> accordingly. Checked against <code>include/meson.mk</code>: OpenWrt maps i386 to x86,
+powerpc to ppc, mipsel to mips, mips64el to mips64 and armeb to arm, so those two are the
+only OpenWrt architectures the raw-memory list omits.</li>
+<li><strong>The dependency is <code>libpci</code>, not <code>pciutils</code>.</strong> <code>utils/pciutils</code> builds both; the flashrom
+package depends on <code>pciutils</code>, which drags in the <code>lspci</code> binary and the <code>pciids</code> database
+for a package that only links the library. Also, flashprog defaults <code>use_internal_dmi</code> to
+true, so unlike flashrom it needs no <code>dmidecode</code> on x86.</li>
+<li><strong>libjaylink 0.3.1 in the feed is enough.</strong> Every one of the 30 functions and 9 constants
+<code>jlink_spi.c</code> uses is in 0.3.1, and neither flashprog's meson nor its Makefile states a
+minimum. Upstream is at 0.4.0, whose NEWS lists meson support, more USB product IDs and a
+udev <code>uaccess</code> tag, and no new API. So the J-Link programmer costs one feed dependency and
+nothing else. The flashrom package offers no J-Link programmer at all.</li>
+<li><strong><code>linux_gpio_spi</code> is unreachable and was left out.</strong> Its group, <code>group_gpiod</code>, is read in
+<code>meson.build</code> but is absent from the <code>programmer</code> option's <code>choices</code>, so it cannot be
+selected by name. It would also drag in libgpiod, which carries <code>DEPENDS:=@GPIO_SUPPORT</code>
+and would make the whole package unbuildable on targets without GPIO support.</li>
+<li><strong>The license is GPL-2.0-only, not the <code>-or-later</code> the flashrom package claims.</strong> 85 files
+carry "either version 2 or (at your option) any later version"; 46 carry version 2 with no
+later clause, including <code>spi.c</code>, <code>spi25.c</code>, <code>layout.c</code>, <code>linux_spi.c</code>, <code>linux_mtd.c</code> and
+<code>dummyflasher.c</code>. Upstream's own <code>meson.build</code> declares <code>GPL-2.0</code>.</li>
+<li><strong>Verified on 124 jobs, all green</strong> (run 31266763904): 35 architectures across 24.10, 25.12
+and snapshot, each asserting the exact programmer set for its architecture class plus the
+package's file list and dependency list; five architectures repeated with all four config
+symbols off, asserting libpci, libftdi1 and libjaylink absent and only <code>libc</code> left; and an
+install into a stock rootfs on each line running a dummy write, verify, read, <code>cmp</code> and
+erase. The assertions were proved against negative controls first: claiming aarch64 for an
+x86 build reports <code>rayer_spi</code>, <code>nic3com</code>, <code>nicrealtek</code> and <code>satamv</code> as wrongly built, and
+claiming the minimal config for a default build reports 13 failures.</li>
+<li><strong>Two CI failures that were not the package, both worth keeping in mind.</strong> The d1/generic
+snapshot SDK was rebuilt between reading <code>sha256sums</code> and downloading the tarball, so the
+fetch now retries three times; a snapshot directory moves under you. And the
+branch-tracking <code>openwrt/rootfs:x86-64-openwrt-24.10</code> image lists a kmods feed whose kernel
+hash has moved, so <code>opkg update</code> returns non-zero on one of six feeds. Rather than silence
+it, the job now reads the package's own <code>Depends:</code> and requires each one to be present in
+the feed, which is the claim the job exists to make.</li>
+<li><strong>A worktree on the Windows drive cannot record the executable bit.</strong> <code>chmod +x</code> followed by
+<code>git add</code> left the CI scripts at mode 100644, and all 123 jobs died at their first step with
+exit 126. <code>git update-index --chmod=+x</code> is the fix, and the general rule is that a mode
+change made under <code>/mnt/c</code> has to be set in the index, not the filesystem.</li>
+</ul>
 
                     </main>
 
