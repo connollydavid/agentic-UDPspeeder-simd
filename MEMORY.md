@@ -618,3 +618,66 @@ rootfs and refused without the published key.
   upstream both land**, since the official feed is then the better answer for either package and
   should not be left running beside it. That condition lived in the workflow's header comment
   until the comments were stripped, and this entry is now the only record of it.
+
+## The flashprog package, and why its programmer list is spelled out
+
+Written 2026-08-08 for openwrt/packages issue #29591, which asks for flashprog beside the
+flashrom package that #29679 had just updated to 1.7.0. One package, `utils/flashprog`,
+targeting v1.5 (released 2026-02-13; v1.6-rc1 was tagged the day before this work and is a
+release candidate). Branch `flashprog` in the packages fork, commit 5ca6daa.
+
+- **Selecting a programmer group also enables the ones upstream disables.** flashprog offers
+  `group_pci`, `group_usb`, `group_ftdi`, `group_serial`, `group_jlink` and `group_internal`
+  as meson choices, which reads like the tidy way to express an OpenWrt config menu. It is
+  not. In `meson.build` the selection test is `groups.contains(true) or 'all' in programmer or
+  'auto' in programmer and default`, and `and` binds tighter than `or`, so group membership
+  alone selects a programmer and its own `default: false` is never consulted. Passing
+  `group_pci` therefore builds `atahpt` ("not yet working"), `atapromise` and `nicnatsemi`
+  ("not complete nor tested"), all three of which upstream's Makefile sets to `no`. The
+  package names all 32 programmers individually instead, which reproduces upstream's default
+  set exactly and is what the long list in the recipe is buying.
+- **Naming a programmer is a hard selection, and unavailable is a hard error.** A named
+  programmer that meson cannot build on the target calls `error()` and fails configure; a
+  group-selected one merely reports "Not available on platform". So spelling the list out
+  moves the architecture question from a silent skip to something the recipe must get right.
+  `cpus_raw_mem` covers x86, mips, ppc, arm, aarch64, sparc, arc and e2k but **not riscv64 or
+  loongarch64**, both of which OpenWrt publishes, and `cpus_port_io` is x86 only. The recipe
+  gates on `$(ARCH)` accordingly. Checked against `include/meson.mk`: OpenWrt maps i386 to x86,
+  powerpc to ppc, mipsel to mips, mips64el to mips64 and armeb to arm, so those two are the
+  only OpenWrt architectures the raw-memory list omits.
+- **The dependency is `libpci`, not `pciutils`.** `utils/pciutils` builds both; the flashrom
+  package depends on `pciutils`, which drags in the `lspci` binary and the `pciids` database
+  for a package that only links the library. Also, flashprog defaults `use_internal_dmi` to
+  true, so unlike flashrom it needs no `dmidecode` on x86.
+- **libjaylink 0.3.1 in the feed is enough.** Every one of the 30 functions and 9 constants
+  `jlink_spi.c` uses is in 0.3.1, and neither flashprog's meson nor its Makefile states a
+  minimum. Upstream is at 0.4.0, whose NEWS lists meson support, more USB product IDs and a
+  udev `uaccess` tag, and no new API. So the J-Link programmer costs one feed dependency and
+  nothing else. The flashrom package offers no J-Link programmer at all.
+- **`linux_gpio_spi` is unreachable and was left out.** Its group, `group_gpiod`, is read in
+  `meson.build` but is absent from the `programmer` option's `choices`, so it cannot be
+  selected by name. It would also drag in libgpiod, which carries `DEPENDS:=@GPIO_SUPPORT`
+  and would make the whole package unbuildable on targets without GPIO support.
+- **The license is GPL-2.0-only, not the `-or-later` the flashrom package claims.** 85 files
+  carry "either version 2 or (at your option) any later version"; 46 carry version 2 with no
+  later clause, including `spi.c`, `spi25.c`, `layout.c`, `linux_spi.c`, `linux_mtd.c` and
+  `dummyflasher.c`. Upstream's own `meson.build` declares `GPL-2.0`.
+- **Verified on 124 jobs, all green** (run 31266763904): 35 architectures across 24.10, 25.12
+  and snapshot, each asserting the exact programmer set for its architecture class plus the
+  package's file list and dependency list; five architectures repeated with all four config
+  symbols off, asserting libpci, libftdi1 and libjaylink absent and only `libc` left; and an
+  install into a stock rootfs on each line running a dummy write, verify, read, `cmp` and
+  erase. The assertions were proved against negative controls first: claiming aarch64 for an
+  x86 build reports `rayer_spi`, `nic3com`, `nicrealtek` and `satamv` as wrongly built, and
+  claiming the minimal config for a default build reports 13 failures.
+- **Two CI failures that were not the package, both worth keeping in mind.** The d1/generic
+  snapshot SDK was rebuilt between reading `sha256sums` and downloading the tarball, so the
+  fetch now retries three times; a snapshot directory moves under you. And the
+  branch-tracking `openwrt/rootfs:x86-64-openwrt-24.10` image lists a kmods feed whose kernel
+  hash has moved, so `opkg update` returns non-zero on one of six feeds. Rather than silence
+  it, the job now reads the package's own `Depends:` and requires each one to be present in
+  the feed, which is the claim the job exists to make.
+- **A worktree on the Windows drive cannot record the executable bit.** `chmod +x` followed by
+  `git add` left the CI scripts at mode 100644, and all 123 jobs died at their first step with
+  exit 126. `git update-index --chmod=+x` is the fix, and the general rule is that a mode
+  change made under `/mnt/c` has to be set in the index, not the filesystem.
