@@ -850,6 +850,47 @@ the feed, which is the claim the job exists to make.</li>
 exit 126. <code>git update-index --chmod=+x</code> is the fix, and the general rule is that a mode
 change made under <code>/mnt/c</code> has to be set in the index, not the filesystem.</li>
 </ul>
+<h2 id="correcting-the-flashprog-entry-the-design-it-describes-is-gone"><a class="header" href="#correcting-the-flashprog-entry-the-design-it-describes-is-gone">Correcting the flashprog entry: the design it describes is gone</a></h2>
+<p>The entry above, "The flashprog package, and why its programmer list is spelled out", described
+commit 5ca6daa and is now wrong in three places. It is left standing because this log is
+append-only; read this entry instead.</p>
+<ul>
+<li><strong>There are no config symbols and no <code>Config.in</code>.</strong> That design put four <code>default y</code> bools in a
+menu, which meant the buildbot shipped the full package to everyone and the saving existed only
+for people already running menuconfig. The operator called it a mistake, correctly: OpenWrt is
+size-focused and the feed download is what most people install.</li>
+<li><strong>There are two packages, not one.</strong> <code>flashprog</code> is the default variant carrying everything the
+architecture supports; <code>flashprog-spi</code> carries only the programmers that need no library. Both
+own <code>/usr/bin/flashprog</code>, so they conflict: <code>flashprog</code> declares <code>CONFLICTS</code>, <code>flashprog-spi</code>
+declares <code>PROVIDES:=flashprog</code>, the shape <code>net/chrony</code> and <code>libs/libwebsockets</code> use. Renaming the
+binary per variant, which is what <code>utils/flashrom</code> does, is wrong here because flashprog
+dispatches subcommands and its man pages carry its own name.</li>
+<li><strong>The programmer list is no longer spelled out, and the riscv64 gate is gone with it.</strong> The recipe
+selects upstream's <code>group_serial</code>, <code>group_usb</code>, <code>group_ftdi</code>, <code>group_jlink</code> and, on x86,
+<code>group_internal</code>, naming only <code>dummy</code>, <code>linux_spi</code> and <code>linux_mtd</code>, which belong to no group we
+select. Measured against the hand-written list this costs 8 kB and three obsolete x86 programmers
+(<code>atahpt</code>, <code>atapromise</code>, <code>nicnatsemi</code>) and drops <code>rayer_spi</code>, a parallel-port cable programmer no
+modern board can use. It buys a recipe a third the size that cannot break when upstream renames or
+narrows a programmer, because group selection is soft where a named programmer is a hard
+<code>error()</code>. The old entry's riscv64 and loongarch64 special case dissolved: the raw-memory
+programmers are now only ever added inside the x86 branch.</li>
+</ul>
+<p>Two findings from that work are worth keeping.</p>
+<ul>
+<li><strong>A group's membership is the real argument against groups, and it is about <code>DEPENDS</code>.</strong>
+<code>group_usb</code> gained <code>ch347_spi</code> and <code>dirtyjtag_spi</code> across releases. A version bump can therefore
+add a programmer whose library the recipe never declared, and soft selection reads <code>staging_dir</code>,
+so it activates only when something else happened to stage that library. <code>ft4222_spi</code> already
+shows the shape: it is in <code>group_usb</code> and <code>group_ftdi</code> but needs libusb, so selecting <code>group_ftdi</code>
+alone links a library the package would not have declared. Declaring all four libraries
+unconditionally is what makes groups safe here.</li>
+<li><strong>flashprog needs <code>libpci</code>, never <code>pciids</code>.</strong> It calls only config-space, enumeration and filter
+functions, never <code>pci_lookup_name</code>, and matches devices numerically against its own table. Proven
+three ways: no such call in the source, both PCI programmers reaching their expected errors in a
+rootfs with no <code>/usr/share/hwdata/pci.ids</code>, and pciutils' own documentation calling the database a
+name lookup table. Depending on <code>libpci</code> rather than <code>pciutils</code> therefore avoids <code>pciids</code> at
+1,651,592 bytes installed, plus <code>libkmod</code> and the <code>lspci</code> binary.</li>
+</ul>
 
                     </main>
 
