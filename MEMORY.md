@@ -723,3 +723,47 @@ Two findings from that work are worth keeping.
   rootfs with no `/usr/share/hwdata/pci.ids`, and pciutils' own documentation calling the database a
   name lookup table. Depending on `libpci` rather than `pciutils` therefore avoids `pciids` at
   1,651,592 bytes installed, plus `libkmod` and the `lspci` binary.
+
+## Correcting the flashprog entry again: the two packages are co-installable, and why
+
+The entry above still describes `flashprog` declaring `CONFLICTS` and `flashprog-spi` declaring
+`PROVIDES:=flashprog`. That design is gone. It also called flashrom's rename-the-binary approach
+"wrong here"; that judgement is reversed, and this entry says why.
+
+- **A versioned `PROVIDES` makes the name substitutable, which is not what it looks like.** The
+  operator ran `apk add flashprog-snapshot` on a real router and apk installed
+  `flashprog-spi-snapshot` instead. This is documented behaviour, not a bug: apk-package.5 says a
+  versioned provide makes apk "treat it as-if a real package with the provided name is installed",
+  so the provider satisfies a request for the provided name outright. `provider-priority` cannot
+  arbitrate, because it applies only to *non-versioned* provides. All three orientations of the
+  provide were tried; none gives exclusion without also giving substitution.
+- **OpenWrt's `CONFLICTS` never reaches apk.** `package-pack.mk:417` writes it only into the opkg
+  control file, and OpenWrt passes twelve `--info` keys to `apk mkpkg`, none of them a conflict.
+  apk expresses a conflict as a negative dependency (`depends: !name`), which OpenWrt never emits.
+  So under apk the conflict half was silently absent while the provide half was fully active.
+- **The fix is distinct install paths, so there is nothing to arbitrate.** `flashprog-spi` installs
+  the same ELF as `/usr/bin/flashprog-spi`. The two packages now share no path, are co-installable,
+  and carry no `PROVIDES` and no `CONFLICTS` at all. This is what `utils/flashrom` does with its
+  five variants, and the earlier entry's argument against it (that flashprog dispatches subcommands
+  and its man pages carry its own name) does not survive contact: the package ships no man pages,
+  and argv[0] changes nothing about subcommand dispatch.
+- **Local-file installs never exercise provider resolution.** Every container test installed by
+  filename, which names an exact package, so the substitution could not appear. Only the operator's
+  `apk add <name>` against a published feed reached the resolver. A package carrying `PROVIDES` has
+  to be tested by name from a repository index, or it is not tested at all.
+
+Three smaller findings from settling the recipe.
+
+- **`group_pci` adds no programmer; it makes `libpci` required.** Upstream has
+  `libpci = dependency('libpci', required : group_pci)`, so selecting the group turns a missing
+  libpci from a silent programmer drop into a hard configure error. That is the whole reason to
+  select it, and the recipe comment now says so rather than describing the off-x86 case.
+- **The x86 gate is `CONFIG_TARGET_x86`, not `$(ARCH)`.** `target/linux/uml/Makefile` sets
+  `ARCH:=x86_64` without setting `CONFIG_TARGET_x86`, so the two predicates diverge. Gating the
+  programmer groups on one and `DEPENDS` on the other selected `group_pci` where libpci was never
+  declared, and uml failed to configure. Both gates now read `CONFIG_TARGET_x86`.
+- **Off x86, `internal` degrades to `linux_mtd` without touching `/dev/mem`.** `internal_init()`
+  calls `try_mtd()` before `processor_flash_enable()` and before the
+  `#if defined(__i386__) || defined(__x86_64__)` physmap block, so on a non-x86 build with
+  `LINUX_MTD_AS_INTERNAL` the MTD path is reached first and succeeds on its own. This is what lets
+  the commit message say the group is redundant off x86 rather than merely unsupported.
