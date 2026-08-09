@@ -891,6 +891,49 @@ rootfs with no <code>/usr/share/hwdata/pci.ids</code>, and pciutils' own documen
 name lookup table. Depending on <code>libpci</code> rather than <code>pciutils</code> therefore avoids <code>pciids</code> at
 1,651,592 bytes installed, plus <code>libkmod</code> and the <code>lspci</code> binary.</li>
 </ul>
+<h2 id="correcting-the-flashprog-entry-again-the-two-packages-are-co-installable-and-why"><a class="header" href="#correcting-the-flashprog-entry-again-the-two-packages-are-co-installable-and-why">Correcting the flashprog entry again: the two packages are co-installable, and why</a></h2>
+<p>The entry above still describes <code>flashprog</code> declaring <code>CONFLICTS</code> and <code>flashprog-spi</code> declaring
+<code>PROVIDES:=flashprog</code>. That design is gone. It also called flashrom's rename-the-binary approach
+"wrong here"; that judgement is reversed, and this entry says why.</p>
+<ul>
+<li><strong>A versioned <code>PROVIDES</code> makes the name substitutable, which is not what it looks like.</strong> The
+operator ran <code>apk add flashprog-snapshot</code> on a real router and apk installed
+<code>flashprog-spi-snapshot</code> instead. This is documented behaviour, not a bug: apk-package.5 says a
+versioned provide makes apk "treat it as-if a real package with the provided name is installed",
+so the provider satisfies a request for the provided name outright. <code>provider-priority</code> cannot
+arbitrate, because it applies only to <em>non-versioned</em> provides. All three orientations of the
+provide were tried; none gives exclusion without also giving substitution.</li>
+<li><strong>OpenWrt's <code>CONFLICTS</code> never reaches apk.</strong> <code>package-pack.mk:417</code> writes it only into the opkg
+control file, and OpenWrt passes twelve <code>--info</code> keys to <code>apk mkpkg</code>, none of them a conflict.
+apk expresses a conflict as a negative dependency (<code>depends: !name</code>), which OpenWrt never emits.
+So under apk the conflict half was silently absent while the provide half was fully active.</li>
+<li><strong>The fix is distinct install paths, so there is nothing to arbitrate.</strong> <code>flashprog-spi</code> installs
+the same ELF as <code>/usr/bin/flashprog-spi</code>. The two packages now share no path, are co-installable,
+and carry no <code>PROVIDES</code> and no <code>CONFLICTS</code> at all. This is what <code>utils/flashrom</code> does with its
+five variants, and the earlier entry's argument against it (that flashprog dispatches subcommands
+and its man pages carry its own name) does not survive contact: the package ships no man pages,
+and argv[0] changes nothing about subcommand dispatch.</li>
+<li><strong>Local-file installs never exercise provider resolution.</strong> Every container test installed by
+filename, which names an exact package, so the substitution could not appear. Only the operator's
+<code>apk add &lt;name&gt;</code> against a published feed reached the resolver. A package carrying <code>PROVIDES</code> has
+to be tested by name from a repository index, or it is not tested at all.</li>
+</ul>
+<p>Three smaller findings from settling the recipe.</p>
+<ul>
+<li><strong><code>group_pci</code> adds no programmer; it makes <code>libpci</code> required.</strong> Upstream has
+<code>libpci = dependency('libpci', required : group_pci)</code>, so selecting the group turns a missing
+libpci from a silent programmer drop into a hard configure error. That is the whole reason to
+select it, and the recipe comment now says so rather than describing the off-x86 case.</li>
+<li><strong>The x86 gate is <code>CONFIG_TARGET_x86</code>, not <code>$(ARCH)</code>.</strong> <code>target/linux/uml/Makefile</code> sets
+<code>ARCH:=x86_64</code> without setting <code>CONFIG_TARGET_x86</code>, so the two predicates diverge. Gating the
+programmer groups on one and <code>DEPENDS</code> on the other selected <code>group_pci</code> where libpci was never
+declared, and uml failed to configure. Both gates now read <code>CONFIG_TARGET_x86</code>.</li>
+<li><strong>Off x86, <code>internal</code> degrades to <code>linux_mtd</code> without touching <code>/dev/mem</code>.</strong> <code>internal_init()</code>
+calls <code>try_mtd()</code> before <code>processor_flash_enable()</code> and before the
+<code>#if defined(__i386__) || defined(__x86_64__)</code> physmap block, so on a non-x86 build with
+<code>LINUX_MTD_AS_INTERNAL</code> the MTD path is reached first and succeeds on its own. This is what lets
+the commit message say the group is redundant off x86 rather than merely unsupported.</li>
+</ul>
 
                     </main>
 
