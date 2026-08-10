@@ -801,6 +801,31 @@ personas in XP, with later agile work cited alongside it. This manual is release
 into the public domain (Unlicense); the credit here is acknowledgement, not a
 license obligation.
 
+## Priority rule: this host never references an upstream tracker
+
+This host repository is public. GitHub mints a timeline event on the target
+whenever a pushed commit message carries a cross-repository autolink, so a
+reference written here surfaces inside the upstream thread and pulls the
+governance repo into a conversation that is about the package. Two host commits
+did this before the rule existed, one through each form.
+
+- **Never write a linking form in a commit message pushed from an `agentic-*`
+  host.** The forms that link are `owner/repo#N` and any
+  `github.com/<owner>/<repo>/issues|pull|commit/...` URL. Name the work without
+  the link instead: `openwrt/packages PR 30228`.
+- **The same rule binds an issue or pull request body or comment posted from
+  here**, which no hook can gate. Write the plain form there too.
+- **`tools/crossref-check.sh` enforces the commit half.** It installs as this
+  repository's `pre-push` hook (`crossref-check.sh --install`) and refuses a
+  push whose range carries either form.
+- **The rule is scoped to the host.** A commit in the packages worktree keeps
+  its `Closes:` trailer, which upstream requires and which is exactly this
+  shape.
+- **A file is not a reference.** Only a commit message or a posted body mints
+  one, so a URL already inside `MEMORY.md`, `plan/` or `call/` stays as written.
+- **A minted event cannot be retracted.** No API deletes it, and a force push
+  only makes the commit unreachable. Prevention is the whole remedy.
+
 ## Project specifics: UDPspeeder-simd
 
 The rules above are the inherited spine. The facts below are this project's own,
