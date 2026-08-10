@@ -528,7 +528,7 @@ shows a developer or power user how to self-apply it with a release SDK or build
 <ul>
 <li>url: https://github.com/connollydavid/packages.git</li>
 <li>pin: <code>1d40ad929ad45cfbdf547996d0ba2379d9765172</code></li>
-<li>worktrees: udpspeeder-update-20260731 @ d9ef24250436, feed-25.12 @ e4d5941c51a5, feed-24.10 @ 65400ddc585d, feed-main @ 299cf25ad743, flashprog @ 2379c6bfa435, ci-flashprog @ 75ff54251411</li>
+<li>worktrees: udpspeeder-update-20260731 @ d9ef24250436, feed-25.12 @ e4d5941c51a5, feed-24.10 @ 65400ddc585d, feed-main @ 299cf25ad743, flashprog @ f176d9fe09ed, ci-flashprog @ 75ff54251411</li>
 </ul>
 <h2 id="openwrt"><a class="header" href="#openwrt">openwrt</a></h2>
 <ul>
@@ -1577,9 +1577,14 @@ here</strong>, which no hook can gate. Write the plain form there too.</li>
 <li><strong><code>tools/crossref-check.sh</code> enforces the commit half.</strong> It installs as this
 repository's <code>pre-push</code> hook (<code>crossref-check.sh --install</code>) and refuses a
 push whose range carries either form.</li>
-<li><strong>The rule is scoped to the host.</strong> A commit in the packages worktree keeps
-its <code>Closes:</code> trailer, which upstream requires and which is exactly this
-shape.</li>
+<li><strong>The rule is scoped to the host, and the packages worktree follows the
+upstream tree's own convention.</strong> A commit in the packages worktree carries
+no issue closer: upstream requires no <code>Closes:</code> trailer, and the tree's
+convention is the closing keyword in the pull request body, where it fires
+once at merge instead of re-posting a reference on every push of an amended
+branch. Write the plain same-repo form there (<code>Closes #N</code>), never a linking
+form. The <code>openwrt-package-commit-style</code> manual in <code>host-lint-openwrt</code>
+states the rule and holds the measurement it rests on.</li>
 <li><strong>A file is not a reference.</strong> Only a commit message or a posted body mints
 one, so a URL already inside <code>MEMORY.md</code>, <code>plan/</code> or <code>call/</code> stays as written.</li>
 <li><strong>A minted event cannot be retracted.</strong> No API deletes it, and a force push
@@ -2783,6 +2788,28 @@ v0.50.0, and the <code>release</code> phase has no skill there at all. Bumping t
 submodule is what closes that, and it is a ledger-ordered action rather than a
 free edit.</p>
 <p>Read the green with care. v0.50.0 prints <code>0 builds verified here ... nothing to attest</code>, which is the honest summary: no component reproduces yet.</p>
+<h2 id="correcting-the-upstream-reference-entry-the-closer-belongs-in-the-pull-request-body-not-the-commit"><a class="header" href="#correcting-the-upstream-reference-entry-the-closer-belongs-in-the-pull-request-body-not-the-commit">Correcting the upstream-reference entry: the closer belongs in the pull request body, not the commit</a></h2>
+<p>The scoping bullet the entry above carried into CLAUDE.md said a commit in the
+packages worktree keeps its <code>Closes:</code> trailer because upstream requires it.
+Checked against openwrt/packages on 2026-08-10, that claim is wrong. Nothing
+requires it, and the tree's convention is the closing keyword in the pull
+request body, where it fires once at merge, rather than in the commit, where
+every push of an amended branch re-posts a reference on the issue. Four of the
+five most recently merged pull requests that closed an issue put the keyword in
+the body; the one exception (fluent-bit) used a commit trailer. openwrt/packages
+PR 30186 is the direct precedent: a new package, merged the same day, that
+closed its request issue from the body with no issue reference in any of its
+commits. The <code>openwrt-package-commit-style</code> manual in <code>host-lint-openwrt</code>
+states the rule and carries the corpus measurement behind it.</p>
+<p>CLAUDE.md's scoping bullet is corrected to match. The flashprog commit on
+openwrt/packages PR 30228 drops the trailer, and at push time the body's
+"Requested in #29591" becomes "Closes #29591", so the merge still closes the
+issue.</p>
+<h2 id="host-repo-commits-carry-the-deepseek-co-author-trailer"><a class="header" href="#host-repo-commits-carry-the-deepseek-co-author-trailer">Host-repo commits carry the DeepSeek co-author trailer</a></h2>
+<p>Operator direction on 2026-08-10: the host repo's co-author trailer is
+<code>Co-Authored-By: DeepSeek V4 Flash 0731 &lt;noreply@www.deepseek.com&gt;</code>, not the
+Claude one. The packages worktree still carries no co-author trailer at all,
+per call/0003; only the name the host trailer carries has moved.</p>
 
                     </main>
 

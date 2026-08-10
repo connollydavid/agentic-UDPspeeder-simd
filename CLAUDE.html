@@ -910,9 +910,14 @@ here</strong>, which no hook can gate. Write the plain form there too.</li>
 <li><strong><code>tools/crossref-check.sh</code> enforces the commit half.</strong> It installs as this
 repository's <code>pre-push</code> hook (<code>crossref-check.sh --install</code>) and refuses a
 push whose range carries either form.</li>
-<li><strong>The rule is scoped to the host.</strong> A commit in the packages worktree keeps
-its <code>Closes:</code> trailer, which upstream requires and which is exactly this
-shape.</li>
+<li><strong>The rule is scoped to the host, and the packages worktree follows the
+upstream tree's own convention.</strong> A commit in the packages worktree carries
+no issue closer: upstream requires no <code>Closes:</code> trailer, and the tree's
+convention is the closing keyword in the pull request body, where it fires
+once at merge instead of re-posting a reference on every push of an amended
+branch. Write the plain same-repo form there (<code>Closes #N</code>), never a linking
+form. The <code>openwrt-package-commit-style</code> manual in <code>host-lint-openwrt</code>
+states the rule and holds the measurement it rests on.</li>
 <li><strong>A file is not a reference.</strong> Only a commit message or a posted body mints
 one, so a URL already inside <code>MEMORY.md</code>, <code>plan/</code> or <code>call/</code> stays as written.</li>
 <li><strong>A minted event cannot be retracted.</strong> No API deletes it, and a force push
