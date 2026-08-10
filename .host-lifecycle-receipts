@@ -81,3 +81,10 @@
     reason = openwrt upstream is consumed to build the SDK, not released through this host
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-03
+
+[receipt "release" "udpspeeder-simd"]
+    disposition = done
+    evidence = tag v1.1.0 at 36641bc; CI run 31438465532 green (test, build-static x7, cpu-dispatch, interop, allium, tlc); release job published 7 static binaries, sha256 f9c997cf (aarch64) 3118786a (armv7-neon) c14782aa (armv7-scalar) 8ba4f46d (mips) 59628d36 (powerpc) effeb114 (riscv64) 7b25cb54 (x86_64)
+    authorization = plan/0001
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-10
