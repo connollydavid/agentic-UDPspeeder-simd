@@ -15,3 +15,7 @@
 
 # The local environment fingerprint: this machine's state, never shared.
 .host-envhash
+
+# Local-only tool repo: the formality-check driver has no remote, so the host
+# records no gitlink it could not fetch.
+tools/formality-check/

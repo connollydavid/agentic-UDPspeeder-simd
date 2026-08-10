@@ -13,3 +13,6 @@
 [submodule "tools/specula"]
 	path = tools/specula
 	url = https://github.com/specula-org/Specula.git
+[submodule "tools/openwrt-bot-worker"]
+	path = tools/openwrt-bot-worker
+	url = https://github.com/openwrt/openwrt-bot-worker.git
