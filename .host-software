@@ -11,7 +11,7 @@
     branch   = main
     hooks    = pre-commit
     artifact = target/release/host-lint 5ea6e94d17e7a860c9809728eee988f23caffe45e2d958628835fd44271ec645
-    repro-exempt = call/0002
+    repro-waiver = call/0002
 
 # The software under development. Migrated (pre-existing), recorded as a source pin
 # on its canonical branch with no deploy artifact, so no reproducible build is
@@ -25,7 +25,7 @@
     # uses whatever g++ the runner image carried. Recording a hash for a build
     # that cannot be reproduced would claim a guarantee we have not established.
     # call/0006 states the interim provenance and what retires this.
-    repro-exempt = call/0006
+    repro-waiver = call/0006
 
 # A fork of the OpenWrt packages feed (Makefiles/shell/C). Migrated (pre-existing),
 # recorded as a source pin on its canonical branch (master) with no deploy artifact:
