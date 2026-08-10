@@ -19,3 +19,7 @@
 # Local-only tool repo: the formality-check driver has no remote, so the host
 # records no gitlink it could not fetch.
 tools/formality-check/
+
+# Generated skill links: recreated by link-skills.sh after materialization, so a
+# fresh clone that has not materialized the tools carries no dangling symlink.
+/.claude/skills/*
