@@ -15,10 +15,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      # Pinned to the same host-lifecycle the host gates on (v0.30.1), so the spine's
-      # verdict matches every adopter's verify-phase prose audit; v0.30.1 embeds the
-      # host-lint engine that honors the per-repo LEXICON in the prose lane (host-lifecycle#2).
-      - name: Install host-lifecycle (pinned)
-        run: cargo install --git https://github.com/connollydavid/host-lifecycle --rev 46d481cd755302fcd5eaa47ddbbda814b3016567 --root "$HOME/.local"
+      # The version comes from .env, the one place this host records the tools it
+      # runs (call/0007), so the CI verdict and the local one cannot disagree. The
+      # rev pinned inline here before was v0.30.1 and had drifted twenty releases
+      # behind, which reddened this lane over two words its newer engine accepts.
+      - name: Install host-lifecycle (pinned in .env)
+        run: ./tools/install-tools.sh host-lifecycle
       - name: Prose gate (zero tropes in authored docs)
-        run: "$HOME/.local/bin/host-lifecycle prose ."
+        run: |
+          . ./.env
+          "$HOST_LIFECYCLE" prose .
