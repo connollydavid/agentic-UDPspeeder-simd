@@ -2764,6 +2764,25 @@ failure. A bump of the submodule to the v0.50.0 commit clears both. Note what th
 lane proves once it goes green: three components record no artifact and host-lint
 is waived, so every line is a skip or an exemption and no reproducibility is
 established yet.</p>
+<h2 id="correcting-the-skew-entry-the-fix-was-env-not-a-submodule-bump"><a class="header" href="#correcting-the-skew-entry-the-fix-was-env-not-a-submodule-bump">Correcting the skew entry: the fix was <code>.env</code>, not a submodule bump</a></h2>
+<p>The entry above proposed bumping the <code>tools/host-lifecycle</code> submodule. What
+landed is narrower and treats the cause instead of the symptom. All three
+workflows now install the <code>.env</code> pin and source <code>.env</code> for the path, so one
+binary answers for CI and for the local shell. Prose and mdBook went green at
+once, and the reproducible lane reports <code>WAIVED host-lint repro-waiver (call/0002)</code> with the other three skipped.</p>
+<p>How the pins stayed stale is the part worth keeping. The submodule pointer has
+exactly one commit in its whole history, <code>72a8e2e</code>, which wired it at v0.35.1,
+and nothing ever moved it, because <code>software --check</code> audits the components in
+<code>.host-software</code> and not the tools under <code>tools/</code>. <code>prose.yml</code> carried its own
+inline rev at v0.30.1. Every command run by hand used the newest binary
+available, so CI alone ever saw the old ones. A second source of truth is not a
+pin; it is a way for two answers to disagree without anyone noticing.</p>
+<p>One skew survives on purpose. The submodule still supplies the lifecycle skills
+that <code>.claude/skills/</code> links to, so those remain v0.35.1's while the binary is
+v0.50.0, and the <code>release</code> phase has no skill there at all. Bumping the
+submodule is what closes that, and it is a ledger-ordered action rather than a
+free edit.</p>
+<p>Read the green with care. v0.50.0 prints <code>0 builds verified here ... nothing to attest</code>, which is the honest summary: no component reproduces yet.</p>
 
                     </main>
 
