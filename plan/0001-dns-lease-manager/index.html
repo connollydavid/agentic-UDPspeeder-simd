@@ -1,0 +1,314 @@
+<!DOCTYPE HTML>
+<html lang="en" class="light" dir="ltr">
+    <head>
+        <!-- Book generated using mdBook -->
+        <meta charset="UTF-8">
+        <title>DNS lease manager for udpspeeder-simd (v1.1.0) - agentic-UDPspeeder-simd</title>
+
+
+        <!-- Custom HTML head -->
+        
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="theme-color" content="#ffffff">
+
+        <link rel="icon" href="../../favicon.svg">
+        <link rel="shortcut icon" href="../../favicon.png">
+        <link rel="stylesheet" href="../../css/variables.css">
+        <link rel="stylesheet" href="../../css/general.css">
+        <link rel="stylesheet" href="../../css/chrome.css">
+        <link rel="stylesheet" href="../../css/print.css" media="print">
+
+        <!-- Fonts -->
+        <link rel="stylesheet" href="../../FontAwesome/css/font-awesome.css">
+        <link rel="stylesheet" href="../../fonts/fonts.css">
+
+        <!-- Highlight.js Stylesheets -->
+        <link rel="stylesheet" href="../../highlight.css">
+        <link rel="stylesheet" href="../../tomorrow-night.css">
+        <link rel="stylesheet" href="../../ayu-highlight.css">
+
+        <!-- Custom theme stylesheets -->
+
+    </head>
+    <body class="sidebar-visible no-js">
+    <div id="body-container">
+        <!-- Provide site root to javascript -->
+        <script>
+            var path_to_root = "../../";
+            var default_theme = window.matchMedia("(prefers-color-scheme: dark)").matches ? "navy" : "light";
+        </script>
+
+        <!-- Work around some values being stored in localStorage wrapped in quotes -->
+        <script>
+            try {
+                var theme = localStorage.getItem('mdbook-theme');
+                var sidebar = localStorage.getItem('mdbook-sidebar');
+
+                if (theme.startsWith('"') && theme.endsWith('"')) {
+                    localStorage.setItem('mdbook-theme', theme.slice(1, theme.length - 1));
+                }
+
+                if (sidebar.startsWith('"') && sidebar.endsWith('"')) {
+                    localStorage.setItem('mdbook-sidebar', sidebar.slice(1, sidebar.length - 1));
+                }
+            } catch (e) { }
+        </script>
+
+        <!-- Set the theme before any content is loaded, prevents flash -->
+        <script>
+            var theme;
+            try { theme = localStorage.getItem('mdbook-theme'); } catch(e) { }
+            if (theme === null || theme === undefined) { theme = default_theme; }
+            var html = document.querySelector('html');
+            html.classList.remove('light')
+            html.classList.add(theme);
+            var body = document.querySelector('body');
+            body.classList.remove('no-js')
+            body.classList.add('js');
+        </script>
+
+        <input type="checkbox" id="sidebar-toggle-anchor" class="hidden">
+
+        <!-- Hide / unhide sidebar before it is displayed -->
+        <script>
+            var body = document.querySelector('body');
+            var sidebar = null;
+            var sidebar_toggle = document.getElementById("sidebar-toggle-anchor");
+            if (document.body.clientWidth >= 1080) {
+                try { sidebar = localStorage.getItem('mdbook-sidebar'); } catch(e) { }
+                sidebar = sidebar || 'visible';
+            } else {
+                sidebar = 'hidden';
+            }
+            sidebar_toggle.checked = sidebar === 'visible';
+            body.classList.remove('sidebar-visible');
+            body.classList.add("sidebar-" + sidebar);
+        </script>
+
+        <nav id="sidebar" class="sidebar" aria-label="Table of contents">
+            <div class="sidebar-scrollbox">
+                <ol class="chapter"><li class="chapter-item expanded affix "><a href="../../index.html">agentic-UDPspeeder-simd</a></li><li class="chapter-item expanded affix "><li class="part-title">Cast: who</li><li class="chapter-item expanded "><a href="../../cast/index.html"><strong aria-hidden="true">1.</strong> Cast: the project's Who</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../cast/applying-personas.html"><strong aria-hidden="true">1.1.</strong> Applying personas during planning</a></li><li class="chapter-item expanded "><a href="../../cast/diego.html"><strong aria-hidden="true">1.2.</strong> Diego (router administrator)</a></li><li class="chapter-item expanded "><a href="../../cast/ingrid.html"><strong aria-hidden="true">1.3.</strong> Ingrid (OpenWrt feed maintainer)</a></li><li class="chapter-item expanded "><a href="../../cast/samira.html"><strong aria-hidden="true">1.4.</strong> Samira (security engineer)</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Plan: what & when</li><li class="chapter-item expanded "><a href="../../plan-index.html"><strong aria-hidden="true">2.</strong> Plan</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../plan/0000-openwrt-udpspeeder-simd-package/index.html"><strong aria-hidden="true">2.1.</strong> Add an OpenWrt package for udpspeeder-simd</a></li><li class="chapter-item expanded "><a href="../../plan/0001-dns-lease-manager/index.html" class="active"><strong aria-hidden="true">2.2.</strong> DNS lease manager for udpspeeder-simd (v1.1.0)</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Software: where</li><li class="chapter-item expanded "><a href="../../where.html"><strong aria-hidden="true">3.</strong> Software</a></li><li class="chapter-item expanded affix "><li class="part-title">Call: why</li><li class="chapter-item expanded "><a href="../../call/0000-adopt-agentic-host-methodology.html"><strong aria-hidden="true">4.</strong> Govern UDPspeeder-simd under the agentic-host methodology</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../call/0001-pin-tools-to-current-releases.html"><strong aria-hidden="true">4.1.</strong> Pin the verification tools to current releases, not the template gitlinks</a></li><li class="chapter-item expanded "><a href="../../call/0002-host-lint-consumed-not-reproduced.html"><strong aria-hidden="true">4.2.</strong> host-lint is a consumed tool, not reproduced by this host</a></li><li class="chapter-item expanded "><a href="../../call/0003-no-claude-co-author-trailers-on-packages.html"><strong aria-hidden="true">4.3.</strong> No Claude co-author trailers on packages commits</a></li><li class="chapter-item expanded "><a href="../../call/0004-udpspeeder-simd-package-coexists-and-links-dynamically.html"><strong aria-hidden="true">4.4.</strong> The udpspeeder-simd package coexists with udpspeeder and links dynamically</a></li><li class="chapter-item expanded "><a href="../../call/0005-cross-build-adjustments-live-in-the-fork.html"><strong aria-hidden="true">4.5.</strong> Cross-build adjustments for udpspeeder-simd live in the fork</a></li><li class="chapter-item expanded "><a href="../../call/0006-udpspeeder-simd-release-binaries-are-not-yet-reproducible.html"><strong aria-hidden="true">4.6.</strong> udpspeeder-simd release binaries are not yet reproducible</a></li><li class="chapter-item expanded "><a href="../../call/0007-host-tools-are-pinned-and-hash-verified.html"><strong aria-hidden="true">4.7.</strong> The tools this host runs are pinned and hash-verified</a></li><li class="chapter-item expanded "><a href="../../call/0008-udpspeeder-simd-versioning-and-releases.html"><strong aria-hidden="true">4.8.</strong> udpspeeder-simd versioning and releases</a></li><li class="chapter-item expanded "><a href="../../call/0009-dns-lease-manager-cxx-single-header.html"><strong aria-hidden="true">4.9.</strong> The DNS lease manager ships as a C++-compatible single header</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Reference: how</li><li class="chapter-item expanded "><a href="../../CLAUDE.html"><strong aria-hidden="true">5.</strong> CLAUDE.md: operating manual for an agentic project</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="../../MIGRATION.html"><strong aria-hidden="true">5.1.</strong> MIGRATION.md: the process moved to the host repo</a></li><li class="chapter-item expanded "><a href="../../STRUCTURE.html"><strong aria-hidden="true">5.2.</strong> Structure</a></li><li class="chapter-item expanded "><a href="../../UPGRADING.html"><strong aria-hidden="true">5.3.</strong> UPGRADING.md: the version-to-version upgrade ledger</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">Memory</li><li class="chapter-item expanded "><a href="../../MEMORY.html"><strong aria-hidden="true">6.</strong> Memory</a></li></ol>
+            </div>
+            <div id="sidebar-resize-handle" class="sidebar-resize-handle">
+                <div class="sidebar-resize-indicator"></div>
+            </div>
+        </nav>
+
+        <!-- Track and set sidebar scroll position -->
+        <script>
+            var sidebarScrollbox = document.querySelector('#sidebar .sidebar-scrollbox');
+            sidebarScrollbox.addEventListener('click', function(e) {
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('sidebar-scroll', sidebarScrollbox.scrollTop);
+                }
+            }, { passive: true });
+            var sidebarScrollTop = sessionStorage.getItem('sidebar-scroll');
+            sessionStorage.removeItem('sidebar-scroll');
+            if (sidebarScrollTop) {
+                // preserve sidebar scroll position when navigating via links within sidebar
+                sidebarScrollbox.scrollTop = sidebarScrollTop;
+            } else {
+                // scroll sidebar to current active section when navigating via "next/previous chapter" buttons
+                var activeSection = document.querySelector('#sidebar .active');
+                if (activeSection) {
+                    activeSection.scrollIntoView({ block: 'center' });
+                }
+            }
+        </script>
+
+        <div id="page-wrapper" class="page-wrapper">
+
+            <div class="page">
+                                <div id="menu-bar-hover-placeholder"></div>
+                <div id="menu-bar" class="menu-bar sticky">
+                    <div class="left-buttons">
+                        <label id="sidebar-toggle" class="icon-button" for="sidebar-toggle-anchor" title="Toggle Table of Contents" aria-label="Toggle Table of Contents" aria-controls="sidebar">
+                            <i class="fa fa-bars"></i>
+                        </label>
+                        <button id="theme-toggle" class="icon-button" type="button" title="Change theme" aria-label="Change theme" aria-haspopup="true" aria-expanded="false" aria-controls="theme-list">
+                            <i class="fa fa-paint-brush"></i>
+                        </button>
+                        <ul id="theme-list" class="theme-popup" aria-label="Themes" role="menu">
+                            <li role="none"><button role="menuitem" class="theme" id="light">Light</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="rust">Rust</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="coal">Coal</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="navy">Navy</button></li>
+                            <li role="none"><button role="menuitem" class="theme" id="ayu">Ayu</button></li>
+                        </ul>
+                        <button id="search-toggle" class="icon-button" type="button" title="Search. (Shortkey: s)" aria-label="Toggle Searchbar" aria-expanded="false" aria-keyshortcuts="S" aria-controls="searchbar">
+                            <i class="fa fa-search"></i>
+                        </button>
+                    </div>
+
+                    <h1 class="menu-title">agentic-UDPspeeder-simd</h1>
+
+                    <div class="right-buttons">
+                        <a href="../../print.html" title="Print this book" aria-label="Print this book">
+                            <i id="print-button" class="fa fa-print"></i>
+                        </a>
+
+                    </div>
+                </div>
+
+                <div id="search-wrapper" class="hidden">
+                    <form id="searchbar-outer" class="searchbar-outer">
+                        <input type="search" id="searchbar" name="searchbar" placeholder="Search this book ..." aria-controls="searchresults-outer" aria-describedby="searchresults-header">
+                    </form>
+                    <div id="searchresults-outer" class="searchresults-outer hidden">
+                        <div id="searchresults-header" class="searchresults-header"></div>
+                        <ul id="searchresults">
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Apply ARIA attributes after the sidebar and the sidebar toggle button are added to the DOM -->
+                <script>
+                    document.getElementById('sidebar-toggle').setAttribute('aria-expanded', sidebar === 'visible');
+                    document.getElementById('sidebar').setAttribute('aria-hidden', sidebar !== 'visible');
+                    Array.from(document.querySelectorAll('#sidebar a')).forEach(function(link) {
+                        link.setAttribute('tabIndex', sidebar === 'visible' ? 0 : -1);
+                    });
+                </script>
+
+                <div id="content" class="content">
+                    <main>
+                        <h1 id="dns-lease-manager-for-udpspeeder-simd-v110"><a class="header" href="#dns-lease-manager-for-udpspeeder-simd-v110">DNS lease manager for udpspeeder-simd (v1.1.0)</a></h1>
+<ul>
+<li>Status: planned</li>
+<li>Persona: Diego (router administrator); Samira cross-cuts (spec lanes)</li>
+<li>Serves: Diego points the client at a hostname endpoint and the tunnel keeps itself
+alive across IP changes, TTL expiry, and tunnel collapse, without him watching</li>
+<li>Scope: the <code>udpspeeder-simd</code> component</li>
+<li>Decisions: <a href="../../call/0008-udpspeeder-simd-versioning-and-releases.html"><code>call/0008</code></a>
+(versioning and release policy), <a href="../../call/0009-dns-lease-manager-cxx-single-header.html"><code>call/0009</code></a>
+(the C++-compatible single header)</li>
+</ul>
+<h2 id="why"><a class="header" href="#why">Why</a></h2>
+<p>The client's <code>-r</code> option requires an IP literal today: <code>address_t::from_str</code>
+(<code>common.cpp</code>) splits <code>host:port</code> and demands <code>inet_pton</code> succeed, so a hostname calls
+<code>myexit(-1)</code>. Diego's gateway points at a server endpoint he controls on the far
+side; when that endpoint moves (dynamic DNS, provider IP churn), he must find the new
+address and hand-edit his configuration. A tunnel meant to be an appliance he does
+not babysit should follow the endpoint itself.</p>
+<p>This milestone adds a DNS lease manager: a single-header, allocation-free,
+nonblocking, TTL-aware DNS Locator-Hint Cache. The client resolves <code>-r hostname:port</code>
+to candidate IPs, leases them for an effective TTL, refreshes before expiry, and
+re-points the tunnel when the resolved IP changes. It treats DNS as an untrusted,
+mutable locator-hint source (the tunnel test the candidates via the data plane), not
+as a trust anchor. This is the first minor version bump (<code>v1.0.6</code> → <code>v1.1.0</code>); every
+release so far has been a patch.</p>
+<p>The OpenWrt feed package is out of scope here; the fork release is a prerequisite
+for a later package bump.</p>
+<h2 id="design-decisions"><a class="header" href="#design-decisions">Design decisions</a></h2>
+<ul>
+<li>The header is written as valid C++11 (<code>static inline</code> throughout) rather than
+strict C11, because the fork builds C++-only and the negative constraints the spec
+imposes (no allocation, <code>mem*</code> only, no OS resolver, no threads/atomics/signals,
+no recursion/<code>longjmp</code>, no float, no unaligned access, no global mutable state, no
+<code>stdio</code>) carry over unchanged. See <code>call/0009</code>.</li>
+<li>The state machine adds a <code>STALE</code> state to the spec's seven: on a failed refresh the
+last-known candidates stay servable until <code>stale_max_ms</code> elapses (default 1 hour;
+<code>0</code> means serve stale indefinitely). This is the keep-last-known-IP policy, made
+explicit, observable, and TLC-testable.</li>
+<li>TCP fallback on truncation (TC=1) is included, per RFC 1035 and the imported spec:
+the header gains UDP-pending / TCP-connecting / TCP-receiving transport states and
+a 4096-byte TCP receive buffer.</li>
+<li>Client mode only. In server mode the <code>-r</code> value names the client endpoint and stays
+IP-only; a hostname there is rejected at parse time with a clear error.</li>
+<li>Verification carries both spec lanes: a <code>.allium</code> requirements spec (allium-cli
+check/analyse/plan in the fork CI, obligations discharged by tests) and a <code>.tla</code>
+state-machine/timing spec (TLC model check in the fork CI). Specs live with the
+software, per the methodology.</li>
+<li>Release mechanics follow the house rule: the tag is the release; the banner
+<code>PROGRAM_VERSION</code> and the tag must agree; the fork CI publishes the per-architecture
+binaries; the host re-pins <code>.host-software</code> and records the release receipt.
+Versioning policy is recorded in <code>call/0008</code>.</li>
+</ul>
+<h2 id="build-sequence"><a class="header" href="#build-sequence">Build sequence</a></h2>
+<h3 id="dns-header"><a class="header" href="#dns-header">Author the DNS lease manager header</a></h3>
+<ul>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="allium-spec"><a class="header" href="#allium-spec">Author the allium requirements spec and wire its lane</a></h3>
+<ul>
+<li>depends: #dns-header</li>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="tla-spec"><a class="header" href="#tla-spec">Author the tla state-machine spec and wire TLC</a></h3>
+<ul>
+<li>depends: #dns-header</li>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="integrate"><a class="header" href="#integrate">Integrate the client</a></h3>
+<ul>
+<li>depends: #dns-header</li>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="tests"><a class="header" href="#tests">Discharge the spec obligations with tests</a></h3>
+<ul>
+<li>depends: #allium-spec, #tla-spec, #integrate</li>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="release"><a class="header" href="#release">Bump to v1.1.0 and release</a></h3>
+<ul>
+<li>depends: #tests</li>
+<li>verify: attested operator</li>
+</ul>
+<h3 id="repin"><a class="header" href="#repin">Re-pin the host and record the release</a></h3>
+<ul>
+<li>depends: #release</li>
+<li>verify: attested operator</li>
+</ul>
+
+                    </main>
+
+                    <nav class="nav-wrapper" aria-label="Page navigation">
+                        <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="../../plan/0000-openwrt-udpspeeder-simd-package/index.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
+
+                            <a rel="next prefetch" href="../../where.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
+
+                        <div style="clear: both"></div>
+                    </nav>
+                </div>
+            </div>
+
+            <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="../../plan/0000-openwrt-udpspeeder-simd-package/index.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
+
+                    <a rel="next prefetch" href="../../where.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
+            </nav>
+
+        </div>
+
+
+
+
+        <script>
+            window.playground_copyable = true;
+        </script>
+
+
+        <script src="../../elasticlunr.min.js"></script>
+        <script src="../../mark.min.js"></script>
+        <script src="../../searcher.js"></script>
+
+        <script src="../../clipboard.min.js"></script>
+        <script src="../../highlight.js"></script>
+        <script src="../../book.js"></script>
+
+        <!-- Custom JS scripts -->
+
+
+    </div>
+    </body>
+</html>
