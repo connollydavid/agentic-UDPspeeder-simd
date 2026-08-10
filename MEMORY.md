@@ -870,3 +870,10 @@ CLAUDE.md's scoping bullet is corrected to match. The flashprog commit on
 openwrt/packages PR 30228 drops the trailer, and at push time the body's
 "Requested in #29591" becomes "Closes #29591", so the merge still closes the
 issue.
+
+## Host-repo commits carry the DeepSeek co-author trailer
+
+Operator direction on 2026-08-10: the host repo's co-author trailer is
+`Co-Authored-By: DeepSeek V4 Flash 0731 <noreply@www.deepseek.com>`, not the
+Claude one. The packages worktree still carries no co-author trailer at all,
+per call/0003; only the name the host trailer carries has moved.
