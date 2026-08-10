@@ -9,3 +9,4 @@
     evidence = baseline 46a1fd2; up to date
     tool = host-lifecycle@0.35.1
     recorded = 2026-07-02
+applied = 1682d62 recorded=2026-08-10 via=verify
