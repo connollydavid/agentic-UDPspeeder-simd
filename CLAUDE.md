@@ -833,7 +833,7 @@ keeps the object addressable, so a stale reference still answers and fails only
 where it counts: a fresh clone fetches reachable objects alone, so
 `software --materialize` cannot check out a pin that was rebased away, and the
 gate dies two steps before the build it exists to verify. Six pins drifted this
-way and every host workflow stayed red for a day.
+way and the reproducible-build lane stayed red for a day.
 
 - **Re-pin in the same session as the rebase.** A force push to any branch
   recorded in `.host-software` obliges an update to that `pin` or `worktree`
