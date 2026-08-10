@@ -850,3 +850,23 @@ free edit.
 
 Read the green with care. v0.50.0 prints `0 builds verified here ... nothing to
 attest`, which is the honest summary: no component reproduces yet.
+
+## Correcting the upstream-reference entry: the closer belongs in the pull request body, not the commit
+
+The scoping bullet the entry above carried into CLAUDE.md said a commit in the
+packages worktree keeps its `Closes:` trailer because upstream requires it.
+Checked against openwrt/packages on 2026-08-10, that claim is wrong. Nothing
+requires it, and the tree's convention is the closing keyword in the pull
+request body, where it fires once at merge, rather than in the commit, where
+every push of an amended branch re-posts a reference on the issue. Four of the
+five most recently merged pull requests that closed an issue put the keyword in
+the body; the one exception (fluent-bit) used a commit trailer. openwrt/packages
+PR 30186 is the direct precedent: a new package, merged the same day, that
+closed its request issue from the body with no issue reference in any of its
+commits. The `openwrt-package-commit-style` manual in `host-lint-openwrt`
+states the rule and carries the corpus measurement behind it.
+
+CLAUDE.md's scoping bullet is corrected to match. The flashprog commit on
+openwrt/packages PR 30228 drops the trailer, and at push time the body's
+"Requested in #29591" becomes "Closes #29591", so the merge still closes the
+issue.
