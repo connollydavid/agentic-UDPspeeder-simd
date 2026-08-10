@@ -824,3 +824,29 @@ failure. A bump of the submodule to the v0.50.0 commit clears both. Note what th
 lane proves once it goes green: three components record no artifact and host-lint
 is waived, so every line is a skip or an exemption and no reproducibility is
 established yet.
+
+## Correcting the skew entry: the fix was `.env`, not a submodule bump
+
+The entry above proposed bumping the `tools/host-lifecycle` submodule. What
+landed is narrower and treats the cause instead of the symptom. All three
+workflows now install the `.env` pin and source `.env` for the path, so one
+binary answers for CI and for the local shell. Prose and mdBook went green at
+once, and the reproducible lane reports `WAIVED host-lint repro-waiver
+(call/0002)` with the other three skipped.
+
+How the pins stayed stale is the part worth keeping. The submodule pointer has
+exactly one commit in its whole history, `72a8e2e`, which wired it at v0.35.1,
+and nothing ever moved it, because `software --check` audits the components in
+`.host-software` and not the tools under `tools/`. `prose.yml` carried its own
+inline rev at v0.30.1. Every command run by hand used the newest binary
+available, so CI alone ever saw the old ones. A second source of truth is not a
+pin; it is a way for two answers to disagree without anyone noticing.
+
+One skew survives on purpose. The submodule still supplies the lifecycle skills
+that `.claude/skills/` links to, so those remain v0.35.1's while the binary is
+v0.50.0, and the `release` phase has no skill there at all. Bumping the
+submodule is what closes that, and it is a ledger-ordered action rather than a
+free edit.
+
+Read the green with care. v0.50.0 prints `0 builds verified here ... nothing to
+attest`, which is the honest summary: no component reproduces yet.
