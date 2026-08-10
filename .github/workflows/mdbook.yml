@@ -33,13 +33,28 @@ jobs:
           "$HL" book --check .
       - name: Build site
         run: mdbook build
-      # keep_files, because this publishes to the branch root and the default
-      # is to delete everything that is not in publish_dir. The apk feed lives
-      # at /apk on the same branch, and without this the next docs change would
-      # remove it silently, visible only to whoever tried to install from it.
+      - name: Resolve the book mount
+        id: mount
+        # A non-default `book-mount` publishes the book under a sub-path and keeps the
+        # surrounding site; the root default publishes at the branch root. The tool owns
+        # the normalisation, so the workflow reads the value rather than parsing the stamp.
+        run: |
+          HL=tools/host-lifecycle/target/release/host-lifecycle
+          MOUNT="$("$HL" book --print-mount .)"
+          if [ "$MOUNT" = "/" ]; then
+            echo "dir=" >> "$GITHUB_OUTPUT"
+          else
+            echo "dir=${MOUNT#/}" >> "$GITHUB_OUTPUT"
+          fi
+      # keep_files at every mount, unlike the reference workflow, which keeps files
+      # only under a sub-path. The default is to delete everything that is not in
+      # publish_dir, and the apk feed lives at /apk on this branch: at the root mount
+      # the reference setting would remove it silently, visible only to whoever tried
+      # to install from it.
       - name: Publish to gh-pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./mdBook/out
+          destination_dir: ${{ steps.mount.outputs.dir }}
           keep_files: true
