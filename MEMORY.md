@@ -877,3 +877,34 @@ Operator direction on 2026-08-10: the host repo's co-author trailer is
 `Co-Authored-By: DeepSeek V4 Flash 0731 <noreply@www.deepseek.com>`, not the
 Claude one. The packages worktree still carries no co-author trailer at all,
 per call/0003; only the name the host trailer carries has moved.
+
+## 2026-08-10 — v1.1.0 released: the DNS lease manager, the first minor bump
+
+The first minor version bump of udpspeeder-simd shipped as v1.1.0, carrying the
+DNS lease manager (plan/0001). The client's `-r` now accepts a hostname: a
+single-header, allocation-free, nonblocking DNS Locator-Hint Cache
+(`dns_lease_mgr.h`) resolves it, leases the candidate IPs for an effective TTL,
+refreshes before expiry, serves the last-known candidates while a refresh fails
+(the stale window, default 1 hour, 0 = never expire), falls back to TCP on
+truncation, and re-points the tunnel with a second `connect()` on the same fd
+so the io_uring multishot and ev_io watcher stay valid. ECONNREFUSED on the
+remote recv path force-refreshes; a FIFO `dns-refresh` command does it by hand.
+Server mode rejects hostnames in `-r`.
+
+Two decisions were recorded: call/0008 (versioning: minor = feature, patch =
+fix, the tag is the release, the banner must equal the tag) and call/0009 (the
+header is C++-compatible — every negative constraint of the C11 spec preserved,
+dialect shifted to the CXX-only build). The release process ran as the house
+process: fork commit 36641bc tagged v1.1.0, CI (now including the new allium
+and tlc spec lanes, which gate the release job) published seven static
+binaries, `.host-software` re-pinned, and the `release` receipt flipped from a
+stale `skip` to `done` (authorization plan/0001).
+
+The spec lanes are the notable new machinery in the fork's CI:
+`.github/workflows/ci.yml` gained an `allium` job (allium-cli 3.5.0 +
+host-lifecycle pinned, check/analyse/plan + obligations --strict-discharge)
+and a `tlc` job (tla2tools.jar v1.7.4, hash-pinned like bench/sde.lock). The
+obligations checker resolves `test:<name>` by `fn <name>(`, a Rust convention;
+the C++ bench tests carry a `/* fn <name>(...) */` marker comment before each
+test function so the checker brace-matches the real body. TLC writes
+`spec/DNSLease_TTrace_*` and a `states/` dir on runs; both are gitignored.
