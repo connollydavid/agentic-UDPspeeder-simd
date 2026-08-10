@@ -51,7 +51,7 @@
     # The flashprog package offered to openwrt/packages in issue 29591, and the
     # branch carrying the matrix that verifies it. The latter is ours alone and
     # is never offered upstream.
-    worktree = flashprog 2379c6bfa435b1884c61dbc0fa4e75f532d7d347
+    worktree = flashprog f176d9fe09ed37b97d461c4dd4ba604080125326
     worktree = ci-flashprog 75ff54251411ef5f8182d76a0d93e725b04d40e3
 
 # OpenWrt upstream (the buildroot). Embedded as a source pin on its canonical branch
