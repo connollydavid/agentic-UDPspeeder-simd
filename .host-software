@@ -18,7 +18,7 @@
 # claimed yet (add a recipe + repro-exempt, or a real artifact, before shipping).
 [software "udpspeeder-simd"]
     url    = https://github.com/connollydavid/UDPspeeder-simd.git
-    pin    = cf6bb414e5985edca45d26834253c2784d355cfc
+    pin    = 03b8369f05539430085a52eef03fd46ffa6bc620
     branch = branch_libev
     # This component publishes release binaries but records no build recipe or
     # artifact hash, because the build is not yet deterministic: the native line
@@ -38,20 +38,20 @@
     # The net/udpspeeder version bump offered to openwrt/packages, as its own
     # worktree rather than a checkout of the canonical one, so master stays at
     # its pin and both are inspectable at once.
-    worktree = udpspeeder-update-20260731 51a2696b59b4ab824380e6cabe9e3a1a53c619b8
+    worktree = udpspeeder-update-20260731 d9ef24250436f3557a851573abaa0468a8df5c09
     # The published feed, one branch per OpenWrt release line, snapshot
     # included. None is offered upstream. Each carries four packages,
     # net/udpspeeder-snapshot, net/udpspeeder-simd-snapshot and the two from
     # utils/flashprog-snapshot, which take names of their own rather than the
     # ones OpenWrt ships or is being asked to ship. It is published at
     # https://connollydavid.github.io/UDPspeeder-simd/feed and rebuilt weekly.
-    worktree = feed-25.12 b5facb064dc0da1f5ecd1d5ef288abbcd914fccf
-    worktree = feed-24.10 d4963746b6a8358e55e6ea7b2e5079de30a7a3a2
-    worktree = feed-main 5f675e024b433353c688be0ce9c8bf39ae969df0
+    worktree = feed-25.12 e4d5941c51a5dfaa668114d07ab3e130f0dd1c0b
+    worktree = feed-24.10 65400ddc585d69c8abc4372e778bc2658b13433f
+    worktree = feed-main 299cf25ad743303858fac693287b668865100a26
     # The flashprog package offered to openwrt/packages in issue 29591, and the
     # branch carrying the matrix that verifies it. The latter is ours alone and
     # is never offered upstream.
-    worktree = flashprog e145aea85d278e7d6a96214abc67a1213a85c2da
+    worktree = flashprog 2379c6bfa435b1884c61dbc0fa4e75f532d7d347
     worktree = ci-flashprog 75ff54251411ef5f8182d76a0d93e725b04d40e3
 
 # OpenWrt upstream (the buildroot). Embedded as a source pin on its canonical branch
