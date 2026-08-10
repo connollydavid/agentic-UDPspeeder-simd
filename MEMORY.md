@@ -767,3 +767,22 @@ Three smaller findings from settling the recipe.
   `#if defined(__i386__) || defined(__x86_64__)` physmap block, so on a non-x86 build with
   `LINUX_MTD_AS_INTERNAL` the MTD path is reached first and succeeds on its own. This is what lets
   the commit message say the group is redundant off x86 rather than merely unsupported.
+
+## 2026-08-10 — the tools this host runs are now pinned like the software it builds
+
+Every tool reached through whatever the machine carried: node and allium from
+`~/.local`, java from `/usr/sbin`, `tla2tools.jar` from a home share. A generated
+pre-push hook had `$HOME/.local/bin/node` baked in, so it worked here and nowhere
+else, and a stale `target/release/host-lint` six minor versions behind the binary
+on PATH turned a green integration suite red until the cause was found.
+
+`.env` now names each tool's version and in-tree path; `tools/install-tools.sh`
+fetches them into `.host-tools/` and verifies each sha256 before unpacking.
+Recorded as `call/0007`. The general form belongs upstream in the template.
+
+Two findings worth keeping. `allium-cli` does not install from crates.io at 3.4.2
+or 3.5.0 without `--locked`, because it resolves a newer `allium-parser` whose
+`analyze_with_cross_module` grew arguments. And host-lint before v0.13.0 failed
+closed on any submodule gitlink, so no `git submodule add` could land in a gated
+host; upstream had fixed it a month before this host noticed, which is the
+argument for comparing a pin against `origin/main` before writing a patch.
