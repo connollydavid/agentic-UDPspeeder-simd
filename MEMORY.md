@@ -786,3 +786,41 @@ or 3.5.0 without `--locked`, because it resolves a newer `allium-parser` whose
 closed on any submodule gitlink, so no `git submodule add` could land in a gated
 host; upstream had fixed it a month before this host noticed, which is the
 argument for comparing a pin against `origin/main` before writing a patch.
+
+## 2026-08-10 — this host must not reference an upstream tracker, and a rebase obliges a re-pin
+
+A commit message pushed from this public host that carries `owner/repo#N` or a
+`github.com/<owner>/<repo>/(issues|pull|commit)/` URL makes GitHub post a
+`referenced` timeline event on the target. Two host commits had already done it,
+one through each form, so this governance repo surfaced inside an upstream thread
+about the package.
+
+The event cannot be retracted. Issue events are read-only in the REST API, and a
+force push only makes the commit unreachable while GitHub keeps it addressable by
+SHA. After the offending commit was rewritten out of this history, the API still
+resolved it and the event still rendered. The remaining levers are a support
+request, a delete-and-recreate of the repo, or making it private. Prevention is
+therefore the whole remedy, so `tools/crossref-check.sh` installs as the
+`pre-push` hook and refuses either form. It cannot gate an issue or pull request
+body posted through `gh`, which stays a matter of care.
+
+The same rewrite taught the second rule. A rebase strands every reference to what
+it rewrote. Six pins in `.host-software` named commits that later force pushes
+had made unreachable, and a fresh clone fetches reachable objects alone, so
+`software --materialize` could not check them out and exited 2. The
+reproducible-build lane had been red for a day, and it died two steps before the
+build it exists to verify, so it never built anything at all. Reachability is the
+test: the API resolves an unreachable object and proves nothing, while `git
+ls-remote --heads` lists what a clone will actually get. Both rules are now
+priority rules in `CLAUDE.md`.
+
+One more thing surfaced and is not yet fixed. Four host-lifecycle versions read
+this project: the `tools/host-lifecycle` submodule at 0.35.1, which the mdBook
+and reproducible-build workflows build from, `.env` at v0.50.0 for local use, and
+a git rev in `prose.yml`. Version 0.35.1 parses only `repro-exempt`, so it reads
+the `repro-waiver` lines an applied ledger entry introduced as absent and reports
+host-lint as DRIFT, and it has no `book --print-mount`, which is the mdBook
+failure. A bump of the submodule to the v0.50.0 commit clears both. Note what the
+lane proves once it goes green: three components record no artifact and host-lint
+is waived, so every line is a skip or an exemption and no reproducibility is
+established yet.
