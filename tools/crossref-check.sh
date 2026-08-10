@@ -7,7 +7,7 @@ ROOT=$(cd "$(dirname "$0")/.." && pwd)
 PATTERN='[A-Za-z0-9._-]+/[A-Za-z0-9._-]+#[0-9]+|github\.com/[A-Za-z0-9._-]+/[A-Za-z0-9._-]+/(issues|pull|commit)/'
 
 usage() {
-	echo "usage: crossref-check.sh <range> | --message <file> | --install" >&2
+	echo "usage: crossref-check.sh <rev-list args> | --message <file> | --install" >&2
 	exit 2
 }
 
@@ -27,7 +27,7 @@ remedy() {
 
 scan_range() {
 	status=0
-	for sha in $(git rev-list "$1"); do
+	for sha in $(git rev-list "$@"); do
 		hits=$(git log -1 --format=%B "$sha" | grep -nEi "$PATTERN" || true)
 		if [ -n "$hits" ]; then
 			report "$sha $(git log -1 --format=%s "$sha")" "$hits"
@@ -62,11 +62,10 @@ STATUS=0
 while read -r _local_ref local_sha _remote_ref remote_sha; do
 	[ "\$local_sha" = "0000000000000000000000000000000000000000" ] && continue
 	if [ "\$remote_sha" != "0000000000000000000000000000000000000000" ]; then
-		RANGE="\$remote_sha..\$local_sha"
+		$ROOT/tools/crossref-check.sh "\$remote_sha..\$local_sha" || STATUS=1
 	else
-		RANGE="\$local_sha~1..\$local_sha"
+		$ROOT/tools/crossref-check.sh "\$local_sha" --not --remotes || STATUS=1
 	fi
-	$ROOT/tools/crossref-check.sh "\$RANGE" || STATUS=1
 done
 
 exit \$STATUS
@@ -79,5 +78,5 @@ case "${1:-}" in
 "") usage ;;
 --install) install_hook ;;
 --message) [ -n "${2:-}" ] || usage; scan_message "$2" ;;
-*) scan_range "$1" ;;
+*) scan_range "$@" ;;
 esac
