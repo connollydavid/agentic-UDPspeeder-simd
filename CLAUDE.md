@@ -826,6 +826,25 @@ did this before the rule existed, one through each form.
 - **A minted event cannot be retracted.** No API deletes it, and a force push
   only makes the commit unreachable. Prevention is the whole remedy.
 
+## Priority rule: a rebase updates every reference to what it rewrote
+
+A rebase, an amend or a force push makes the old commit unreachable. GitHub
+keeps the object addressable, so a stale reference still answers and fails only
+where it counts: a fresh clone fetches reachable objects alone, so
+`software --materialize` cannot check out a pin that was rebased away, and the
+gate dies two steps before the build it exists to verify. Six pins drifted this
+way and every host workflow stayed red for a day.
+
+- **Re-pin in the same session as the rebase.** A force push to any branch
+  recorded in `.host-software` obliges an update to that `pin` or `worktree`
+  line. Push it with the rebase rather than leaving it for later.
+- **Reachability is the test, not resolvability.** The API resolves an
+  unreachable object, so a successful lookup proves nothing. Compare against
+  `git ls-remote --heads`, which lists only what a clone will fetch.
+- **A record that cannot be re-pinned is superseded, not edited.** A `call/`
+  decision or a `MEMORY.md` entry naming a rewritten SHA earns a new entry that
+  points back, under the append-only rule.
+
 ## Project specifics: UDPspeeder-simd
 
 The rules above are the inherited spine. The facts below are this project's own,
