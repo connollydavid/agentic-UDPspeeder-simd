@@ -45,6 +45,13 @@ rather than a hash we copied: node against the published `SHASUMS256.txt`, the
 JDK against the Adoptium API's checksum. Where none exists, the recorded hash is
 the one this project pinned, and a change to it is a visible diff.
 
+Two mechanisms exist, and each tool uses exactly one. `host-lint` is a Where-room
+component: `.host-software` already carries its pin, its artifact sha256, and the
+hooks it installs, and `software --install-hooks` verifies the binary against
+that hash. It is not repeated in `.env`, because a hash recorded twice is a hash
+that can disagree with itself. Everything else, node, the JDK, `tla2tools.jar`,
+`host-lifecycle` and `allium`, is pinned in `.env` and fetched by the script.
+
 ## Consequences
 
 A fresh clone gets the same tool versions as this one, and a drifted download

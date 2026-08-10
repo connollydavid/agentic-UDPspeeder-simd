@@ -61,6 +61,14 @@ install_tla2tools() {
 	echo "tlc     $TLA2TOOLS_VERSION (installed)"
 }
 
+install_host_lifecycle() {
+	[ -x "$ROOT/$HOST_LIFECYCLE" ] && { echo "lifecycle $("$ROOT/$HOST_LIFECYCLE" --version 2>&1 | head -1) (present)"; return; }
+	mkdir -p "$(dirname "$ROOT/$HOST_LIFECYCLE")"
+	fetch_verified "$HOST_LIFECYCLE_URL" "$HOST_LIFECYCLE_SHA256" "$ROOT/$HOST_LIFECYCLE"
+	chmod 755 "$ROOT/$HOST_LIFECYCLE"
+	echo "lifecycle $("$ROOT/$HOST_LIFECYCLE" --version 2>&1 | head -1) (installed)"
+}
+
 install_allium() {
 	[ -x "$ROOT/$ALLIUM" ] && { echo "allium  $("$ROOT/$ALLIUM" --version 2>&1 | head -1) (present)"; return; }
 	cargo install --locked --root "$DEST/allium" "allium-cli@$ALLIUM_VERSION"
@@ -71,15 +79,17 @@ case "${1:-all}" in
 node) install_node ;;
 jdk) install_jdk ;;
 tla2tools) install_tla2tools ;;
+host-lifecycle) install_host_lifecycle ;;
 allium) install_allium ;;
 all)
 	install_node
 	install_jdk
 	install_tla2tools
+	install_host_lifecycle
 	install_allium
 	;;
 *)
-	echo "usage: install-tools.sh [all|node|jdk|tla2tools|allium]" >&2
+	echo "usage: install-tools.sh [all|node|jdk|tla2tools|host-lifecycle|allium]" >&2
 	exit 2
 	;;
 esac
