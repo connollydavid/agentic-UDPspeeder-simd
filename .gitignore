@@ -23,3 +23,7 @@ tools/formality-check/
 # Generated skill links: recreated by link-skills.sh after materialization, so a
 # fresh clone that has not materialized the tools carries no dangling symlink.
 /.claude/skills/*
+
+# Project-local tool installs: fetched by tools/install-tools.sh at the pinned
+# versions in .env, verified by sha256, never committed.
+/.host-tools/
