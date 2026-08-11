@@ -3012,6 +3012,30 @@ obligations checker resolves <code>test:&lt;name&gt;</code> by <code>fn &lt;name
 the C++ bench tests carry a <code>/* fn &lt;name&gt;(...) */</code> marker comment before each
 test function so the checker brace-matches the real body. TLC writes
 <code>spec/DNSLease_TTrace_*</code> and a <code>states/</code> dir on runs; both are gitignored.</p>
+<h2 id="2026-08-11--the-dns-lease-manager-verification-gaps-are-closed"><a class="header" href="#2026-08-11--the-dns-lease-manager-verification-gaps-are-closed">2026-08-11 — the DNS lease manager verification gaps are closed</a></h2>
+<p>A review of the v1.1.0 verification found five gaps; all are now closed. The
+DNS response parser was never fuzzed (the fuzz target only covered the packet
+decoder), so <code>bench/fuzz_dns_lease.cpp</code> now feeds mutated responses to
+<code>dns_lease_parse_response</code> under ASan/UBSan — a bounded random driver and a
+libFuzzer target (<code>make fuzz-dns</code> / <code>fuzz-dns-libfuzzer</code>), wired into CI. The
+<code>stale_max_ms == 0</code> sentinel (serve stale indefinitely) was untested on both
+lanes: a C++ case now advances a stale lease ten days and asserts it never
+gives up, and the TLA+ <code>StaleGiveUp</code> gained the <code>StaleMax &gt; 0</code> guard the header
+already had, with a second model instance (<code>MC-stale0.cfg</code>).</p>
+<p>The live runtime paths were never exercised end to end: the create-on-first-
+lease socket, the re-point on a candidate change, and the TCP fallback on a
+truncated answer. A python DNS stub (<code>bench/dns_stub.py</code>) on port 53 plus a
+driver (<code>bench/dns-live-test.sh</code>) now run the real client against real servers
+in CI, and the Windows build is exercised under Wine (<code>make test-mingw</code> +
+<code>wine64</code>), compiling the header's Windows PAL for the first time.</p>
+<p>Two pre-existing fork bugs surfaced: <code>lib/fec.cpp</code> cast a pointer to <code>long</code>
+(32-bit on Windows x64 -&gt; precision loss), fixed with <code>(intptr_t)</code>; and
+<code>xor_spe.S</code> kept its comment outside the HAVE_PPC_SPE guard, so the MinGW
+assembler choked on it — the guard now covers the whole file. The live lane
+also needed its resolv.conf written via a bind mount (a runner's
+/etc/resolv.conf is systemd-resolved's and not writable even as root). The
+obligations checker's <code>fn &lt;name&gt;(</code> marker convention (Rust-oriented) applies to
+the new test functions too.</p>
 
                     </main>
 
