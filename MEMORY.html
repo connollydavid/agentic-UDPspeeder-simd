@@ -1073,6 +1073,35 @@ also needed its resolv.conf written via a bind mount (a runner's
 /etc/resolv.conf is systemd-resolved's and not writable even as root). The
 obligations checker's <code>fn &lt;name&gt;(</code> marker convention (Rust-oriented) applies to
 the new test functions too.</p>
+<h2 id="2026-08-11--branch_libev-split-udpspeeder-only-vs-the-feed-and-the-persona-in-commit-rule"><a class="header" href="#2026-08-11--branch_libev-split-udpspeeder-only-vs-the-feed-and-the-persona-in-commit-rule">2026-08-11 — branch_libev split: udpspeeder-only vs the feed, and the persona-in-commit rule</a></h2>
+<p>The fork's <code>branch_libev</code> carried two streams interleaved in one linear chain:
+39 commits of OpenWrt feed-publishing work (the <code>d0e497a..03b8369</code> span) sat
+between the pre-feed udpspeeder work and the v1.1.0 DNS-lease run. The branch
+was split by rebuilding both streams on the pre-feed tip <code>ef92d69</code>:</p>
+<ul>
+<li><code>branch_libev</code> is now udpspeeder-only: pre-feed history + the 4 banner/
+version commits (<code>2f8ad9d</code>..<code>b4ef0d9</code>, tagged v1.0.4/5/6) + the 5 DNS-lease
+commits, re-rooted onto <code>ef92d69</code>. New tip <code>e33aa71</code>. The feed files
+(<code>.github/scripts/*</code>, <code>package-feed.yml</code>) are gone from the branch.</li>
+<li><code>feed-snapshot</code> is the new feed branch: <code>ef92d69</code> + the 29 feed-machinery
+commits only (no banner, no DNS). Tip <code>7acdf4e</code>. No tags live on it.</li>
+</ul>
+<p>The re-root rewrote the DNS commits, so the v1.1.0 version-bump commit is now
+<code>ba6e4ab</code> (was <code>36641bc</code>). The four <code>v1.*</code> tags were NOT moved: the fork has a
+tag-protection rule blocking in-place tag updates (deletion and creation both
+pass; only update is blocked — GH013 "Cannot update this protected ref"). The
+tags stay at their old commits, which remain reachable through the tag objects
+and feed-snapshot's history. The release receipt's evidence (<code>tag v1.1.0 at 36641bc</code>) is still literally true because the tag never moved. Re-pinning the
+host to the new tip was done in the same session; the tag/pin pair is now
+forked (tag at the old commit, pin at the new tip) by the protection rule's
+choice, not by oversight.</p>
+<p>The rule that fired here: <strong>a commit message is the record of who did what; a
+persona is a planning fiction, not a doer.</strong> Commit <code>8b67771</code> opened its body
+"Samira's lane is now full" — a persona named as the author of verification
+work. Rewritten as <code>7da6e1f</code> ("The DNS response parser gets the fuzz
+treatment...") with the trailer kept. The cast-room commits that <em>introduce or
+revise</em> a persona may name it (that is their subject); a software-work commit
+may not attribute the work to one.</p>
 
                     </main>
 
