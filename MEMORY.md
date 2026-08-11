@@ -969,3 +969,30 @@ work. Rewritten as `7da6e1f` ("The DNS response parser gets the fuzz
 treatment...") with the trailer kept. The cast-room commits that *introduce or
 revise* a persona may name it (that is their subject); a software-work commit
 may not attribute the work to one.
+
+## 2026-08-11 — canonical branch renamed branch_libev → main
+
+The udpspeeder-simd fork's canonical branch moved from `branch_libev` to `main`
+(the rename the split had been leading to). The fork's `main` is at `845df57`
+(the ci.yml rename commit), the GitHub default branch is `main`, and remote
+`branch_libev` is deleted. `feed-snapshot` keeps its name.
+
+The rename surface, all moved in the same pass: the 5 `branch_libev`
+references in `.github/workflows/ci.yml` (the push/pull_request trigger filters
+and the benchmark-storage conditions) — a rename without them silently stops CI
+on pushes to the new branch — plus the host's `.host-software` `branch = main`
+(pin `845df57`) and the CLAUDE.md canonical-branch fact. Call/0000's mention of
+the adoption-time `branch_libev` is left as the historical record it is.
+
+The worktree was re-registered at `software/udpspeeder-simd/main/` from the
+bare store. A `git worktree move` to the new name left a phantom `main_old/`
+directory entry on the WSL /mnt/c filesystem (stat/find ENOENT yet the listing
+shows it; rmdir "not empty") — a DrvFS cache artifact of the interrupted
+rename, invisible to the host gate. A `wsl --shutdown` or a C: remount clears
+it; it is cosmetic.
+
+Release health after the split + rename: the release job is tag-triggered
+(`tags: ['v*']` + a ref-starts-with test) and branch-agnostic — a future tag
+cut on `main` publishes normally, and the eight verification jobs it needs all
+run on the new branch. The v1.1.0 release's own tag was never moved (tag
+protection blocks in-place updates), so its evidence stays true.

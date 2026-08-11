@@ -861,8 +861,8 @@ recorded so an agent does not have to re-derive them from the code.
   CMake (`cmake -B build && cmake --build build`). The software is C++ only.
 - **Style.** `.clang-format` is authoritative; match the surrounding file exactly
   (braces, indentation, naming) rather than restyling.
-- **Canonical branch.** `branch_libev`, not `main`. The audited worktree is
-  `software/udpspeeder-simd/branch_libev/`, pinned in `.host-software`.
+- **Canonical branch.** `main`. The audited worktree is
+  `software/udpspeeder-simd/main/`, pinned in `.host-software`.
 - **License.** The software is MIT (its `LICENSE.md` lives in the worktree). This
   governance shell is Unlicense. Keep the two separate.
 - **Reproducibility.** Brought under the methodology, not initiated by it: the
