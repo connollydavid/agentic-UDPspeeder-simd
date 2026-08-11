@@ -608,7 +608,7 @@ Versioning policy is recorded in <code>call/0008</code>.</li>
 <h2 id="udpspeeder-simd"><a class="header" href="#udpspeeder-simd">udpspeeder-simd</a></h2>
 <ul>
 <li>url: https://github.com/connollydavid/UDPspeeder-simd.git</li>
-<li>pin: <code>e33aa716e475458c691cf901af4625e19d6c8926</code></li>
+<li>pin: <code>845df573c827382ba751d7e52d26a7f8066adcf1</code></li>
 <li>worktrees: none (single canonical line)</li>
 </ul>
 <h2 id="packages"><a class="header" href="#packages">packages</a></h2>
@@ -1793,8 +1793,8 @@ lossy link with Reed-Solomon redundancy. SIMD-accelerated. Forked from UDPspeede
 CMake (<code>cmake -B build &amp;&amp; cmake --build build</code>). The software is C++ only.</li>
 <li><strong>Style.</strong> <code>.clang-format</code> is authoritative; match the surrounding file exactly
 (braces, indentation, naming) rather than restyling.</li>
-<li><strong>Canonical branch.</strong> <code>branch_libev</code>, not <code>main</code>. The audited worktree is
-<code>software/udpspeeder-simd/branch_libev/</code>, pinned in <code>.host-software</code>.</li>
+<li><strong>Canonical branch.</strong> <code>main</code>. The audited worktree is
+<code>software/udpspeeder-simd/main/</code>, pinned in <code>.host-software</code>.</li>
 <li><strong>License.</strong> The software is MIT (its <code>LICENSE.md</code> lives in the worktree). This
 governance shell is Unlicense. Keep the two separate.</li>
 <li><strong>Reproducibility.</strong> Brought under the methodology, not initiated by it: the
@@ -3065,6 +3065,28 @@ work. Rewritten as <code>7da6e1f</code> ("The DNS response parser gets the fuzz
 treatment...") with the trailer kept. The cast-room commits that <em>introduce or
 revise</em> a persona may name it (that is their subject); a software-work commit
 may not attribute the work to one.</p>
+<h2 id="2026-08-11--canonical-branch-renamed-branch_libev--main"><a class="header" href="#2026-08-11--canonical-branch-renamed-branch_libev--main">2026-08-11 — canonical branch renamed branch_libev → main</a></h2>
+<p>The udpspeeder-simd fork's canonical branch moved from <code>branch_libev</code> to <code>main</code>
+(the rename the split had been leading to). The fork's <code>main</code> is at <code>845df57</code>
+(the ci.yml rename commit), the GitHub default branch is <code>main</code>, and remote
+<code>branch_libev</code> is deleted. <code>feed-snapshot</code> keeps its name.</p>
+<p>The rename surface, all moved in the same pass: the 5 <code>branch_libev</code>
+references in <code>.github/workflows/ci.yml</code> (the push/pull_request trigger filters
+and the benchmark-storage conditions) — a rename without them silently stops CI
+on pushes to the new branch — plus the host's <code>.host-software</code> <code>branch = main</code>
+(pin <code>845df57</code>) and the CLAUDE.md canonical-branch fact. Call/0000's mention of
+the adoption-time <code>branch_libev</code> is left as the historical record it is.</p>
+<p>The worktree was re-registered at <code>software/udpspeeder-simd/main/</code> from the
+bare store. A <code>git worktree move</code> to the new name left a phantom <code>main_old/</code>
+directory entry on the WSL /mnt/c filesystem (stat/find ENOENT yet the listing
+shows it; rmdir "not empty") — a DrvFS cache artifact of the interrupted
+rename, invisible to the host gate. A <code>wsl --shutdown</code> or a C: remount clears
+it; it is cosmetic.</p>
+<p>Release health after the split + rename: the release job is tag-triggered
+(<code>tags: ['v*']</code> + a ref-starts-with test) and branch-agnostic — a future tag
+cut on <code>main</code> publishes normally, and the eight verification jobs it needs all
+run on the new branch. The v1.1.0 release's own tag was never moved (tag
+protection blocks in-place updates), so its evidence stays true.</p>
 
                     </main>
 
