@@ -908,3 +908,31 @@ obligations checker resolves `test:<name>` by `fn <name>(`, a Rust convention;
 the C++ bench tests carry a `/* fn <name>(...) */` marker comment before each
 test function so the checker brace-matches the real body. TLC writes
 `spec/DNSLease_TTrace_*` and a `states/` dir on runs; both are gitignored.
+
+## 2026-08-11 — the DNS lease manager verification gaps are closed
+
+A review of the v1.1.0 verification found five gaps; all are now closed. The
+DNS response parser was never fuzzed (the fuzz target only covered the packet
+decoder), so `bench/fuzz_dns_lease.cpp` now feeds mutated responses to
+`dns_lease_parse_response` under ASan/UBSan — a bounded random driver and a
+libFuzzer target (`make fuzz-dns` / `fuzz-dns-libfuzzer`), wired into CI. The
+`stale_max_ms == 0` sentinel (serve stale indefinitely) was untested on both
+lanes: a C++ case now advances a stale lease ten days and asserts it never
+gives up, and the TLA+ `StaleGiveUp` gained the `StaleMax > 0` guard the header
+already had, with a second model instance (`MC-stale0.cfg`).
+
+The live runtime paths were never exercised end to end: the create-on-first-
+lease socket, the re-point on a candidate change, and the TCP fallback on a
+truncated answer. A python DNS stub (`bench/dns_stub.py`) on port 53 plus a
+driver (`bench/dns-live-test.sh`) now run the real client against real servers
+in CI, and the Windows build is exercised under Wine (`make test-mingw` +
+`wine64`), compiling the header's Windows PAL for the first time.
+
+Two pre-existing fork bugs surfaced: `lib/fec.cpp` cast a pointer to `long`
+(32-bit on Windows x64 -> precision loss), fixed with `(intptr_t)`; and
+`xor_spe.S` kept its comment outside the HAVE_PPC_SPE guard, so the MinGW
+assembler choked on it — the guard now covers the whole file. The live lane
+also needed its resolv.conf written via a bind mount (a runner's
+/etc/resolv.conf is systemd-resolved's and not writable even as root). The
+obligations checker's `fn <name>(` marker convention (Rust-oriented) applies to
+the new test functions too.
