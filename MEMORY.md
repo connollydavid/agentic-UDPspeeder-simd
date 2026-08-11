@@ -936,3 +936,36 @@ also needed its resolv.conf written via a bind mount (a runner's
 /etc/resolv.conf is systemd-resolved's and not writable even as root). The
 obligations checker's `fn <name>(` marker convention (Rust-oriented) applies to
 the new test functions too.
+
+## 2026-08-11 — branch_libev split: udpspeeder-only vs the feed, and the persona-in-commit rule
+
+The fork's `branch_libev` carried two streams interleaved in one linear chain:
+39 commits of OpenWrt feed-publishing work (the `d0e497a..03b8369` span) sat
+between the pre-feed udpspeeder work and the v1.1.0 DNS-lease run. The branch
+was split by rebuilding both streams on the pre-feed tip `ef92d69`:
+
+- `branch_libev` is now udpspeeder-only: pre-feed history + the 4 banner/
+  version commits (`2f8ad9d`..`b4ef0d9`, tagged v1.0.4/5/6) + the 5 DNS-lease
+  commits, re-rooted onto `ef92d69`. New tip `e33aa71`. The feed files
+  (`.github/scripts/*`, `package-feed.yml`) are gone from the branch.
+- `feed-snapshot` is the new feed branch: `ef92d69` + the 29 feed-machinery
+  commits only (no banner, no DNS). Tip `7acdf4e`. No tags live on it.
+
+The re-root rewrote the DNS commits, so the v1.1.0 version-bump commit is now
+`ba6e4ab` (was `36641bc`). The four `v1.*` tags were NOT moved: the fork has a
+tag-protection rule blocking in-place tag updates (deletion and creation both
+pass; only update is blocked — GH013 "Cannot update this protected ref"). The
+tags stay at their old commits, which remain reachable through the tag objects
+and feed-snapshot's history. The release receipt's evidence (`tag v1.1.0 at
+36641bc`) is still literally true because the tag never moved. Re-pinning the
+host to the new tip was done in the same session; the tag/pin pair is now
+forked (tag at the old commit, pin at the new tip) by the protection rule's
+choice, not by oversight.
+
+The rule that fired here: **a commit message is the record of who did what; a
+persona is a planning fiction, not a doer.** Commit `8b67771` opened its body
+"Samira's lane is now full" — a persona named as the author of verification
+work. Rewritten as `7da6e1f` ("The DNS response parser gets the fuzz
+treatment...") with the trailer kept. The cast-room commits that *introduce or
+revise* a persona may name it (that is their subject); a software-work commit
+may not attribute the work to one.

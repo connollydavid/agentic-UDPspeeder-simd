@@ -18,7 +18,7 @@
 # claimed yet (add a recipe + repro-exempt, or a real artifact, before shipping).
 [software "udpspeeder-simd"]
     url    = https://github.com/connollydavid/UDPspeeder-simd.git
-    pin    = 36641bcf10eb9eb3bd3e934b1293d105316ba1d3
+    pin    = e33aa716e475458c691cf901af4625e19d6c8926
     branch = branch_libev
     # This component publishes release binaries but records no build recipe or
     # artifact hash, because the build is not yet deterministic: the native line
