@@ -60,3 +60,52 @@
     evidence = net/udpspeeder-simd/test.sh and pre-test.sh ship on feed-main, feed-25.12 and feed-24.10 at their .host-software pins; no lane here runs it, the qemu sweep runs its own packet-test.sh
     tool = host-lifecycle@0.49.3
     recorded = 2026-08-06
+
+[receipt "plan/0001#dns-header"]
+    disposition = done
+    verify = attested operator
+    evidence = dns_lease_mgr.h authored as a C++-compatible single header (call/0009); 85 offline tests in bench/test_dns_lease.cpp pass under make test and make test-sanitize
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
+
+[receipt "plan/0001#allium-spec"]
+    disposition = done
+    verify = attested operator
+    evidence = dns_lease_mgr.allium authored; allium check/analyse/plan green; dns_lease_mgr.obligations dispositioned (46 obligations), --strict-discharge green
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
+
+[receipt "plan/0001#tla-spec"]
+    disposition = done
+    verify = attested operator
+    evidence = spec/DNSLease.tla + spec/MC.cfg authored; TLC green: 7 safety invariants + liveness property, 2.9M states, no error
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
+
+[receipt "plan/0001#integrate"]
+    disposition = done
+    verify = attested operator
+    evidence = client -r hostname parsing, tick wiring in conn_timer_cb, re-point via second connect(), ECONNREFUSED force-refresh, FIFO dns-refresh; real-socket resolution verified against the WSL resolver
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
+
+[receipt "plan/0001#tests"]
+    disposition = done
+    verify = attested operator
+    evidence = DNS tests wired into make test (TEST_SOURCES); allium obligations discharged by the bench tests; CI gained allium + tlc jobs that gate the release
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
+
+[receipt "plan/0001#release"]
+    disposition = done
+    verify = attested operator
+    evidence = v1.1.0 tagged at 36641bc; CI run 31438465532 green (test, build-static x7, cpu-dispatch, interop, allium, tlc); 7 static binaries published, sha256 verified
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
+
+[receipt "plan/0001#repin"]
+    disposition = done
+    verify = attested operator
+    evidence = .host-software udpspeeder-simd pin moved to 36641bc; release receipt recorded done (authorization plan/0001); MEMORY.md entry appended
+    tool = host-lifecycle@0.50.0
+    recorded = 2026-08-11
