@@ -996,3 +996,23 @@ Release health after the split + rename: the release job is tag-triggered
 cut on `main` publishes normally, and the eight verification jobs it needs all
 run on the new branch. The v1.1.0 release's own tag was never moved (tag
 protection blocks in-place updates), so its evidence stays true.
+
+## 2026-08-11 — feed branches rewritten to a single compliant commit; v1.1.0 in the feed
+
+The packages repo's three feed branches (feed-main, feed-25.12, feed-24.10)
+carried ~24 commits each that failed the repo's formality-check hook (missing
+Signed-off-by, bad subjects, empty bodies, patch files without git headers) and
+were a newer-upstream sync plus the snapshot packages, only the snapshot dirs
+of which the feed workflow actually uses. Each branch was rebuilt as a single
+compliant commit on master (1d40ad9) carrying only the three snapshot package
+dirs (udpspeeder-snapshot, udpspeeder-simd-snapshot at v1.1.0, flashprog-snapshot)
+with git-header'd patches and a Signed-off-by. All three are now identical at
+387ae05; the formality-check passes with errors=0.
+
+The fork's feed-snapshot branch was reduced in the same pass to an orphan stub
+(e2f9a85) carrying only the feed workflow + scripts, no udpspeeder source. A
+dispatch from it built and published 111 jobs green, confirming the stub. The
+v1.1.0 bump (PKG_VERSION 1.0.6 to 1.1.0, PKG_MIRROR_HASH recomputed via the
+OpenWrt dl_tar_pack method: git archive, then tar --sort=name --owner=0
+--group=0 --mode=a-s --mtime=@<commit-time>, then zstd -T0 --ultra -20) ships
+through the feed once a dispatch runs against the rewritten branches.
