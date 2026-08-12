@@ -1016,3 +1016,17 @@ v1.1.0 bump (PKG_VERSION 1.0.6 to 1.1.0, PKG_MIRROR_HASH recomputed via the
 OpenWrt dl_tar_pack method: git archive, then tar --sort=name --owner=0
 --group=0 --mode=a-s --mtime=@<commit-time>, then zstd -T0 --ultra -20) ships
 through the feed once a dispatch runs against the rewritten branches.
+
+## 2026-08-12 — release assets are immutable; v1.0.0 left as an accepted rebuild
+
+Release assets are treated as immutable. Deleting or restoring a v* tag
+re-triggers the tag-driven release workflow, which rebuilds and replaces the
+published binaries; the build is non-reproducible (call/0006, the runner's g++
+varies), so a rebuild changes the bytes even from the same source. A
+tag-protection probe during the split work deleted and restored v1.0.0, which
+re-published its two binaries on 2026-08-11 (built from d266e37, the same
+source as the original 2026-08-02 release, but different bytes). The v1.0.0
+assets are left as that rebuild; v1.0.1 through v1.0.6 are untouched at their
+original dates. Going forward no v* tag is deleted or restored: the assets it
+points at are immutable. Test tag protection with a scratch tag name, never an
+existing release tag.
