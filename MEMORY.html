@@ -1153,6 +1153,46 @@ assets are left as that rebuild; v1.0.1 through v1.0.6 are untouched at their
 original dates. Going forward no v* tag is deleted or restored: the assets it
 points at are immutable. Test tag protection with a scratch tag name, never an
 existing release tag.</p>
+<h2 id="2026-08-14--flashprog-ships-the-variant-pattern-under-a-non-canonical-provide"><a class="header" href="#2026-08-14--flashprog-ships-the-variant-pattern-under-a-non-canonical-provide">2026-08-14 — flashprog ships the variant pattern under a non-canonical provide</a></h2>
+<p>The entry "Correcting the flashprog entry again: the two packages are
+co-installable, and why" describes the distinct-install-paths design:
+<code>flashprog-spi</code> installing <code>/usr/bin/flashprog-spi</code>, no <code>PROVIDES</code>, no
+<code>CONFLICTS</code>. That design is gone. The package now ships four variants that all
+install <code>/usr/bin/flashprog</code> and all carry <code>PROVIDES:=flashprog-bin</code> from
+<code>Package/flashprog/Default</code>, with <code>DEFAULT_VARIANT:=1</code> on the full variant.</p>
+<ul>
+<li><strong>Reviewer efahl asked for the variant pattern <code>dnsmasq</code> uses.</strong> In that shape
+the narrow variants provide the <em>canonical</em> name, which <code>package-pack.mk</code> emits
+as a versioned provide. That reintroduces the substitution the entry above
+records, in its quietest form: with a narrow variant already installed,
+<code>apk add flashprog</code> is satisfied by the provide and installs nothing at all,
+reporting success. A silent no-op, not an error.</li>
+<li><strong>The deviation is the provide's name.</strong> All four variants provide
+<code>flashprog-bin</code>, a name no package is called. The versioned provide then buys
+mutual exclusion between the variants while <code>flashprog</code> stays the full
+package's own real name, never a virtual any variant can satisfy. <code>apk add flashprog</code> installs the full package or fails.</li>
+<li><strong>Measured on the router's exact resolver.</strong> apk 3.0.5 inside an
+<code>openwrt/rootfs:x86-64-25.12.4</code> container. Clean, <code>apk add flashprog</code> selects
+the full package. With <code>flashprog-spi</code> installed it errors on the
+<code>flashprog-bin</code> conflict instead of no-opping. The documented swap,
+<code>apk del flashprog-spi &amp;&amp; apk add flashprog</code>, works.</li>
+<li><strong>The measurement used synthetic apks, not real builds.</strong> Twelve packages
+(each candidate shape crossed with the four variants) built by <code>apk mkpkg</code> with
+a dummy payload and only the metadata under test, indexed by <code>apk mkndx</code>, and
+installed <em>by name</em> from that feed. The resolver reads index metadata alone, so
+the payload is irrelevant and a shape settles in minutes rather than a
+cross-compile apiece. Installing by name is the load-bearing half; a local
+filename names an exact package and never runs the resolver.</li>
+<li><strong>The dependency lists came out of the descriptions.</strong> efahl's closing note
+asked for it: <code>DEPENDS</code> is the source of truth, <code>apk query</code> surfaces it, and a
+duplicated list is a second place to edit. All four <code>Requires ...</code> sentences
+were dropped, <code>flashprog-spi</code>'s <code>Requires no libraries.</code> among them, since an
+empty depends list carries that already.</li>
+</ul>
+<p>The PR head is 82e211de, pinned in <code>.host-software</code>. BKPepe's CHANGES_REQUESTED
+(the sizes request that the commit message's table answers) is still the
+standing review state; efahl's "looks good to me" arrived as a comment rather
+than an approving review, so the gate does not flip on it.</p>
 
                     </main>
 
