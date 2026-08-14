@@ -1030,3 +1030,46 @@ assets are left as that rebuild; v1.0.1 through v1.0.6 are untouched at their
 original dates. Going forward no v* tag is deleted or restored: the assets it
 points at are immutable. Test tag protection with a scratch tag name, never an
 existing release tag.
+
+## 2026-08-14 — flashprog ships the variant pattern under a non-canonical provide
+
+The entry "Correcting the flashprog entry again: the two packages are
+co-installable, and why" describes the distinct-install-paths design:
+`flashprog-spi` installing `/usr/bin/flashprog-spi`, no `PROVIDES`, no
+`CONFLICTS`. That design is gone. The package now ships four variants that all
+install `/usr/bin/flashprog` and all carry `PROVIDES:=flashprog-bin` from
+`Package/flashprog/Default`, with `DEFAULT_VARIANT:=1` on the full variant.
+
+- **Reviewer efahl asked for the variant pattern `dnsmasq` uses.** In that shape
+  the narrow variants provide the *canonical* name, which `package-pack.mk` emits
+  as a versioned provide. That reintroduces the substitution the entry above
+  records, in its quietest form: with a narrow variant already installed,
+  `apk add flashprog` is satisfied by the provide and installs nothing at all,
+  reporting success. A silent no-op, not an error.
+- **The deviation is the provide's name.** All four variants provide
+  `flashprog-bin`, a name no package is called. The versioned provide then buys
+  mutual exclusion between the variants while `flashprog` stays the full
+  package's own real name, never a virtual any variant can satisfy. `apk add
+  flashprog` installs the full package or fails.
+- **Measured on the router's exact resolver.** apk 3.0.5 inside an
+  `openwrt/rootfs:x86-64-25.12.4` container. Clean, `apk add flashprog` selects
+  the full package. With `flashprog-spi` installed it errors on the
+  `flashprog-bin` conflict instead of no-opping. The documented swap,
+  `apk del flashprog-spi && apk add flashprog`, works.
+- **The measurement used synthetic apks, not real builds.** Twelve packages
+  (each candidate shape crossed with the four variants) built by `apk mkpkg` with
+  a dummy payload and only the metadata under test, indexed by `apk mkndx`, and
+  installed *by name* from that feed. The resolver reads index metadata alone, so
+  the payload is irrelevant and a shape settles in minutes rather than a
+  cross-compile apiece. Installing by name is the load-bearing half; a local
+  filename names an exact package and never runs the resolver.
+- **The dependency lists came out of the descriptions.** efahl's closing note
+  asked for it: `DEPENDS` is the source of truth, `apk query` surfaces it, and a
+  duplicated list is a second place to edit. All four `Requires ...` sentences
+  were dropped, `flashprog-spi`'s `Requires no libraries.` among them, since an
+  empty depends list carries that already.
+
+The PR head is 82e211de, pinned in `.host-software`. BKPepe's CHANGES_REQUESTED
+(the sizes request that the commit message's table answers) is still the
+standing review state; efahl's "looks good to me" arrived as a comment rather
+than an approving review, so the gate does not flip on it.
